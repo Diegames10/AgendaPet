@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Meus Pets - AgendaPet Paranaguá</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+</head>
+
+<body class="pagina-painel">
+
+    <div class="painel-layout">
+
+        <aside class="menu-lateral">
+
+            <div class="painel-logo">
+                <i class="fa-solid fa-paw"></i>
+
+                <div>
+                    <strong>Agenda<span>Pet</span></strong>
+                    <small>Paranaguá</small>
+                </div>
+            </div>
+
+             <nav class="menu-navegacao">
+
+                <a
+                    href="{{ url_for('auth.painel') }}"
+                    class="item-menu ativo"
+                >
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="{{ url_for('pets.listar') }}" class="item-menu">
+                    <i class="fa-solid fa-dog"></i>
+                    <span>Meus pets</span>
+                </a>
+
+                <a
+                    href="{{ url_for('agendamento_consulta.listar') }}"
+                    class="item-menu"
+                >
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Agendamentos</span>
+                </a>
+
+                <a 
+                href="{{ url_for('veterinarios.listar') }}"
+                class="item-menu"
+                >
+
+                <i class="fa-solid fa-user-doctor"></i>
+
+                <span>Veterinários</span>
+
+                </a>
+
+                <a
+                    href="{{ url_for('historico.listar') }}"
+                    class="item-menu"
+                >
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    <span>
+                        Histórico
+                    </span>
+
+                </a>
+
+                <a
+                    href="{{ url_for('auth.minha_conta') }}"
+                    class="item-menu"
+                >
+                    <i class="fa-solid fa-user-gear"></i>
+
+                    <span>
+                        Minha conta
+                    </span>
+                </a>
+
+            </nav>
+
+            <div class="menu-rodape">
+
+                <a href="{{ url_for('auth.logout') }}" class="item-menu botao-sair">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Sair</span>
+                </a>
+
+                <p>
+                    Desenvolvido por<br>
+                    <strong>Bruna e Diego</strong>
+                </p>
+
+            </div>
+
+        </aside>
+
+        <main class="conteudo-painel">
+
+            <header class="cabecalho-pagina">
+
+                <div>
+                    <span class="subtitulo-pagina">Gerenciamento</span>
+                    <h1>Meus pets</h1>
+                    <p>Visualize e gerencie os animais cadastrados em sua conta.</p>
+                </div>
+
+                <a href="{{ url_for('pets.cadastrar') }}" class="botao-novo-pet">
+                    <i class="fa-solid fa-plus"></i>
+                    Cadastrar pet
+                </a>
+
+            </header>
+
+            {% with mensagens = get_flashed_messages(with_categories=true) %}
+                {% if mensagens %}
+                    <div class="mensagens-flash">
+                        {% for categoria, mensagem in mensagens %}
+                            <div class="mensagem-flash {{ categoria }}">
+                                {{ mensagem }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% if pets %}
+
+                <section class="grade-pets">
+
+                    {% for pet in pets %}
+
+                        <article class="cartao-pet">
+
+                            <div class="topo-cartao-pet">
+
+                                <div class="avatar-pet">
+
+                                    {% if pet.especie == "Gato" %}
+                                        <i class="fa-solid fa-cat"></i>
+
+                                    {% elif pet.especie == "Ave" %}
+                                        <i class="fa-solid fa-dove"></i>
+
+                                    {% elif pet.especie == "Coelho" %}
+                                        <i class="fa-solid fa-paw"></i>
+
+                                    {% else %}
+                                        <i class="fa-solid fa-dog"></i>
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="acoes-cartao-pet">
+
+                                    <a
+                                        href="{{ url_for('pets.editar', pet_id=pet.id) }}"
+                                        class="botao-acao-pet"
+                                        title="Editar pet"
+                                    >
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="botao-acao-pet botao-excluir-pet"
+                                        title="Excluir pet"
+                                        onclick="abrirModalExclusao(
+                                            '{{ pet.id }}',
+                                            '{{ pet.nome|e }}'
+                                        )"
+                                    >
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <div class="dados-principais-pet">
+
+                                <h2>{{ pet.nome }}</h2>
+
+                                <span class="etiqueta-especie">
+                                    {{ pet.especie }}
+                                </span>
+
+                            </div>
+
+                            <div class="informacoes-pet">
+
+                                <div>
+                                    <span>Raça</span>
+                                    <strong>
+                                        {{ pet.raca or "Não informada" }}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>Sexo</span>
+                                    <strong>
+                                        {{ pet.sexo or "Não informado" }}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>Peso</span>
+
+                                    <strong>
+                                        {% if pet.peso %}
+                                            {{ pet.peso }} kg
+                                        {% else %}
+                                            Não informado
+                                        {% endif %}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>Cor</span>
+                                    <strong>
+                                        {{ pet.cor or "Não informada" }}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>Nascimento</span>
+                                    <strong>
+                                        {% if pet.data_nascimento %}
+                                            {{ pet.data_nascimento.strftime("%d/%m/%Y") }}
+                                        {% else %}
+                                            Não informado
+                                        {% endif %}
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                            {% if pet.observacoes %}
+
+                                <div class="observacoes-pet">
+                                    <span>Observações</span>
+                                    <p>{{ pet.observacoes }}</p>
+                                </div>
+
+                            {% endif %}
+
+                        </article>
+
+                    {% endfor %}
+
+                </section>
+
+            {% else %}
+
+                <section class="estado-vazio estado-vazio-pets">
+
+                    <div class="icone-vazio">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+
+                    <h2>Nenhum pet cadastrado</h2>
+
+                    <p>
+                        Cadastre seu primeiro pet para utilizar os serviços do AgendaPet.
+                    </p>
+
+                    <a
+                        href="{{ url_for('pets.cadastrar') }}"
+                        class="botao-novo-agendamento"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        Cadastrar primeiro pet
+                    </a>
+
+                </section>
+
+            {% endif %}
+
+        </main>
+
+    </div>
+    <div
+    id="modal-exclusao"
+    class="modal-exclusao"
+    aria-hidden="true"
+>
+
+    <div class="modal-conteudo">
+
+        <div class="modal-icone">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <h2>Excluir pet</h2>
+
+        <p>
+            Tem certeza de que deseja excluir
+            <strong id="nome-pet-exclusao"></strong>?
+        </p>
+
+        <p class="aviso-exclusao">
+            Esta ação não poderá ser desfeita.
+        </p>
+
+        <div class="modal-acoes">
+
+            <button
+                type="button"
+                class="botao-modal-cancelar"
+                onclick="fecharModalExclusao()"
+            >
+                Cancelar
+            </button>
+
+            <form
+                id="form-excluir-pet"
+                method="POST"
+            >
+                <button
+                    type="submit"
+                    class="botao-modal-excluir"
+                >
+                    <i class="fa-solid fa-trash"></i>
+                    Excluir pet
+                </button>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <script>
+        function abrirModalExclusao(petId, petNome) {
+            const modal = document.getElementById("modal-exclusao");
+            const nomePet = document.getElementById("nome-pet-exclusao");
+            const formulario = document.getElementById("form-excluir-pet");
+
+            nomePet.textContent = petNome;
+            formulario.action = `/pets/${petId}/excluir`;
+
+            modal.classList.add("visivel");
+            modal.setAttribute("aria-hidden", "false");
+        }
+
+        function fecharModalExclusao() {
+            const modal = document.getElementById("modal-exclusao");
+
+            modal.classList.remove("visivel");
+            modal.setAttribute("aria-hidden", "true");
+        }
+
+        document
+            .getElementById("modal-exclusao")
+            .addEventListener("click", function (evento) {
+                if (evento.target === this) {
+                    fecharModalExclusao();
+                }
+            });
+
+        document.addEventListener("keydown", function (evento) {
+            if (evento.key === "Escape") {
+                fecharModalExclusao();
+            }
+        });
+    </script>
+</body>
+
+</html>
