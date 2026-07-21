@@ -4241,3 +4241,191 @@ conteudo-destaque h2 {
     background: #126f60;
     transform: translateY(-1px);
 }
+
+.mensagem-erro{
+    display:none;
+    color:#c62828;
+    font-size:0.82rem;
+    margin-top:6px;
+    font-weight:600;
+}
+
+.campo-invalido{
+    border:2px solid #c62828 !important;
+    background:#fff5f5;
+}
+
+.campo-invalido:focus{
+    border-color:#c62828 !important;
+    box-shadow:0 0 0 3px rgba(198, 40, 40, 0.15);
+    outline:none;
+}
+
+/* =========================================================
+   ENDEREÇO — MINHA CONTA
+========================================================= */
+
+.cartao-endereco{
+    grid-column:1 / -1;
+    width:100%;
+}
+
+.aviso-endereco{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:22px;
+    padding:14px 16px;
+    border-left:4px solid #0d9488;
+    border-radius:9px;
+    background:#edf9f7;
+    color:#24645f;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.aviso-endereco i{
+    margin-top:3px;
+    color:#0d9488;
+}
+
+.aviso-endereco p{
+    margin:0;
+}
+
+.formulario-endereco{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+}
+
+.campo-cep{
+    max-width:380px;
+}
+
+.campo-cep-conta{
+    display:flex;
+    align-items:stretch;
+    gap:10px;
+}
+
+.campo-cep-conta input{
+    flex:1;
+    min-width:0;
+}
+
+.botao-buscar-cep{
+    width:50px;
+    min-width:50px;
+    border:none;
+    border-radius:9px;
+    background:#0d9488;
+    color:#ffffff;
+    font-size:16px;
+    cursor:pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.botao-buscar-cep:hover{
+    background:#087d73;
+    transform:translateY(-1px);
+}
+
+.botao-buscar-cep:focus{
+    outline:3px solid rgba(13, 148, 136, 0.22);
+}
+
+.botao-buscar-cep:disabled{
+    cursor:not-allowed;
+    opacity:0.65;
+    transform:none;
+}
+
+.mensagem-cep{
+    display:block;
+    min-height:18px;
+    margin-top:6px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.mensagem-cep.erro{
+    color:#c62828;
+}
+
+.mensagem-cep.sucesso{
+    color:#2e7d32;
+}
+
+.mensagem-cep.buscando{
+    color:#1565c0;
+}
+
+.linha-endereco-conta{
+    display:grid;
+    grid-template-columns:minmax(160px, 0.6fr) minmax(260px, 1.4fr);
+    gap:18px;
+}
+
+.linha-cidade-uf{
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) 120px;
+    gap:18px;
+}
+
+.acoes-endereco{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:4px;
+    padding-top:20px;
+    border-top:1px solid #dce8e6;
+}
+
+.botao-salvar-endereco{
+    width:auto;
+    min-width:230px;
+    padding-left:24px;
+    padding-right:24px;
+}
+
+@media (max-width:800px){
+
+    .cartao-endereco{
+        grid-column:auto;
+    }
+
+    .linha-endereco-conta,
+    .linha-cidade-uf{
+        grid-template-columns:1fr;
+    }
+
+    .campo-cep{
+        max-width:none;
+    }
+
+    .acoes-endereco{
+        justify-content:stretch;
+    }
+
+    .botao-salvar-endereco{
+        width:100%;
+        min-width:0;
+    }
+
+}
+
+@media (max-width:480px){
+
+    .campo-cep-conta{
+        gap:7px;
+    }
+
+    .botao-buscar-cep{
+        width:46px;
+        min-width:46px;
+    }
+
+}

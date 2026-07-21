@@ -68,7 +68,46 @@ class Usuario(db.Model, UserMixin):
         "Pet",
         back_populates="tutor",
         cascade="all, delete-orphan"
+    
     )
+    
+    # endereço opcional
+    
+    cep = db.Column(
+    db.String(9),
+    nullable=True
+    )
+
+    logradouro = db.Column(
+        db.String(150),
+        nullable=True
+    )
+
+    numero = db.Column(
+        db.String(20),
+        nullable=True
+    )
+
+    complemento = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    bairro = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    cidade = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    uf = db.Column(
+        db.String(2),
+        nullable=True
+    )
+    
     def __repr__(self):
         return f"<Usuario {self.email}>"
     

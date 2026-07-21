@@ -13,8 +13,11 @@ from app.models.pet import Pet
 
 from app.models.agendamentoConsulta import AgendamentoConsulta
 
+from app.utils.validacoes import cpf_valido
+
 auth_bp = Blueprint("auth", __name__)
 
+import re
 
 @auth_bp.route("/")
 def index():
@@ -44,52 +47,6 @@ def login():
         return redirect(url_for("auth.login"))
 
     return render_template("login.html")
-
-
-@auth_bp.route("/cadastro", methods=["GET", "POST"])
-def cadastro():
-
-    if request.method == "POST":
-
-        nome = request.form.get("nome")
-        email = request.form.get("email")
-        cpf = request.form.get("cpf")
-        senha = request.form.get("senha")
-        confirmar = request.form.get("confirmar_senha")
-
-        # valida senha
-        if senha != confirmar:
-            flash("As senhas não coincidem.", "danger")
-            return redirect(url_for("auth.cadastro"))
-
-        # email existente
-        if Usuario.query.filter_by(email=email).first():
-            flash("Este e-mail já está cadastrado.", "warning")
-            return redirect(url_for("auth.cadastro"))
-
-        # cpf existente
-        if Usuario.query.filter_by(cpf=cpf).first():
-            flash("Este CPF já está cadastrado.", "warning")
-            return redirect(url_for("auth.cadastro"))
-
-        senha_hash = generate_password_hash(senha)
-
-        novo_usuario = Usuario(
-            nome=nome,
-            email=email,
-            cpf=cpf,
-            senha_hash=senha_hash
-        )
-
-        db.session.add(novo_usuario)
-        db.session.commit()
-
-        flash("Cadastro realizado com sucesso!", "success")
-
-        return redirect(url_for("auth.login"))
-
-    return render_template("cadastro.html")
-
 
 @auth_bp.route("/painel")
 @login_required
@@ -122,6 +79,259 @@ def painel():
         proximo_atendimento=proximo_atendimento,
         lista_agendamentos=lista_agendamentos
     )
+
+@auth_bp.route("/cadastro", methods=["GET", "POST"])
+def cadastro():
+
+    if request.method == "POST":
+
+        nome = request.form.get(
+            "nome",
+            ""
+        ).strip()
+
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        confirmar_email = request.form.get(
+            "confirmar_email",
+            ""
+        ).strip().lower()
+
+        cpf = request.form.get(
+            "cpf",
+            ""
+        ).strip()
+
+        telefone = request.form.get(
+            "telefone",
+            ""
+        ).strip()
+
+        
+        
+        
+        senha = request.form.get(
+            "senha",
+            ""
+        )
+
+        confirmar_senha = request.form.get(
+            "confirmar_senha",
+            ""
+        )
+
+        cpf_numeros = re.sub(
+            r"\D",
+            "",
+            cpf
+        )
+
+        dados_formulario = {
+            "nome": nome,
+            "email": email,
+            "confirmar_email": confirmar_email,
+            "cpf": cpf,
+            "telefone": telefone
+        }
+
+        if not nome:
+
+            flash(
+                "Informe o seu nome completo.",
+                "danger"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        if not email:
+
+            flash(
+                "Informe um endereço de e-mail.",
+                "danger"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        if not confirmar_email:
+
+            flash(
+                "Confirme o endereço de e-mail.",
+                "danger"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        if email != confirmar_email:
+
+            flash(
+                "O e-mail e a confirmação de e-mail não coincidem.",
+                "warning"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        if not cpf_numeros:
+
+            flash(
+                "Informe o CPF.",
+                "danger"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        if len(cpf_numeros) != 11:
+
+            flash(
+                "O CPF deve possuir 11 números.",
+                "warning"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+
+        if not cpf_valido(cpf_numeros):
+
+            flash(
+                "Informe um CPF válido.",
+                "warning"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        if not senha:
+
+            flash(
+                "Informe uma senha.",
+                "danger"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        if len(senha) < 8:
+
+            flash(
+                "A senha deve possuir pelo menos 8 caracteres.",
+                "warning"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        if senha != confirmar_senha:
+
+            flash(
+                "A senha e a confirmação não coincidem.",
+                "warning"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        email_existente = Usuario.query.filter(
+            Usuario.email == email
+        ).first()
+
+        if email_existente:
+
+            flash(
+                "Este e-mail já está cadastrado.",
+                "warning"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        cpf_existente = Usuario.query.filter(
+            Usuario.cpf == cpf_numeros
+        ).first()
+
+        if cpf_existente:
+
+            flash(
+                "Este CPF já está cadastrado.",
+                "warning"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+        novo_usuario = Usuario(
+            nome=nome,
+            email=email,
+            cpf=cpf_numeros,
+            telefone=telefone or None,
+            senha_hash=generate_password_hash(
+                senha
+            )
+        )
+
+        try:
+
+            db.session.add(novo_usuario)
+            db.session.commit()
+
+            flash(
+                "Cadastro realizado com sucesso!",
+                "success"
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
+
+        except Exception:
+
+            db.session.rollback()
+
+            flash(
+                "Não foi possível realizar o cadastro.",
+                "danger"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
+
+    return render_template(
+        "cadastro.html",
+        dados={}
+    )
     
 # =========================================================
 # MINHA CONTA
@@ -133,33 +343,193 @@ def minha_conta():
 
     if request.method == "POST":
 
-        nome = request.form.get("nome", "").strip()
-        email = request.form.get("email", "").strip().lower()
-        telefone = request.form.get("telefone", "").strip()
+        nome = request.form.get(
+            "nome",
+            ""
+        ).strip()
 
-        # Validação do nome
+        cpf = request.form.get(
+            "cpf",
+            ""
+        ).strip()
+        
+        cpf = re.sub(r"\D", "", cpf)
+
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        confirmar_email = request.form.get(
+            "confirmar_email",
+            ""
+        ).strip().lower()
+
+        telefone = request.form.get(
+            "telefone",
+            ""
+        ).strip()
+
+
+        # ==========================================
+        # ENDEREÇO OPCIONAL
+        # ==========================================
+
+        cep = request.form.get(
+            "cep",
+            ""
+        ).strip()
+
+        logradouro = request.form.get(
+            "logradouro",
+            ""
+        ).strip()
+
+        numero = request.form.get(
+            "numero",
+            ""
+        ).strip()
+
+        complemento = request.form.get(
+            "complemento",
+            ""
+        ).strip()
+
+        bairro = request.form.get(
+            "bairro",
+            ""
+        ).strip()
+
+        cidade = request.form.get(
+            "cidade",
+            ""
+        ).strip()
+
+        uf = request.form.get(
+            "uf",
+            ""
+        ).strip().upper()
+
+        cep = re.sub(r"\D", "", cep)
+
+        
+        
+        # ==========================================
+        # VALIDAÇÕES
+        # ==========================================
+
         if not nome:
-            flash("Informe o seu nome completo.", "danger")
+
+            flash(
+                "Informe o seu nome completo.",
+                "danger"
+            )
 
             return redirect(
                 url_for("auth.minha_conta")
             )
 
-        # Validação do e-mail
+
+        if not cpf:
+
+            flash(
+                "Informe o CPF.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.minha_conta")
+            )
+            
+        if len(cpf) != 11:
+
+            flash(
+                "O CPF deve possuir 11 números.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("auth.minha_conta")
+            )
+
+        if not cpf_valido(cpf):
+            flash(
+                "Informe um CPF válido.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.minha_conta")
+            )
+   
         if not email:
-            flash("Informe um endereço de e-mail.", "danger")
+
+            flash(
+                "Informe um endereço de e-mail.",
+                "danger"
+            )
 
             return redirect(
                 url_for("auth.minha_conta")
             )
 
-        # Verifica se o novo e-mail já pertence a outra conta
+
+        if not confirmar_email:
+
+            flash(
+                "Confirme o endereço de e-mail.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.minha_conta")
+            )
+
+
+        if email != confirmar_email:
+
+            flash(
+                "O e-mail e a confirmação de e-mail não coincidem.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("auth.minha_conta")
+            )
+
+
+        # ==========================================
+        # CPF DUPLICADO
+        # ==========================================
+
+        cpf_existente = Usuario.query.filter(
+            Usuario.cpf == cpf,
+            Usuario.id != current_user.id
+        ).first()
+
+        if cpf_existente:
+
+            flash(
+                "Este CPF já está cadastrado para outra conta.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("auth.minha_conta")
+            )
+
+
+        # ==========================================
+        # EMAIL DUPLICADO
+        # ==========================================
+
         email_existente = Usuario.query.filter(
             Usuario.email == email,
             Usuario.id != current_user.id
         ).first()
 
         if email_existente:
+
             flash(
                 "Este e-mail já está sendo utilizado por outra conta.",
                 "warning"
@@ -169,11 +539,26 @@ def minha_conta():
                 url_for("auth.minha_conta")
             )
 
+
+        # ==========================================
+        # ATUALIZA DADOS
+        # ==========================================
+
         current_user.nome = nome
+        current_user.cpf = cpf
         current_user.email = email
         current_user.telefone = telefone or None
 
+        current_user.cep = cep or None
+        current_user.logradouro = logradouro or None
+        current_user.numero = numero or None
+        current_user.complemento = complemento or None
+        current_user.bairro = bairro or None
+        current_user.cidade = cidade or None
+        current_user.uf = uf or None
+
         try:
+
             db.session.commit()
 
             flash(
@@ -182,6 +567,7 @@ def minha_conta():
             )
 
         except Exception:
+
             db.session.rollback()
 
             flash(
@@ -196,7 +582,6 @@ def minha_conta():
     return render_template(
         "minha_conta.html"
     )
-
 
 # =========================================================
 # ALTERAR SENHA
