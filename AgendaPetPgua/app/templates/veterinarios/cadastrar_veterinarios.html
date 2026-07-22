@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Cadastrar Veterinário - AgendaPet Paranaguá</title>
+
+
+<link
+rel="stylesheet"
+href="{{ url_for('static', filename='css/style.css') }}"
+>
+
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+>
+
+</head>
+
+
+<body class="pagina-painel">
+
+
+<div class="painel-layout">
+
+
+<!-- MENU LATERAL -->
+
+<aside class="menu-lateral">
+
+
+<div class="painel-logo">
+
+<i class="fa-solid fa-paw"></i>
+
+<div>
+
+<strong>
+Agenda<span>Pet</span>
+</strong>
+
+<small>
+Paranaguá
+</small>
+
+</div>
+
+</div>
+
+
+
+            <nav class="menu-navegacao">
+
+                <a
+                    href="{{ url_for('auth.painel') }}"
+                    class="item-menu ativo"
+                >
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="{{ url_for('pets.listar') }}" class="item-menu">
+                    <i class="fa-solid fa-dog"></i>
+                    <span>Meus pets</span>
+                </a>
+
+                <a
+                    href="{{ url_for('agendamento_consulta.listar') }}"
+                    class="item-menu"
+                >
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Agendamentos</span>
+                </a>
+
+                <a 
+                href="{{ url_for('veterinarios.listar') }}"
+                class="item-menu"
+                >
+
+                <i class="fa-solid fa-user-doctor"></i>
+
+                <span>Veterinários</span>
+
+                </a>
+
+                <a
+                    href="{{ url_for('historico.listar') }}"
+                    class="item-menu"
+                >
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    <span>
+                        Histórico
+                    </span>
+
+                </a>
+
+                <a href="#" class="item-menu">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Minha conta</span>
+                </a>
+
+            </nav>
+
+
+
+</aside>
+
+
+
+<!-- CONTEÚDO -->
+
+<main class="conteudo-painel">
+
+
+<header class="cabecalho-pagina">
+
+
+<div>
+
+<span class="subtitulo-pagina">
+Veterinários
+</span>
+
+
+<h1>
+Cadastrar veterinário
+</h1>
+
+
+<p>
+Adicione um novo profissional ao sistema.
+</p>
+
+
+</div>
+
+
+<a 
+href="{{ url_for('veterinarios.listar') }}"
+class="botao-secundario"
+>
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Voltar
+
+</a>
+
+
+</header>
+
+
+
+
+<section class="secao-formulario-pet">
+
+
+<div class="cabecalho-formulario-pet">
+
+
+<div class="icone-formulario-pet">
+
+<i class="fa-solid fa-user-doctor"></i>
+
+</div>
+
+
+<div>
+
+<h2>
+Dados do veterinário
+</h2>
+
+<p>
+Preencha as informações do profissional.
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+<form method="POST">
+
+
+<div class="grade-formulario-pet">
+
+
+
+<div class="grupo-campo campo-largo">
+
+<label>
+Nome completo
+</label>
+
+
+<input
+type="text"
+name="nome"
+placeholder="Ex.: Dr. João Silva"
+required
+>
+
+</div>
+
+
+
+
+<div class="grupo-campo">
+
+<label>
+CRMV
+</label>
+
+
+<input
+type="text"
+name="crmv"
+placeholder="Ex.: 12345"
+required
+>
+
+</div>
+
+
+
+
+<div class="grupo-campo">
+
+<label>
+Especialidade
+</label>
+
+
+<input
+type="text"
+name="especialidade"
+placeholder="Ex.: Clínica Geral"
+>
+
+</div>
+
+
+
+
+<div class="grupo-campo">
+
+<label>
+Telefone
+</label>
+
+
+<input
+type="text"
+name="telefone"
+placeholder="(41) 99999-9999"
+>
+
+</div>
+
+
+
+
+<div class="grupo-campo campo-largo">
+
+<label>
+E-mail
+</label>
+
+
+<input
+type="email"
+name="email"
+placeholder="email@exemplo.com"
+>
+
+</div>
+
+
+
+</div>
+
+
+
+
+<div class="acoes-formulario-pet">
+
+
+<a
+href="{{ url_for('veterinarios.listar') }}"
+class="botao-cancelar"
+>
+
+Cancelar
+
+</a>
+
+
+
+<button
+type="submit"
+class="botao-salvar-pet"
+>
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Salvar veterinário
+
+</button>
+
+
+</div>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+</main>
+
+
+</div>
+
+
+</body>
+
+</html>

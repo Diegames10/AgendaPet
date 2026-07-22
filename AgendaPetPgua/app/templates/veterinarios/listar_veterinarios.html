@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Veterinários - AgendaPet</title>
+
+
+<link
+rel="stylesheet"
+href="{{ url_for('static', filename='css/style.css') }}"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+>
+
+</head>
+
+
+<body class="pagina-painel">
+
+
+<div class="painel-layout">
+<aside class="menu-lateral">
+
+    <div class="painel-logo">
+
+        <i class="fa-solid fa-paw"></i>
+
+        <div>
+            <strong>
+                Agenda<span>Pet</span>
+            </strong>
+
+            <small>
+                Paranaguá
+            </small>
+        </div>
+
+    </div>
+
+
+    <nav class="menu-navegacao">
+
+        <a
+            href="{{ url_for('auth.painel') }}"
+            class="item-menu ativo"
+        >
+            <i class="fa-solid fa-house"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('pets.listar') }}" class="item-menu">
+            <i class="fa-solid fa-dog"></i>
+            <span>Meus pets</span>
+        </a>
+
+        <a
+            href="{{ url_for('agendamento_consulta.listar') }}"
+            class="item-menu"
+        >
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>Agendamentos</span>
+        </a>
+
+        <a 
+        href="{{ url_for('veterinarios.listar') }}"
+        class="item-menu"
+        >
+
+        <i class="fa-solid fa-user-doctor"></i>
+
+        <span>Veterinários</span>
+
+        </a>
+
+        <a
+            href="{{ url_for('historico.listar') }}"
+            class="item-menu"
+        >
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+            <span>
+                Histórico
+            </span>
+
+        </a>
+
+        <a
+            href="{{ url_for('auth.minha_conta') }}"
+            class="item-menu"
+        >
+            <i class="fa-solid fa-user-gear"></i>
+
+            <span>
+                Minha conta
+            </span>
+        </a>
+
+    </nav>
+
+    <div class="menu-rodape">
+
+        <a
+            href="{{ url_for('auth.logout') }}"
+            class="item-menu botao-sair"
+        >
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+            <span>
+                Sair
+            </span>
+
+        </a>
+
+
+        <p>
+            Desenvolvido por<br>
+            <strong>Bruna e Diego</strong>
+        </p>
+
+    </div>
+
+
+</aside>
+
+<main class="conteudo-painel">
+
+<header class="cabecalho-pagina">
+
+    <div>
+
+        <span class="subtitulo-pagina">
+            Administração
+        </span>
+
+        <h1>
+            Veterinários
+        </h1>
+
+        <p>
+            Profissionais responsáveis pelos atendimentos veterinários.
+        </p>
+
+    </div>
+
+
+    <a
+        href="{{ url_for('veterinarios.cadastrar') }}"
+        class="botao-principal"
+    >
+
+        <i class="fa-solid fa-user-plus"></i>
+
+        Novo veterinário
+
+    </a>
+
+
+</header>
+
+<section class="secao-dashboard">
+
+
+{% for veterinario in veterinarios %}
+
+
+<div class="cartao-veterinario">
+
+
+<div>
+
+<h3>
+{{ veterinario.nome }}
+</h3>
+
+
+<p>
+<i class="fa-solid fa-id-card"></i>
+
+<strong>CRMV:</strong>
+
+{{ veterinario.crmv }}
+
+</p>
+
+
+<p>
+<i class="fa-solid fa-stethoscope"></i>
+
+{{ veterinario.especialidade }}
+
+</p>
+
+
+<p>
+<i class="fa-solid fa-phone"></i>
+
+{{ veterinario.telefone }}
+
+</p>
+
+
+<p>
+<i class="fa-solid fa-envelope"></i>
+
+{{ veterinario.email }}
+
+</p>
+
+<div class="acoes-veterinario">
+
+
+<a
+href="{{ url_for('veterinarios.editar', id=veterinario.id) }}"
+class="botao-editar"
+>
+
+<i class="fa-solid fa-pen"></i>
+
+Editar
+
+</a>
+
+
+
+<a
+href="{{ url_for('veterinarios.excluir', id=veterinario.id) }}"
+class="botao-excluir"
+onclick="return confirm('Deseja excluir este veterinário?')"
+>
+
+<i class="fa-solid fa-trash"></i>
+
+Excluir
+
+</a>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+{% else %}
+
+
+<p>
+Nenhum veterinário cadastrado.
+</p>
+
+
+{% endfor %}
+
+
+
+</section>
+
+
+</div>
+
+
+</body>
+
+</html>

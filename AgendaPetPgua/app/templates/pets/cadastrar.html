@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastrar Pet - AgendaPet Paranaguá</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+</head>
+
+<body class="pagina-painel">
+
+    <div class="painel-layout">
+
+        <aside class="menu-lateral">
+
+            <div class="painel-logo">
+                <i class="fa-solid fa-paw"></i>
+
+                <div>
+                    <strong>Agenda<span>Pet</span></strong>
+                    <small>Paranaguá</small>
+                </div>
+            </div>
+
+            <nav class="menu-navegacao">
+
+                <a
+                    href="{{ url_for('auth.painel') }}"
+                    class="item-menu ativo"
+                >
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="{{ url_for('pets.listar') }}" class="item-menu">
+                    <i class="fa-solid fa-dog"></i>
+                    <span>Meus pets</span>
+                </a>
+
+                <a
+                    href="{{ url_for('agendamento_consulta.listar') }}"
+                    class="item-menu"
+                >
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Agendamentos</span>
+                </a>
+
+                <a 
+                href="{{ url_for('veterinarios.listar') }}"
+                class="item-menu"
+                >
+
+                <i class="fa-solid fa-user-doctor"></i>
+
+                <span>Veterinários</span>
+
+                </a>
+
+                <a
+                    href="{{ url_for('historico.listar') }}"
+                    class="item-menu"
+                >
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    <span>
+                        Histórico
+                    </span>
+
+                </a>
+
+                <a href="#" class="item-menu">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Minha conta</span>
+                </a>
+
+            </nav>
+
+            <div class="menu-rodape">
+
+                <a href="{{ url_for('auth.logout') }}" class="item-menu botao-sair">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Sair</span>
+                </a>
+
+                <p>
+                    Desenvolvido por<br>
+                    <strong>Bruna e Diego</strong>
+                </p>
+
+            </div>
+
+        </aside>
+
+        <main class="conteudo-painel">
+
+            <header class="cabecalho-pagina">
+
+                <div>
+                    <span class="subtitulo-pagina">Meus pets</span>
+                    <h1>Cadastrar novo pet</h1>
+                    <p>Preencha os dados do animal para adicioná-lo à sua conta.</p>
+                </div>
+
+                <a href="{{ url_for('pets.listar') }}" class="botao-secundario">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Voltar
+                </a>
+
+            </header>
+
+            {% with mensagens = get_flashed_messages(with_categories=true) %}
+                {% if mensagens %}
+                    <div class="mensagens-flash">
+                        {% for categoria, mensagem in mensagens %}
+                            <div class="mensagem-flash {{ categoria }}">
+                                {{ mensagem }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <section class="secao-formulario-pet">
+
+                <div class="cabecalho-formulario-pet">
+                    <div class="icone-formulario-pet">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+
+                    <div>
+                        <h2>Dados do pet</h2>
+                        <p>Os campos com asterisco são obrigatórios.</p>
+                    </div>
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ url_for('pets.cadastrar') }}"
+                    class="formulario-pet"
+                >
+
+                    <div class="grade-formulario-pet">
+
+                        <div class="grupo-campo campo-largo">
+                            <label for="nome">
+                                Nome do pet *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="nome"
+                                name="nome"
+                                maxlength="100"
+                                placeholder="Ex.: Thor"
+                                required
+                            >
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="especie">
+                                Espécie *
+                            </label>
+
+                            <select id="especie" name="especie" required>
+                                <option value="">Selecione</option>
+                                <option value="Cachorro">Cachorro</option>
+                                <option value="Gato">Gato</option>
+                                <option value="Ave">Ave</option>
+                                <option value="Coelho">Coelho</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="raca">
+                                Raça
+                            </label>
+
+                            <input
+                                type="text"
+                                id="raca"
+                                name="raca"
+                                maxlength="100"
+                                placeholder="Ex.: Labrador"
+                            >
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="sexo">
+                                Sexo
+                            </label>
+
+                            <select id="sexo" name="sexo">
+                                <option value="">Não informado</option>
+                                <option value="Macho">Macho</option>
+                                <option value="Fêmea">Fêmea</option>
+                            </select>
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="data_nascimento">
+                                Data de nascimento
+                            </label>
+
+                            <input
+                                type="date"
+                                id="data_nascimento"
+                                name="data_nascimento"
+                            >
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="peso">
+                                Peso em kg
+                            </label>
+
+                            <input
+                                type="number"
+                                id="peso"
+                                name="peso"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="Ex.: 12.50"
+                            >
+                        </div>
+
+                        <div class="grupo-campo campo-largo">
+                            <label for="cor">
+                                Cor
+                            </label>
+
+                            <input
+                                type="text"
+                                id="cor"
+                                name="cor"
+                                maxlength="50"
+                                placeholder="Ex.: Caramelo"
+                            >
+                        </div>
+
+                        <div class="grupo-campo campo-completo">
+                            <label for="observacoes">
+                                Observações
+                            </label>
+
+                            <textarea
+                                id="observacoes"
+                                name="observacoes"
+                                rows="5"
+                                placeholder="Informe alergias, condições de saúde ou outras observações importantes."
+                            ></textarea>
+                        </div>
+
+                    </div>
+
+                    <div class="acoes-formulario-pet">
+
+                        <a href="{{ url_for('pets.listar') }}" class="botao-cancelar">
+                            Cancelar
+                        </a>
+
+                        <button type="submit" class="botao-salvar-pet">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            Salvar pet
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

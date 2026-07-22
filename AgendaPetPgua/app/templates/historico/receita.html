@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Receita Veterinária - {{ historico.pet.nome }} - {{ historico.data_atendimento.strftime('%d-%m-%Y') }}
+    </title>
+
+    <!-- Ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+    <style>
+
+        /* =====================================================
+           CONFIGURAÇÕES GERAIS
+        ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --verde-principal: #087f5b;
+            --verde-escuro: #065f46;
+            --verde-claro: #e8f5f0;
+            --cinza-fundo: #eef2f3;
+            --cinza-texto: #374151;
+            --cinza-borda: #cbd5e1;
+            --branco: #ffffff;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 35px 20px;
+            background: var(--cinza-fundo);
+            color: var(--cinza-texto);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* =====================================================
+           FOLHA A4
+        ===================================================== */
+
+        .pagina {
+            width: 100%;
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 17mm 17mm 30mm;
+            background: var(--branco);
+            border-radius: 5px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.12);
+            position: relative;
+        }
+
+        /* =====================================================
+           CABEÇALHO
+        ===================================================== */
+
+        .cabecalho {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--verde-principal);
+        }
+
+        .marca {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--verde-claro);
+            color: var(--verde-principal);
+            font-size: 36px;
+            border: 2px solid var(--verde-principal);
+        }
+
+        .nome-sistema h1 {
+            color: var(--verde-principal);
+            font-size: 28px;
+            line-height: 1.1;
+        }
+
+        .nome-sistema h1 span {
+            color: var(--verde-escuro);
+        }
+
+        .nome-sistema p {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .dados-clinica {
+            text-align: right;
+            font-size: 12px;
+            line-height: 1.7;
+            color: #475569;
+        }
+
+        .dados-clinica i {
+            width: 17px;
+            color: var(--verde-principal);
+        }
+
+        /* =====================================================
+           TÍTULO
+        ===================================================== */
+
+        .titulo-documento {
+            margin: 27px 0 22px;
+            text-align: center;
+        }
+
+        .titulo-documento h2 {
+            color: var(--verde-escuro);
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .titulo-documento p {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           IDENTIFICAÇÃO
+        ===================================================== */
+
+        .secao {
+            margin-bottom: 22px;
+        }
+
+        .titulo-secao {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 11px;
+            padding-bottom: 7px;
+            border-bottom: 1px solid var(--cinza-borda);
+            color: var(--verde-escuro);
+            font-size: 16px;
+        }
+
+        .titulo-secao i {
+            color: var(--verde-principal);
+        }
+
+        .grade-dados {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 25px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+        }
+
+        .dado {
+            min-height: 36px;
+        }
+
+        .dado-largo {
+            grid-column: 1 / -1;
+        }
+
+        .rotulo {
+            display: block;
+            margin-bottom: 4px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .valor {
+            color: #1f2937;
+            font-size: 14px;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        /* =====================================================
+           PRESCRIÇÃO
+        ===================================================== */
+
+        .prescricao {
+            min-height: 260px;
+            padding: 20px;
+            border: 1px solid var(--cinza-borda);
+            border-left: 5px solid var(--verde-principal);
+            border-radius: 5px;
+            background: #ffffff;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 15px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .sem-informacao {
+            color: #64748b;
+            font-family: Arial, Helvetica, sans-serif;
+            font-style: italic;
+        }
+
+        /* =====================================================
+           ORIENTAÇÕES
+        ===================================================== */
+
+        .orientacoes {
+            min-height: 80px;
+            padding: 15px;
+            border: 1px dashed #94a3b8;
+            border-radius: 5px;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* =====================================================
+           DATA E ASSINATURA
+        ===================================================== */
+
+        .data-local {
+            margin-top: 35px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .assinatura-area {
+            width: 380px;
+            max-width: 100%;
+            margin: 55px auto 45px;
+            text-align: center;
+        }
+
+        .linha-assinatura {
+            border-top: 1px solid #111827;
+            margin-bottom: 8px;
+        }
+
+        .nome-veterinario {
+            color: #111827;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .crmv {
+            margin-top: 4px;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           RODAPÉ
+        ===================================================== */
+
+        .rodape {
+            position: absolute;
+            left: 17mm;
+            right: 17mm;
+            bottom: 8mm;
+            padding-top: 8px;
+            border-top: 1px solid #dbe3e8;
+            text-align: center;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        /* =====================================================
+           BOTÕES
+        ===================================================== */
+
+        .acoes {
+            max-width: 210mm;
+            margin: 22px auto 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .botao {
+            min-width: 175px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 13px 22px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .botao-voltar {
+            background: #475569;
+            color: white;
+        }
+
+        .botao-imprimir {
+            background: var(--verde-principal);
+            color: white;
+        }
+
+        .botao:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.92);
+        }
+
+        /* =====================================================
+           RESPONSIVIDADE
+        ===================================================== */
+
+        @media (max-width: 720px) {
+
+            body {
+                padding: 15px 8px;
+            }
+
+            .pagina {
+                min-height: auto;
+                padding: 25px 18px 90px;
+            }
+
+            .cabecalho {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .dados-clinica {
+                text-align: left;
+            }
+
+            .grade-dados {
+                grid-template-columns: 1fr;
+            }
+
+            .dado-largo {
+                grid-column: auto;
+            }
+
+            .rodape {
+                left: 18px;
+                right: 18px;
+                bottom: 20px;
+            }
+
+        }
+
+        /* =====================================================
+           IMPRESSÃO A4
+        ===================================================== */
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        @media print {
+
+            html,
+            body {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .pagina {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0;
+                padding: 14mm 17mm 28mm;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .assinatura-area {
+                margin-top: 45px;
+                margin-bottom: 40px;
+            }
+
+            .acoes {
+                display: none !important;
+            }
+
+            .prescricao,
+            .orientacoes,
+            .grade-dados {
+                break-inside: avoid;
+            }
+
+        }
+
+
+        /* ==========================
+        BOTÃO PDF
+        ========================== */
+
+        .botao-pdf {
+            color: #ffffff;
+            background: #dc2626;
+            box-shadow: 0 7px 18px rgba(220, 38, 38, 0.25);
+        }
+
+        .botao-pdf:hover {
+            box-shadow: 0 9px 22px rgba(220, 38, 38, 0.35);
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <main class="pagina">
+
+        <!-- =================================================
+             CABEÇALHO
+        ================================================== -->
+
+        <header class="cabecalho">
+
+            <div class="marca">
+
+                <div class="logo">
+                    <i class="fa-solid fa-paw"></i>
+                </div>
+
+                <div class="nome-sistema">
+
+                    <h1>
+                        Agenda<span>Pet</span>
+                    </h1>
+
+                    <p>
+                        Sistema de Agendamento Veterinário
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="dados-clinica">
+
+                <div>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Paranaguá – Paraná
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-phone"></i>
+                    Telefone: (41) ________-________
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-envelope"></i>
+                    contato@agendapet.com.br
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- =================================================
+             TÍTULO
+        ================================================== -->
+
+        <section class="titulo-documento">
+
+            <h2>Receita Veterinária</h2>
+
+            <p>
+                Documento referente ao atendimento
+                nº {{ historico.id }}
+            </p>
+
+        </section>
+
+        <!-- =================================================
+             DADOS DO PACIENTE
+        ================================================== -->
+
+        <section class="secao">
+
+            <h3 class="titulo-secao">
+                <i class="fa-solid fa-paw"></i>
+                Identificação do paciente
+            </h3>
+
+            <div class="grade-dados">
+
+                <div class="dado">
+
+                    <span class="rotulo">
+                        Nome do animal
+                    </span>
+
+                    <span class="valor">
+                        {{ historico.pet.nome }}
+                    </span>
+
+                </div>
+
+                <div class="dado">
+
+                    <span class="rotulo">
+                        Espécie
+                    </span>
+
+                    <span class="valor">
+                        {{ historico.pet.especie or 'Não informada' }}
+                    </span>
+
+                </div>
+
+                <div class="dado">
+
+                    <span class="rotulo">
+                        Raça
+                    </span>
+
+                    <span class="valor">
+                        {{ historico.pet.raca or 'Não informada' }}
+                    </span>
+
+                </div>
+
+                <div class="dado">
+
+                    <span class="rotulo">
+                        Sexo
+                    </span>
+
+                    <span class="valor">
+                        {{ historico.pet.sexo or 'Não informado' }}
+                    </span>
+
+                </div>
+
+                <div class="dado">
+
+                    <span class="rotulo">
+                        Peso
+                    </span>
+
+                    <span class="valor">
+
+                        {% if historico.pet.peso %}
+
+                            {{ historico.pet.peso }} kg
+
+                        {% else %}
+
+                            Não informado
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+                <div class="dado">
+
+                    <span class="rotulo">
+                        Data do atendimento
+                    </span>
+
+                    <span class="valor">
+
+                        {% if historico.data_atendimento %}
+
+                            {{ historico.data_atendimento.strftime('%d/%m/%Y') }}
+
+                        {% else %}
+
+                            Não informada
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             DADOS DO TUTOR
+        ================================================== -->
+
+        <section class="secao">
+
+            <h3 class="titulo-secao">
+                <i class="fa-solid fa-user"></i>
+                Identificação do tutor
+            </h3>
+
+            <div class="grade-dados">
+
+                <div class="dado dado-largo">
+
+                    <span class="rotulo">
+                        Nome completo
+                    </span>
+
+                    <span class="valor">
+
+                        {% if historico.pet.tutor %}
+
+                            {{ historico.pet.tutor.nome }}
+
+                        {% else %}
+
+                            Não informado
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             PRESCRIÇÃO
+        ================================================== -->
+
+        <section class="secao">
+
+            <h3 class="titulo-secao">
+                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                Prescrição veterinária
+            </h3>
+
+            <div class="prescricao">{% if historico.tratamento %}{{ historico.tratamento }}{% else %}<span class="sem-informacao">Nenhuma prescrição foi registrada para este atendimento.</span>{% endif %}</div>
+
+        </section>
+
+        <!-- =================================================
+             ORIENTAÇÕES
+        ================================================== -->
+
+        <section class="secao">
+
+            <h3 class="titulo-secao">
+                <i class="fa-solid fa-clipboard-list"></i>
+                Orientações complementares
+            </h3>
+
+            <div class="orientacoes">{% if historico.observacoes %}{{ historico.observacoes }}{% else %}Não há orientações complementares registradas.{% endif %}</div>
+
+        </section>
+
+        <!-- =================================================
+             DATA
+        ================================================== -->
+
+        <div class="data-local">
+
+            Paranaguá,
+
+            {% if historico.data_atendimento %}
+
+                {{ historico.data_atendimento.strftime('%d/%m/%Y') }}
+
+            {% else %}
+
+                ____/____/________
+
+            {% endif %}.
+
+        </div>
+
+        <!-- =================================================
+             ASSINATURA
+        ================================================== -->
+
+        <section class="assinatura-area">
+
+            <div class="linha-assinatura"></div>
+
+            <div class="nome-veterinario">
+
+                {% if historico.veterinario %}
+
+                    Dr(a). {{ historico.veterinario.nome }}
+
+                {% else %}
+
+                    Assinatura do(a) médico(a)-veterinário(a)
+
+                {% endif %}
+
+            </div>
+
+            <div class="crmv">
+
+                CRMV-PR:
+
+                {% if historico.veterinario and historico.veterinario.crmv %}
+
+                    {{ historico.veterinario.crmv }}
+
+                {% else %}
+
+                    __________________
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             RODAPÉ
+        ================================================== -->
+
+        <footer class="rodape">
+
+            <strong>AgendaPet Paranaguá</strong><br>
+
+            Documento emitido eletronicamente pelo Sistema de
+            Agendamento Veterinário.
+
+        </footer>
+
+    </main>
+
+    <!-- =====================================================
+     BOTÕES EXTERNOS
+    ====================================================== -->
+
+    <div class="acoes">
+
+        <button
+            class="botao botao-imprimir"
+            type="button"
+            onclick="window.print()"
+        >
+            <i class="fa-solid fa-print"></i>
+            Imprimir
+        </button>
+
+        <a
+            class="botao botao-voltar"
+            href="{{ url_for(
+                'historico.detalhes',
+                historico_id=historico.id
+            ) }}"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Voltar ao histórico
+        </a>
+
+        <a
+            class="botao botao-pdf"
+            href="{{ url_for(
+                'historico.baixar_receita_pdf',
+                historico_id=historico.id
+            ) }}"
+        >
+            <i class="fa-solid fa-file-pdf"></i>
+            Baixar receita em PDF
+        </a>
+
+    </div>
+
+</body>
+
+</html>

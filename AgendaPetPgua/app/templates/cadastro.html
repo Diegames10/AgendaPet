@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastro - AgendaPet Paranaguá</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="logo">
+
+            <h1 class="logo-titulo">
+                <i class="fa-solid fa-paw"></i>
+                Agenda<span>Pet</span><br>
+                <span class="paranagua">Paranaguá</span>
+            </h1>
+
+            <p>Sistema de Agendamento da SEMMA</p>
+
+        </div>
+
+        <div class="topo">
+
+            <div class="icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+
+            <div>
+                <h2>Crie sua conta</h2>
+            </div>
+
+        </div>
+
+        <form method="POST">
+
+            <div class="input-box">
+                <input
+                    type="text"
+                    name="nome"
+                    placeholder="Nome completo"
+                    required
+                >
+            </div>
+
+            <div class="input-box">
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="E-mail"
+                    required
+                >
+            </div>
+
+            <div class="input-box">
+                <input
+                    type="text"
+                    name="cpf"
+                    placeholder="CPF"
+                    required
+                >
+            </div>
+
+            <div class="input-box">
+                <input
+                    type="password"
+                    name="senha"
+                    placeholder="Senha"
+                    required
+                >
+            </div>
+
+            <div class="input-box">
+                <input
+                    type="password"
+                    name="confirmar_senha"
+                    placeholder="Confirmar senha"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn-login">
+                Criar conta
+            </button>
+
+        </form>
+
+        <div class="cadastro">
+
+            <p>Já possui cadastro?</p>
+
+            <a href="{{ url_for('auth.login') }}" class="btn-cadastro">
+                Voltar para o login
+            </a>
+
+        </div>
+
+    </div>
+
+    <footer class="rodape">
+        Desenvolvido por <strong>Bruna</strong> e <strong>Diego</strong>
+    </footer>
+
+</body>
+
+</html>
