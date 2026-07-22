@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Minha conta - AgendaPet</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+</head>
+
+
+<body class="pagina-painel">
+
+
+<div class="painel-layout">
+
+
+    <!-- =====================================================
+         MENU LATERAL
+    ====================================================== -->
+
+    <aside class="menu-lateral">
+
+
+        <div class="painel-logo">
+
+            <i class="fa-solid fa-paw"></i>
+
+            <div>
+
+                <strong>
+                    Agenda<span>Pet</span>
+                </strong>
+
+                <small>
+                    Paranaguá
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <nav class="menu-navegacao">
+
+
+            <a
+                href="{{ url_for('auth.painel') }}"
+                class="item-menu"
+            >
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('pets.listar') }}"
+                class="item-menu"
+            >
+
+                <i class="fa-solid fa-dog"></i>
+
+                <span>
+                    Meus pets
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('agendamento_consulta.listar') }}"
+                class="item-menu"
+            >
+
+                <i class="fa-solid fa-calendar-check"></i>
+
+                <span>
+                    Agendamentos
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('veterinarios.listar') }}"
+                class="item-menu"
+            >
+
+                <i class="fa-solid fa-user-doctor"></i>
+
+                <span>
+                    Veterinários
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('historico.listar') }}"
+                class="item-menu"
+            >
+
+                <i class="fa-solid fa-clock-rotate-left"></i>
+
+                <span>
+                    Histórico
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('auth.minha_conta') }}"
+                class="item-menu ativo"
+            >
+
+                <i class="fa-solid fa-user-gear"></i>
+
+                <span>
+                    Minha conta
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+        <div class="menu-rodape">
+
+            <a
+                href="{{ url_for('auth.logout') }}"
+                class="item-menu botao-sair"
+            >
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                <span>
+                    Sair
+                </span>
+
+            </a>
+
+            <p>
+                Desenvolvido por<br>
+                <strong>Bruna e Diego</strong>
+            </p>
+
+        </div>
+
+
+    </aside>
+
+
+    <!-- =====================================================
+         CONTEÚDO PRINCIPAL
+    ====================================================== -->
+
+    <main class="conteudo-painel">
+
+
+        <header class="cabecalho-pagina">
+
+            <div>
+
+                <span class="subtitulo-pagina">
+                    Configurações do perfil
+                </span>
+
+                <h1>
+                    Minha conta
+                </h1>
+
+                <p>
+                    Consulte e atualize seus dados pessoais,
+                    endereço e informações de segurança.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             MENSAGENS
+        ================================================== -->
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+
+            {% if mensagens %}
+
+                {% for categoria, mensagem in mensagens %}
+
+                    <div class="mensagem-flash {{ categoria }}">
+                        {{ mensagem }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <section class="secao-minha-conta">
+
+
+            <!-- =============================================
+                 RESUMO DA CONTA
+            ============================================== -->
+
+           <section class="secao-minha-conta">
+
+    <div class="grade-minha-conta">
+
+
+        <!-- =============================================
+             PERFIL DO USUÁRIO
+        ============================================== -->
+
+        <article class="cartao-conta cartao-perfil">
+
+
+            <div class="perfil-conteudo">
+
+
+                <div class="avatar-conta">
+
+                    <label
+                        for="foto_perfil"
+                        class="avatar-upload"
+                        title="Clique para trocar sua foto"
+                    >
+
+                        {% if current_user.foto_perfil %}
+
+                            <img
+                                id="preview-avatar"
+                                src="{{ url_for(
+                                    'imagens.miniatura_foto_perfil',
+                                    v=current_user.foto_perfil.atualizado_em.timestamp()
+                                ) }}"
+                                alt="Foto de perfil de {{ current_user.nome }}"
+                            >
+
+                        {% else %}
+
+                            <span
+                                id="avatar-sem-foto"
+                                class="avatar-sem-foto"
+                            >
+
+                                <i class="fa-solid fa-user"></i>
+
+                            </span>
+
+                            <img
+                                id="preview-avatar"
+                                class="avatar-preview-oculto"
+                                src=""
+                                alt="Pré-visualização da foto de perfil"
+                            >
+
+                        {% endif %}
+
+
+                        <span class="overlay-avatar">
+
+                            <i class="fa-solid fa-camera"></i>
+
+                            <span>
+                                Trocar foto
+                            </span>
+
+                        </span>
+
+                    </label>
+
+
+                    <input
+                        type="file"
+                        id="foto_perfil"
+                        name="foto_perfil"
+                        form="form-dados-conta"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                        hidden
+                    >
+
+                    <small
+                        id="mensagem-foto"
+                        class="mensagem-foto"
+                    >
+                        JPG, PNG ou WebP
+                    </small>
+
+                </div>
+
+
+                <div class="identificacao-conta">
+
+                    <h2>
+                        {{ current_user.nome }}
+                    </h2>
+
+                    <p>
+                        {{ current_user.email }}
+                    </p>
+
+                    <span class="tipo-conta">
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        {{ current_user.tipo_usuario|capitalize }}
+
+                    </span>
+
+                </div>
+
+
+                <div class="resumo-perfil-conta">
+
+                    <div>
+
+                        <span>
+                            CPF
+                        </span>
+
+                        <strong>
+                            {{ current_user.cpf or 'Não informado' }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Telefone
+                        </span>
+
+                        <strong>
+                            {{ current_user.telefone or 'Não informado' }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Cadastrado em
+                        </span>
+
+                        <strong>
+
+                            {% if current_user.criado_em %}
+
+                                {{ current_user.criado_em.strftime('%d/%m/%Y') }}
+
+                            {% else %}
+
+                                Não informado
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </article>
+
+
+            <div class="grade-minha-conta">
+
+
+                <!-- =========================================
+                     DADOS PESSOAIS
+                ========================================== -->
+
+                <article class="cartao-conta cartao-dados-pessoais">
+
+                    <div class="titulo-cartao-conta">
+
+                        <div class="icone-cartao-conta">
+
+                            <i class="fa-solid fa-address-card"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Dados pessoais
+                            </h2>
+
+                            <p>
+                                Atualize suas informações de contato.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        id="form-dados-conta"
+                        method="POST"
+                        enctype="multipart/form-data"
+                        action="{{ url_for('auth.minha_conta') }}"
+                        class="formulario-conta"
+                    >
+
+
+                        <!-- NOME -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="nome">
+
+                                <i class="fa-solid fa-user"></i>
+
+                                Nome completo
+
+                            </label>
+
+                            <input
+                                type="text"
+                                id="nome"
+                                name="nome"
+                                value="{{ current_user.nome }}"
+                                required
+                                maxlength="120"
+                                autocomplete="name"
+                            >
+
+                        </div>
+
+
+                        <!-- CPF -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="cpf">
+
+                                <i class="fa-solid fa-id-card"></i>
+
+                                CPF
+
+                            </label>
+
+                            <input
+                                type="text"
+                                id="cpf"
+                                name="cpf"
+                                value="{{ current_user.cpf or '' }}"
+                                class="{% if erro_cpf %}campo-invalido{% endif %}"
+                                placeholder="000.000.000-00"
+                                maxlength="14"
+                                inputmode="numeric"
+                                required
+                            >
+
+                            {% if erro_cpf %}
+
+                                <small class="mensagem-erro">
+                                    {{ erro_cpf }}
+                                </small>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- E-MAIL -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="email">
+
+                                <i class="fa-solid fa-envelope"></i>
+
+                                E-mail
+
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="{{ current_user.email }}"
+                                required
+                                maxlength="120"
+                                autocomplete="email"
+                            >
+
+                        </div>
+
+
+                        <!-- CONFIRMAR E-MAIL -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="confirmar_email">
+
+                                <i class="fa-solid fa-envelope-circle-check"></i>
+
+                                Confirmar e-mail
+
+                            </label>
+
+                            <input
+                                type="email"
+                                id="confirmar_email"
+                                name="confirmar_email"
+                                value="{{ current_user.email }}"
+                                required
+                                maxlength="120"
+                                autocomplete="email"
+                            >
+
+                            <small>
+                                Digite novamente o e-mail para confirmar a alteração.
+                            </small>
+
+                        </div>
+
+
+                        <!-- TELEFONE -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="telefone">
+
+                                <i class="fa-solid fa-phone"></i>
+
+                                Telefone
+
+                            </label>
+
+                            <input
+                                type="tel"
+                                id="telefone"
+                                name="telefone"
+                                value="{{ current_user.telefone or '' }}"
+                                placeholder="+55 41 99999-9999"
+                                maxlength="20"
+                                autocomplete="tel"
+                            >
+
+                        </div>
+
+
+                        <!-- INFORMAÇÕES DA CONTA -->
+
+                        <div class="informacoes-conta">
+
+                            <div>
+
+                                <span>
+                                    Tipo da conta
+                                </span>
+
+                                <strong>
+                                    {{ current_user.tipo_usuario|capitalize }}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Cadastrado em
+                                </span>
+
+                                <strong>
+
+                                    {% if current_user.criado_em %}
+
+                                        {{ current_user.criado_em.strftime('%d/%m/%Y') }}
+
+                                    {% else %}
+
+                                        Não informado
+
+                                    {% endif %}
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                    </form>
+
+                </article>
+
+
+                <!-- =========================================
+                     SEGURANÇA
+                ========================================== -->
+
+                <article class="cartao-conta">
+
+                    <div class="titulo-cartao-conta">
+
+                        <div class="icone-cartao-conta">
+
+                            <i class="fa-solid fa-lock"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Segurança
+                            </h2>
+
+                            <p>
+                                Altere sua senha de acesso ao sistema.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="aviso-seguranca">
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        <p>
+                            Use uma senha com pelo menos 8 caracteres e
+                            diferente da senha atual.
+                        </p>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('auth.alterar_senha') }}"
+                        class="formulario-conta"
+                    >
+
+
+                        <!-- SENHA ATUAL -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="senha_atual">
+
+                                <i class="fa-solid fa-key"></i>
+
+                                Senha atual
+
+                            </label>
+
+                            <div class="campo-senha-conta">
+
+                                <input
+                                    type="password"
+                                    id="senha_atual"
+                                    name="senha_atual"
+                                    required
+                                    autocomplete="current-password"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="alternar-senha"
+                                    data-campo="senha_atual"
+                                    aria-label="Mostrar ou ocultar senha atual"
+                                >
+
+                                    <i class="fa-solid fa-eye"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- NOVA SENHA -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="nova_senha">
+
+                                <i class="fa-solid fa-lock"></i>
+
+                                Nova senha
+
+                            </label>
+
+                            <div class="campo-senha-conta">
+
+                                <input
+                                    type="password"
+                                    id="nova_senha"
+                                    name="nova_senha"
+                                    minlength="8"
+                                    required
+                                    autocomplete="new-password"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="alternar-senha"
+                                    data-campo="nova_senha"
+                                    aria-label="Mostrar ou ocultar nova senha"
+                                >
+
+                                    <i class="fa-solid fa-eye"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CONFIRMAR SENHA -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="confirmar_senha">
+
+                                <i class="fa-solid fa-check"></i>
+
+                                Confirmar nova senha
+
+                            </label>
+
+                            <div class="campo-senha-conta">
+
+                                <input
+                                    type="password"
+                                    id="confirmar_senha"
+                                    name="confirmar_senha"
+                                    minlength="8"
+                                    required
+                                    autocomplete="new-password"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="alternar-senha"
+                                    data-campo="confirmar_senha"
+                                    aria-label="Mostrar ou ocultar confirmação da senha"
+                                >
+
+                                    <i class="fa-solid fa-eye"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="botao-salvar-conta botao-alterar-senha"
+                        >
+
+                            <i class="fa-solid fa-shield-halved"></i>
+
+                            Alterar senha
+
+                        </button>
+
+
+                    </form>
+
+                </article>
+
+
+                <!-- =========================================
+                     ENDEREÇO
+                ========================================== -->
+
+                <article class="cartao-conta cartao-endereco">
+
+
+                    <div class="titulo-cartao-conta">
+
+                        <div class="icone-cartao-conta">
+
+                            <i class="fa-solid fa-location-dot"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Endereço
+                            </h2>
+
+                            <p>
+                                Preenchimento opcional.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="aviso-endereco">
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        <p>
+                            Informe o CEP para preencher automaticamente
+                            o logradouro, bairro, cidade e estado.
+                        </p>
+
+                    </div>
+
+
+                    <div class="formulario-conta formulario-endereco">
+
+
+                        <!-- CEP -->
+
+                        <div class="grupo-campo-conta campo-cep">
+
+                            <label for="cep">
+
+                                <i class="fa-solid fa-map-pin"></i>
+
+                                CEP
+
+                            </label>
+
+                            <div class="campo-cep-conta">
+
+                                <input
+                                    type="text"
+                                    id="cep"
+                                    name="cep"
+                                    form="form-dados-conta"
+                                    value="{{ current_user.cep or '' }}"
+                                    placeholder="00000-000"
+                                    maxlength="9"
+                                    inputmode="numeric"
+                                    autocomplete="postal-code"
+                                >
+
+                                <button
+                                    type="button"
+                                    id="buscar-cep"
+                                    class="botao-buscar-cep"
+                                    title="Buscar endereço pelo CEP"
+                                    aria-label="Buscar endereço pelo CEP"
+                                >
+
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                                </button>
+
+                            </div>
+
+                            <small
+                                id="mensagem-cep"
+                                class="mensagem-cep"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- LOGRADOURO -->
+
+                        <div class="grupo-campo-conta campo-logradouro">
+
+                            <label for="logradouro">
+
+                                <i class="fa-solid fa-road"></i>
+
+                                Logradouro
+
+                            </label>
+
+                            <input
+                                type="text"
+                                id="logradouro"
+                                name="logradouro"
+                                form="form-dados-conta"
+                                value="{{ current_user.logradouro or '' }}"
+                                placeholder="Rua, avenida ou travessa"
+                                maxlength="150"
+                                autocomplete="address-line1"
+                            >
+
+                        </div>
+
+
+                        <!-- NÚMERO E COMPLEMENTO -->
+
+                        <div class="linha-endereco-conta">
+
+
+                            <div class="grupo-campo-conta">
+
+                                <label for="numero">
+
+                                    <i class="fa-solid fa-house"></i>
+
+                                    Número
+
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="numero"
+                                    name="numero"
+                                    form="form-dados-conta"
+                                    value="{{ current_user.numero or '' }}"
+                                    placeholder="Número"
+                                    maxlength="20"
+                                >
+
+                            </div>
+
+
+                            <div class="grupo-campo-conta">
+
+                                <label for="complemento">
+
+                                    <i class="fa-solid fa-building"></i>
+
+                                    Complemento
+
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="complemento"
+                                    name="complemento"
+                                    form="form-dados-conta"
+                                    value="{{ current_user.complemento or '' }}"
+                                    placeholder="Casa, apartamento, bloco..."
+                                    maxlength="100"
+                                    autocomplete="address-line2"
+                                >
+
+                            </div>
+
+
+                        </div>
+
+
+                        <!-- BAIRRO -->
+
+                        <div class="grupo-campo-conta">
+
+                            <label for="bairro">
+
+                                <i class="fa-solid fa-signs-post"></i>
+
+                                Bairro
+
+                            </label>
+
+                            <input
+                                type="text"
+                                id="bairro"
+                                name="bairro"
+                                form="form-dados-conta"
+                                value="{{ current_user.bairro or '' }}"
+                                placeholder="Bairro"
+                                maxlength="100"
+                            >
+
+                        </div>
+
+
+                        <!-- CIDADE E UF -->
+
+                        <div class="linha-cidade-uf">
+
+
+                            <div class="grupo-campo-conta campo-cidade">
+
+                                <label for="cidade">
+
+                                    <i class="fa-solid fa-city"></i>
+
+                                    Cidade
+
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="cidade"
+                                    name="cidade"
+                                    form="form-dados-conta"
+                                    value="{{ current_user.cidade or '' }}"
+                                    placeholder="Cidade"
+                                    maxlength="100"
+                                    autocomplete="address-level2"
+                                >
+
+                            </div>
+
+
+                            <div class="grupo-campo-conta campo-uf">
+
+                                <label for="uf">
+
+                                    <i class="fa-solid fa-map"></i>
+
+                                    UF
+
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="uf"
+                                    name="uf"
+                                    form="form-dados-conta"
+                                    value="{{ current_user.uf or '' }}"
+                                    placeholder="PR"
+                                    maxlength="2"
+                                    autocomplete="address-level1"
+                                >
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="acoes-endereco">
+
+                            <button
+                                type="submit"
+                                form="form-dados-conta"
+                                class="botao-salvar-conta botao-salvar-endereco"
+                            >
+
+                                <i class="fa-solid fa-floppy-disk"></i>
+
+                                Salvar alterações
+
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+<!-- =====================================================
+     MOSTRAR E OCULTAR SENHAS
+====================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const botoesSenha =
+        document.querySelectorAll(".alternar-senha");
+
+    botoesSenha.forEach(function (botao) {
+
+        botao.addEventListener("click", function () {
+
+            const campoId =
+                botao.getAttribute("data-campo");
+
+            const campo =
+                document.getElementById(campoId);
+
+            const icone =
+                botao.querySelector("i");
+
+            if (!campo || !icone) {
+                return;
+            }
+
+            if (campo.type === "password") {
+
+                campo.type = "text";
+
+                icone.classList.remove("fa-eye");
+                icone.classList.add("fa-eye-slash");
+
+            } else {
+
+                campo.type = "password";
+
+                icone.classList.remove("fa-eye-slash");
+                icone.classList.add("fa-eye");
+
+            }
+
+        });
+
+    });
+
+});
+
+</script>
+
+
+<!-- =====================================================
+     MÁSCARA DO CPF
+====================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const campoCpf =
+        document.getElementById("cpf");
+
+    if (!campoCpf) {
+        return;
+    }
+
+    campoCpf.addEventListener("input", function (evento) {
+
+        let valor =
+            evento.target.value.replace(/\D/g, "");
+
+        valor =
+            valor.substring(0, 11);
+
+        valor = valor.replace(
+            /(\d{3})(\d)/,
+            "$1.$2"
+        );
+
+        valor = valor.replace(
+            /(\d{3})(\d)/,
+            "$1.$2"
+        );
+
+        valor = valor.replace(
+            /(\d{3})(\d{1,2})$/,
+            "$1-$2"
+        );
+
+        evento.target.value = valor;
+
+    });
+
+});
+
+</script>
+
+
+<!-- =====================================================
+     MÁSCARA DO TELEFONE
+====================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const campoTelefone =
+        document.getElementById("telefone");
+
+    if (!campoTelefone) {
+        return;
+    }
+
+    campoTelefone.addEventListener("input", function (evento) {
+
+        let valor =
+            evento.target.value;
+
+        valor =
+            valor.replace(/[^\d+]/g, "");
+
+        if (valor.indexOf("+") > 0) {
+
+            valor =
+                valor.replace(/\+/g, "");
+
+            valor =
+                "+" + valor;
+
+        }
+
+        if (!valor.startsWith("+")) {
+
+            valor =
+                "+55" + valor;
+
+        }
+
+        const numeros =
+            valor.replace(/\D/g, "");
+
+        if (numeros.startsWith("55")) {
+
+            let restante =
+                numeros.substring(2, 13);
+
+            if (restante.length <= 2) {
+
+                evento.target.value =
+                    "+55 " + restante;
+
+                return;
+
+            }
+
+            if (restante.length <= 7) {
+
+                evento.target.value =
+                    "+55 " +
+                    restante.substring(0, 2) +
+                    " " +
+                    restante.substring(2);
+
+                return;
+
+            }
+
+            evento.target.value =
+                "+55 " +
+                restante.substring(0, 2) +
+                " " +
+                restante.substring(2, 7) +
+                "-" +
+                restante.substring(7, 11);
+
+        } else {
+
+            evento.target.value =
+                "+" + numeros.substring(0, 15);
+
+        }
+
+    });
+
+});
+
+</script>
+
+
+<!-- =====================================================
+     VIA CEP
+====================================================== -->
+
+<script
+    src="{{ url_for('static', filename='js/minha_conta.js') }}"
+></script>
+
+
+</body>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const input = document.getElementById("foto_perfil");
+
+    const preview =
+        document.getElementById("preview-avatar");
+
+    if (!input || !preview)
+        return;
+
+    input.addEventListener("change", e => {
+
+        const arquivo = e.target.files[0];
+
+        if (!arquivo)
+            return;
+
+        preview.src =
+            URL.createObjectURL(arquivo);
+
+    });
+
+});
+
+</script>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const campoFoto =
+        document.getElementById("foto_perfil");
+
+    const preview =
+        document.getElementById("preview-avatar");
+
+    const avatarSemFoto =
+        document.getElementById("avatar-sem-foto");
+
+    const mensagemFoto =
+        document.getElementById("mensagem-foto");
+
+    if (!campoFoto || !preview) {
+        return;
+    }
+
+
+    campoFoto.addEventListener("change", function () {
+
+        const arquivo =
+            campoFoto.files[0];
+
+        if (!arquivo) {
+            return;
+        }
+
+
+        const tiposPermitidos = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!tiposPermitidos.includes(arquivo.type)) {
+
+            campoFoto.value = "";
+
+            if (mensagemFoto) {
+
+                mensagemFoto.textContent =
+                    "Selecione uma imagem JPG, PNG ou WebP.";
+
+                mensagemFoto.classList.add(
+                    "mensagem-foto-erro"
+                );
+
+            }
+
+            return;
+        }
+
+
+        const limiteBytes =
+            10 * 1024 * 1024;
+
+        if (arquivo.size > limiteBytes) {
+
+            campoFoto.value = "";
+
+            if (mensagemFoto) {
+
+                mensagemFoto.textContent =
+                    "A imagem deve possuir no máximo 10 MB.";
+
+                mensagemFoto.classList.add(
+                    "mensagem-foto-erro"
+                );
+
+            }
+
+            return;
+        }
+
+
+        const leitor =
+            new FileReader();
+
+        leitor.addEventListener("load", function (evento) {
+
+            preview.src =
+                evento.target.result;
+
+            preview.classList.remove(
+                "avatar-preview-oculto"
+            );
+
+            if (avatarSemFoto) {
+
+                avatarSemFoto.style.display =
+                    "none";
+
+            }
+
+            if (mensagemFoto) {
+
+                mensagemFoto.textContent =
+                    "Nova foto selecionada. Salve as alterações.";
+
+                mensagemFoto.classList.remove(
+                    "mensagem-foto-erro"
+                );
+
+                mensagemFoto.classList.add(
+                    "mensagem-foto-sucesso"
+                );
+
+            }
+
+        });
+
+
+        leitor.readAsDataURL(
+            arquivo
+        );
+
+    });
+
+});
+
+</script>
+
+</html>

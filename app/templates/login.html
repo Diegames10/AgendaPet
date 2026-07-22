@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AgendaPet Paranaguá</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- ÍCONES -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- LOGO -->
+
+        <div class="logo">
+
+            <h1 class="logo-titulo">
+
+                <i class="fa-solid fa-paw"></i>
+
+                Agenda<span>Pet</span><br>
+                <span class="paranagua">Paranaguá</span>
+
+            </h1>
+
+            <p>
+                Sistema de Agendamento da SEMMA
+            </p>
+
+        </div>
+
+        <!-- LOGIN -->
+
+        <div class="topo">
+
+            <div class="icon">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div>
+                <h2>Acesse sua conta</h2>
+            </div>
+
+        </div>
+
+        <p class="descricao">
+            Já possui cadastro? Faça login para realizar ou acompanhar seus agendamentos.
+        </p>
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+
+    <div class="input-box">
+        <input
+            type="email"
+            name="email"
+            placeholder="E-mail"
+            required
+        >
+    </div>
+
+    <div class="input-box">
+        <input
+            type="password"
+            name="senha"
+            placeholder="Senha"
+            required
+        >
+    </div>
+
+    <div class="esqueceu">
+        <a href="#">Esqueceu sua senha?</a>
+    </div>
+
+    <button type="submit" class="btn-login">
+        Entrar
+    </button>
+
+</form>
+
+        <div class="divisor">
+            <span>ou</span>
+        </div>
+
+        <div class="cadastro">
+
+            <h3>
+                Ainda não tem cadastro?
+            </h3>
+
+            <p>
+                Crie sua conta e comece agora mesmo!
+            </p>
+
+            <button
+                type="button"
+                class="btn-cadastro"
+                onclick="window.location.href='{{ url_for('auth.cadastro') }}'">
+                <i class="fa-solid fa-user-plus"></i>
+                Criar cadastro
+            </button>
+
+        </div>
+
+    </div>
+
+    <footer class="rodape">
+        Desenvolvido por <strong>Bruna</strong> e <strong>Diego</strong>
+    </footer>
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+ 
+</body>
+
+</html>
