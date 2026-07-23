@@ -7,3 +7,5 @@ from app.models.historico import Historico
 from app.models.arquivo import Arquivo
 from app.models.foto_usuario import FotoUsuario
 from app.models.foto_pet import FotoPet
+from app.models.exame import Exame
+from .exame import Exame

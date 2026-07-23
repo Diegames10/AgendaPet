@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Exames - AgendaPet</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+<body class="pagina-painel">
+
+<div class="painel-layout">
+
+
+    <main class="conteudo-painel">
+
+        <header class="cabecalho-pagina">
+
+            <div>
+
+                <span class="subtitulo-pagina">
+                    Prontuário Veterinário
+                </span>
+
+                <h1>
+                    Exames do Paciente
+                </h1>
+
+                <p>
+
+                    {{ historico.pet.nome }}
+
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <div class="acoes-listagem">
+
+            <a
+                href="{{ url_for('historico.detalhes', historico_id=historico.id) }}"
+                class="botao-secundario">
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Voltar
+
+            </a>
+
+
+            <a
+                href="{{ url_for('exames.novo', historico_id=historico.id) }}"
+                class="botao-principal">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Novo exame
+
+            </a>
+
+        </div>
+
+
+        {% if exames %}
+
+            <div class="grade-exames">
+
+                {% for exame in exames %}
+
+                <div class="card-exame">
+
+                    <div class="topo-card-exame">
+
+                        <div>
+
+                            <h3>
+
+                                {{ exame.nome }}
+
+                            </h3>
+
+                            <small>
+
+                                {{ exame.categoria or "Sem categoria" }}
+
+                            </small>
+
+                        </div>
+
+                        <i class="fa-solid fa-flask"></i>
+
+                    </div>
+
+
+                    <hr>
+
+
+                    <p>
+
+                        <strong>Data</strong><br>
+
+                        {% if exame.data_exame %}
+
+                            {{ exame.data_exame.strftime("%d/%m/%Y") }}
+
+                        {% else %}
+
+                            Não informada
+
+                        {% endif %}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>Resultado</strong>
+
+                    </p>
+
+                    <p>
+
+                        {{ exame.resultado or "-" }}
+
+                    </p>
+
+
+                    <div class="acoes-card">
+
+                        <a
+                            href="{{ url_for('exames.editar', exame_id=exame.id) }}"
+                            class="botao-secundario">
+
+                            <i class="fa-solid fa-pen"></i>
+
+                            Editar
+
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('exames.excluir', exame_id=exame.id) }}"
+                            class="botao-perigo"
+                            onclick="return confirm('Deseja realmente excluir este exame?')">
+
+                            <i class="fa-solid fa-trash"></i>
+
+                            Excluir
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="cartao-vazio">
+
+                <i class="fa-solid fa-vial-circle-check"></i>
+
+                <h2>
+
+                    Nenhum exame cadastrado
+
+                </h2>
+
+                <p>
+
+                    Clique em <strong>Novo exame</strong>
+                    para adicionar o primeiro exame.
+
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

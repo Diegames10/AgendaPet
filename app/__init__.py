@@ -27,6 +27,8 @@ def create_app():
 
     from app.routes.agendamentoConsulta import agendamento_consulta_bp
     
+    from app.models.exame import Exame
+    
     @login_manager.user_loader
     def carregar_usuario(usuario_id):
         try:

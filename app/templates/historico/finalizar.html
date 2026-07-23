@@ -120,10 +120,10 @@
                 class="item-menu"
             >
 
-                <i class="fa-solid fa-clock-rotate-left"></i>
+                <i class="fa-solid fa-notes-medical"></i>
 
                 <span>
-                    Histórico
+                    Prontuário Veterinário
                 </span>
 
             </a>
@@ -332,84 +332,506 @@
 
                 </div>
 
+                <!-- =================================================
+                    ABAS DO PRONTUÁRIO
+                ================================================== -->
+
+                <div
+                    class="abas-prontuario"
+                    role="tablist"
+                    aria-label="Seções do prontuário"
+                >
+
+                    <button
+                        type="button"
+                        class="aba ativa"
+                        data-aba="dados"
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="aba-dados"
+                    >
+                        <i class="fa-solid fa-notes-medical"></i>
+                        Dados clínicos
+                    </button>
+
+                    <button
+                        type="button"
+                        class="aba"
+                        data-aba="exames"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="aba-exames"
+                    >
+                        <i class="fa-solid fa-vials"></i>
+                        Exames
+                    </button>
+
+                    <button
+                        type="button"
+                        class="aba"
+                        data-aba="anexos"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="aba-anexos"
+                    >
+                        <i class="fa-solid fa-paperclip"></i>
+                        Anexos
+                    </button>
+
+                    <button
+                        type="button"
+                        class="aba"
+                        data-aba="receita"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="aba-receita"
+                    >
+                        <i class="fa-solid fa-file-prescription"></i>
+                        Receita
+                    </button>
+
+                </div>
+
+                <div
+                    id="aba-dados"
+                    class="conteudo-aba ativo"
+                    role="tabpanel"
+                >
 
                 <!-- FORMULÁRIO -->
 
-                <form method="POST">
+                <form method="POST" class="formulario-prontuario">
+
+                    <!-- =================================================
+                        AVALIAÇÃO CLÍNICA
+                    ================================================== -->
+
+                    <section class="card-prontuario">
+
+                        <div class="cabecalho-card-prontuario">
+
+                            <div class="icone-card-prontuario">
+                                <i class="fa-solid fa-stethoscope"></i>
+                            </div>
+
+                            <div>
+                                <h3>Avaliação clínica</h3>
+
+                                <p>
+                                    Registre as informações relatadas pelo tutor
+                                    e os achados do atendimento.
+                                </p>
+                            </div>
+
+                        </div>
 
 
-                    <div class="grupo-formulario">
+                        <div class="conteudo-card-prontuario">
+
+                            <div class="grupo-formulario">
+
+                                <label for="motivo_consulta">
+
+                                    <i class="fa-solid fa-comment-medical"></i>
+
+                                    Motivo da consulta
+
+                                </label>
+
+                                <textarea
+                                    id="motivo_consulta"
+                                    name="motivo_consulta"
+                                    rows="3"
+                                    placeholder="Descreva o principal motivo informado pelo tutor..."
+                                >{{ request.form.get('motivo_consulta', '') }}</textarea>
+
+                            </div>
 
 
-                        <label for="diagnostico">
+                            <div class="grupo-formulario">
 
-                            <i class="fa-solid fa-stethoscope"></i>
+                                <label for="anamnese">
 
-                            Diagnóstico
+                                    <i class="fa-solid fa-clipboard-question"></i>
 
-                        </label>
+                                    Anamnese
 
+                                </label>
 
-                        <textarea
-                            id="diagnostico"
-                            name="diagnostico"
-                            rows="4"
-                            placeholder="Descreva o diagnóstico realizado..."
-                            required
-                        >{{ request.form.get('diagnostico', '') }}</textarea>
+                                <textarea
+                                    id="anamnese"
+                                    name="anamnese"
+                                    rows="4"
+                                    placeholder="Informe sintomas, comportamento, alimentação, histórico e demais informações relatadas..."
+                                >{{ request.form.get('anamnese', '') }}</textarea>
 
-
-                    </div>
-
-
-                    <div class="grupo-formulario">
+                            </div>
 
 
-                        <label for="tratamento">
+                            <div class="grupo-formulario">
 
-                            <i class="fa-solid fa-pills"></i>
+                                <label for="exame_clinico">
 
-                            Tratamento
+                                    <i class="fa-solid fa-user-doctor"></i>
 
-                        </label>
+                                    Exame clínico
 
+                                </label>
 
-                        <textarea
-                            id="tratamento"
-                            name="tratamento"
-                            rows="4"
-                            placeholder="Informe o tratamento, medicamentos ou orientações..."
-                        >{{ request.form.get('tratamento', '') }}</textarea>
+                                <textarea
+                                    id="exame_clinico"
+                                    name="exame_clinico"
+                                    rows="4"
+                                    placeholder="Descreva os achados identificados durante o exame físico..."
+                                >{{ request.form.get('exame_clinico', '') }}</textarea>
 
+                            </div>
 
-                    </div>
+                        </div>
 
-
-                    <div class="grupo-formulario">
-
-
-                        <label for="observacoes">
-
-                            <i class="fa-solid fa-clipboard"></i>
-
-                            Observações
-
-                        </label>
+                    </section>
 
 
-                        <textarea
-                            id="observacoes"
-                            name="observacoes"
-                            rows="4"
-                            placeholder="Digite informações complementares..."
-                        >{{ request.form.get('observacoes', '') }}</textarea>
+                    <!-- =================================================
+                        SINAIS VITAIS
+                    ================================================== -->
+
+                    <section class="card-prontuario">
+
+                        <div class="cabecalho-card-prontuario">
+
+                            <div class="icone-card-prontuario">
+                                <i class="fa-solid fa-heart-pulse"></i>
+                            </div>
+
+                            <div>
+                                <h3>Sinais vitais</h3>
+
+                                <p>
+                                    Informe as medições realizadas durante
+                                    o atendimento.
+                                </p>
+                            </div>
+
+                        </div>
 
 
-                    </div>
+                        <div class="conteudo-card-prontuario">
+
+                            <div class="grade-sinais-vitais">
+
+                                <div class="grupo-formulario">
+
+                                    <label for="peso_atendimento">
+
+                                        <i class="fa-solid fa-weight-scale"></i>
+
+                                        Peso
+
+                                    </label>
+
+                                    <div class="campo-com-unidade">
+
+                                        <input
+                                            type="number"
+                                            id="peso_atendimento"
+                                            name="peso_atendimento"
+                                            min="0"
+                                            step="0.01"
+                                            inputmode="decimal"
+                                            placeholder="Ex.: 12,50"
+                                            value="{{ request.form.get('peso_atendimento', '') }}"
+                                        >
+
+                                        <span>kg</span>
+
+                                    </div>
+
+                                </div>
 
 
-                    <div class="acoes-formulario">
+                                <div class="grupo-formulario">
 
+                                    <label for="temperatura">
+
+                                        <i class="fa-solid fa-temperature-half"></i>
+
+                                        Temperatura
+
+                                    </label>
+
+                                    <div class="campo-com-unidade">
+
+                                        <input
+                                            type="number"
+                                            id="temperatura"
+                                            name="temperatura"
+                                            min="0"
+                                            step="0.1"
+                                            inputmode="decimal"
+                                            placeholder="Ex.: 38,5"
+                                            value="{{ request.form.get('temperatura', '') }}"
+                                        >
+
+                                        <span>°C</span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="grupo-formulario">
+
+                                    <label for="frequencia_cardiaca">
+
+                                        <i class="fa-solid fa-heart"></i>
+
+                                        Frequência cardíaca
+
+                                    </label>
+
+                                    <div class="campo-com-unidade">
+
+                                        <input
+                                            type="number"
+                                            id="frequencia_cardiaca"
+                                            name="frequencia_cardiaca"
+                                            min="0"
+                                            step="1"
+                                            inputmode="numeric"
+                                            placeholder="Ex.: 90"
+                                            value="{{ request.form.get('frequencia_cardiaca', '') }}"
+                                        >
+
+                                        <span>bpm</span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="grupo-formulario">
+
+                                    <label for="frequencia_respiratoria">
+
+                                        <i class="fa-solid fa-lungs"></i>
+
+                                        Frequência respiratória
+
+                                    </label>
+
+                                    <div class="campo-com-unidade">
+
+                                        <input
+                                            type="number"
+                                            id="frequencia_respiratoria"
+                                            name="frequencia_respiratoria"
+                                            min="0"
+                                            step="1"
+                                            inputmode="numeric"
+                                            placeholder="Ex.: 25"
+                                            value="{{ request.form.get('frequencia_respiratoria', '') }}"
+                                        >
+
+                                        <span>mpm</span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                        DIAGNÓSTICO
+                    ================================================== -->
+
+                    <section class="card-prontuario">
+
+                        <div class="cabecalho-card-prontuario">
+
+                            <div class="icone-card-prontuario">
+                                <i class="fa-solid fa-file-medical"></i>
+                            </div>
+
+                            <div>
+                                <h3>Diagnóstico</h3>
+
+                                <p>
+                                    Registre a avaliação diagnóstica
+                                    definida para o atendimento.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="conteudo-card-prontuario">
+
+                            <div class="grupo-formulario">
+
+                                <label for="diagnostico">
+
+                                    <i class="fa-solid fa-stethoscope"></i>
+
+                                    Diagnóstico do atendimento
+
+                                    <span class="campo-obrigatorio">*</span>
+
+                                </label>
+
+                                <textarea
+                                    id="diagnostico"
+                                    name="diagnostico"
+                                    rows="5"
+                                    placeholder="Descreva o diagnóstico realizado..."
+                                    required
+                                >{{ request.form.get('diagnostico', '') }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                        TRATAMENTO
+                    ================================================== -->
+
+                    <section class="card-prontuario">
+
+                        <div class="cabecalho-card-prontuario">
+
+                            <div class="icone-card-prontuario">
+                                <i class="fa-solid fa-pills"></i>
+                            </div>
+
+                            <div>
+                                <h3>Tratamento e prescrição</h3>
+
+                                <p>
+                                    Informe os medicamentos, procedimentos
+                                    e orientações indicados.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="conteudo-card-prontuario">
+
+                            <div class="grupo-formulario">
+
+                                <label for="tratamento">
+
+                                    <i class="fa-solid fa-prescription-bottle-medical"></i>
+
+                                    Tratamento
+
+                                </label>
+
+                                <textarea
+                                    id="tratamento"
+                                    name="tratamento"
+                                    rows="5"
+                                    placeholder="Informe medicamentos, dosagens, frequência, duração e orientações..."
+                                >{{ request.form.get('tratamento', '') }}</textarea>
+
+                                <small class="ajuda-campo">
+                                    Este conteúdo também será utilizado na emissão da receita veterinária.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                        OBSERVAÇÕES E RETORNO
+                    ================================================== -->
+
+                    <section class="card-prontuario">
+
+                        <div class="cabecalho-card-prontuario">
+
+                            <div class="icone-card-prontuario">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+
+                            <div>
+                                <h3>Orientações e retorno</h3>
+
+                                <p>
+                                    Registre informações adicionais e,
+                                    quando necessário, uma previsão de retorno.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="conteudo-card-prontuario">
+
+                            <div class="grupo-formulario">
+
+                                <label for="observacoes">
+
+                                    <i class="fa-solid fa-clipboard"></i>
+
+                                    Observações
+
+                                </label>
+
+                                <textarea
+                                    id="observacoes"
+                                    name="observacoes"
+                                    rows="4"
+                                    placeholder="Digite informações complementares e recomendações ao tutor..."
+                                >{{ request.form.get('observacoes', '') }}</textarea>
+
+                            </div>
+
+
+                            <div class="grupo-formulario grupo-retorno">
+
+                                <label for="retorno_previsto">
+
+                                    <i class="fa-solid fa-calendar-days"></i>
+
+                                    Retorno previsto
+
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="retorno_previsto"
+                                    name="retorno_previsto"
+                                    value="{{ request.form.get('retorno_previsto', '') }}"
+                                >
+
+                                <small class="ajuda-campo">
+                                    O preenchimento é opcional e poderá ser usado futuramente para gerar lembretes.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+                    <!-- =================================================
+                        AÇÕES
+                    ================================================== -->
+
+                    <div class="acoes-formulario acoes-prontuario">
 
                         <a
                             href="{{ url_for('agendamento_consulta.listar') }}"
@@ -434,9 +856,84 @@
 
                         </button>
 
+                    </div>
+
+                    <div id="aba-exames" class="conteudo-aba">
+
+                        <div class="card-prontuario">
+
+                            <div class="cabecalho-card-prontuario">
+
+                                <div class="icone-card-prontuario">
+                                    <i class="fa-solid fa-vials"></i>
+                                </div>
+
+                                <div>
+                                    <h3>Exames</h3>
+
+                                    <p>
+                                        Nesta área serão cadastrados os exames laboratoriais e de imagem
+                                        vinculados ao atendimento.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
+
+                    <div id="aba-anexos" class="conteudo-aba">
+
+                        <div class="card-prontuario">
+
+                            <div class="cabecalho-card-prontuario">
+
+                                <div class="icone-card-prontuario">
+                                    <i class="fa-solid fa-paperclip"></i>
+                                </div>
+
+                                <div>
+                                    <h3>Anexos</h3>
+
+                                    <p>
+                                        Aqui será possível anexar arquivos como PDF, RX,
+                                        ultrassom e hemograma.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="aba-receita" class="conteudo-aba">
+
+                        <div class="card-prontuario">
+
+                            <div class="cabecalho-card-prontuario">
+
+                                <div class="icone-card-prontuario">
+                                    <i class="fa-solid fa-file-prescription"></i>
+                                </div>
+
+                                <div>
+                                    <h3>Receita Veterinária</h3>
+
+                                    <p>
+                                        A receita será disponibilizada automaticamente após
+                                        a conclusão do atendimento.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </form>
 
@@ -452,6 +949,83 @@
 
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const botoesAbas = document.querySelectorAll(".aba");
+        const conteudosAbas = document.querySelectorAll(".conteudo-aba");
+
+        botoesAbas.forEach(function (botao) {
+
+            botao.addEventListener("click", function () {
+
+                const nomeAba = botao.dataset.aba;
+                const conteudoSelecionado = document.getElementById(
+                    `aba-${nomeAba}`
+                );
+
+                if (!conteudoSelecionado) {
+                    return;
+                }
+
+                botoesAbas.forEach(function (item) {
+                    item.classList.remove("ativa");
+                    item.setAttribute("aria-selected", "false");
+                });
+
+                conteudosAbas.forEach(function (conteudo) {
+                    conteudo.classList.remove("ativo");
+                });
+
+                botao.classList.add("ativa");
+                botao.setAttribute("aria-selected", "true");
+
+                conteudoSelecionado.classList.add("ativo");
+
+            });
+
+        });
+
+    });
+</script><script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const botoesAbas = document.querySelectorAll(".aba");
+        const conteudosAbas = document.querySelectorAll(".conteudo-aba");
+
+        botoesAbas.forEach(function (botao) {
+
+            botao.addEventListener("click", function () {
+
+                const nomeAba = botao.dataset.aba;
+                const conteudoSelecionado = document.getElementById(
+                    `aba-${nomeAba}`
+                );
+
+                if (!conteudoSelecionado) {
+                    return;
+                }
+
+                botoesAbas.forEach(function (item) {
+                    item.classList.remove("ativa");
+                    item.setAttribute("aria-selected", "false");
+                });
+
+                conteudosAbas.forEach(function (conteudo) {
+                    conteudo.classList.remove("ativo");
+                });
+
+                botao.classList.add("ativa");
+                botao.setAttribute("aria-selected", "true");
+
+                conteudoSelecionado.classList.add("ativo");
+
+            });
+
+        });
+
+    });
+</script>
 
 </body>
 

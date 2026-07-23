@@ -225,6 +225,227 @@
             font-style: italic;
         }
 
+        /* =====================================================
+        ABAS DO PRONTUÁRIO
+        ===================================================== */
+
+        .abas-prontuario {
+            display: flex;
+            gap: 8px;
+
+            margin-top: 30px;
+            padding: 7px;
+
+            overflow-x: auto;
+
+            background: #f3f7f3;
+
+            border: 1px solid #d5e4d7;
+            border-radius: 10px;
+        }
+
+        .botao-aba {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            min-width: max-content;
+
+            padding: 11px 18px;
+
+            color: #526057;
+            background: transparent;
+
+            border: 1px solid transparent;
+            border-radius: 8px;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                color 0.2s ease,
+                background 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .botao-aba:hover {
+            color: #23752d;
+            background: #e8f4e9;
+            border-color: #b7d9bb;
+        }
+
+        .botao-aba.ativa {
+            color: #ffffff;
+            background: #2e8437;
+            border-color: #2e8437;
+        }
+
+        .conteudo-aba {
+            display: none;
+        }
+
+        .conteudo-aba.ativa {
+            display: block;
+        }
+
+        /* =====================================================
+        CARDS DOS EXAMES
+        ===================================================== */
+
+        .cabecalho-exames {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+
+            margin-bottom: 20px;
+        }
+
+        .lista-exames {
+            display: grid;
+            gap: 16px;
+        }
+
+        .card-exame {
+            padding: 20px;
+
+            background: #f8fbf8;
+
+            border: 1px solid #d8e5da;
+            border-left: 5px solid #2e8437;
+            border-radius: 10px;
+        }
+
+        .topo-exame {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+
+            margin-bottom: 16px;
+        }
+
+        .icone-exame {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 44px;
+            height: 44px;
+
+            flex-shrink: 0;
+
+            color: #23752d;
+            background: #e6f3e8;
+
+            border-radius: 10px;
+
+            font-size: 20px;
+        }
+
+        .informacoes-exame {
+            flex: 1;
+        }
+
+        .informacoes-exame h3 {
+            margin: 0 0 7px;
+
+            color: #23752d;
+
+            font-size: 20px;
+        }
+
+        .metadados-exame {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px 16px;
+
+            color: #667069;
+
+            font-size: 14px;
+        }
+
+        .metadados-exame span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bloco-exame {
+            margin-top: 12px;
+            padding: 13px 15px;
+
+            background: #ffffff;
+
+            border: 1px solid #dde6df;
+            border-radius: 8px;
+
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .bloco-exame strong {
+            color: #23752d;
+        }
+
+        .acoes-exame {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+
+            margin-top: 16px;
+        }
+
+        .acoes-exame form {
+            margin: 0;
+        }
+
+        .botao-pequeno {
+            min-width: auto;
+
+            padding: 9px 14px;
+
+            font-size: 14px;
+        }
+
+        .botao-editar {
+            background: #2e8437;
+        }
+
+        .botao-excluir {
+            background: #b8322b;
+        }
+
+        .botao-excluir:hover {
+            background: #92251f;
+        }
+
+        .estado-vazio-exames {
+            padding: 30px 20px;
+
+            text-align: center;
+
+            background: #f8fbf8;
+
+            border: 1px dashed #aabdab;
+            border-radius: 10px;
+        }
+
+        .estado-vazio-exames i {
+            margin-bottom: 12px;
+
+            color: #2e8437;
+
+            font-size: 34px;
+        }
+
+        .estado-vazio-exames p {
+            margin: 0;
+
+            color: #667069;
+        }
         @media (max-width: 700px) {
 
             body {
@@ -270,6 +491,25 @@
             }
 
             .botao {
+                width: 100%;
+            }
+
+            .cabecalho-exames {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .cabecalho-exames .botao {
+                width: 100%;
+            }
+
+            .acoes-exame {
+                flex-direction: column;
+            }
+
+            .acoes-exame .botao,
+            .acoes-exame form,
+            .acoes-exame form button {
                 width: 100%;
             }
         }
@@ -372,62 +612,341 @@
 
         </table>
 
-        <section class="secao-clinica">
+        <nav class="abas-prontuario">
 
-            <h2>
+            <button
+                type="button"
+                class="botao-aba ativa"
+                data-aba="dados-clinicos"
+            >
                 <i class="fa-solid fa-file-medical"></i>
-                Diagnóstico
-            </h2>
+                Dados Clínicos
+            </button>
 
-            <div class="caixa-texto">
-                {% if historico.diagnostico %}
-                    {{ historico.diagnostico }}
+            <button
+                type="button"
+                class="botao-aba"
+                data-aba="exames"
+            >
+                <i class="fa-solid fa-vials"></i>
+                Exames
+            </button>
+
+            <button
+                type="button"
+                class="botao-aba"
+                data-aba="anexos"
+            >
+                <i class="fa-solid fa-paperclip"></i>
+                Anexos
+            </button>
+
+            <button
+                type="button"
+                class="botao-aba"
+                data-aba="receita"
+            >
+                <i class="fa-solid fa-file-prescription"></i>
+                Receita
+            </button>
+
+        </nav>
+
+        <div
+            id="dados-clinicos"
+            class="conteudo-aba ativa"
+        >
+
+            <section class="secao-clinica">
+
+                <h2>
+                    <i class="fa-solid fa-file-medical"></i>
+                    Diagnóstico
+                </h2>
+
+                <div class="caixa-texto">
+                    {% if historico.diagnostico %}
+                        {{ historico.diagnostico }}
+                    {% else %}
+                        <span class="texto-nao-informado">
+                            Nenhum diagnóstico informado.
+                        </span>
+                    {% endif %}
+                </div>
+
+            </section>
+
+            <section class="secao-clinica">
+
+                <h2>
+                    <i class="fa-solid fa-prescription-bottle-medical"></i>
+                    Tratamento
+                </h2>
+
+                <div class="caixa-texto">
+                    {% if historico.tratamento %}
+                        {{ historico.tratamento }}
+                    {% else %}
+                        <span class="texto-nao-informado">
+                            Nenhum tratamento informado.
+                        </span>
+                    {% endif %}
+                </div>
+
+            </section>
+
+            <section class="secao-clinica">
+
+                <h2>
+                    <i class="fa-solid fa-clipboard"></i>
+                    Observações
+                </h2>
+
+                <div class="caixa-texto">
+                    {% if historico.observacoes %}
+                        {{ historico.observacoes }}
+                    {% else %}
+                        <span class="texto-nao-informado">
+                            Nenhuma observação registrada.
+                        </span>
+                    {% endif %}
+                </div>
+
+            </section>
+
+        </div>
+
+        <div id="exames" class="conteudo-aba">
+
+            <section class="secao-clinica">
+
+                <div class="cabecalho-exames">
+
+                    <h2>
+                        <i class="fa-solid fa-vials"></i>
+                        Exames
+                    </h2>
+
+                    <a
+                        class="botao"
+                        href="{{ url_for('exames.novo', historico_id=historico.id) }}"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        Novo Exame
+                    </a>
+
+                </div>
+
+                {% if exames %}
+
+                    <div class="lista-exames">
+
+                        {% for exame in exames %}
+
+                            <article class="card-exame">
+
+                                <div class="topo-exame">
+
+                                    <div class="icone-exame">
+
+                                        {% if exame.categoria and "imagem" in exame.categoria|lower %}
+
+                                            <i class="fa-solid fa-x-ray"></i>
+
+                                        {% elif exame.categoria and "laborat" in exame.categoria|lower %}
+
+                                            <i class="fa-solid fa-flask-vial"></i>
+
+                                        {% elif exame.categoria and "ultra" in exame.categoria|lower %}
+
+                                            <i class="fa-solid fa-wave-square"></i>
+
+                                        {% else %}
+
+                                            <i class="fa-solid fa-vial"></i>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    <div class="informacoes-exame">
+
+                                        <h3>
+                                            {{ exame.nome }}
+                                        </h3>
+
+                                        <div class="metadados-exame">
+
+                                            <span>
+                                                <i class="fa-solid fa-layer-group"></i>
+
+                                                {{ exame.categoria or "Sem categoria" }}
+                                            </span>
+
+                                            <span>
+                                                <i class="fa-solid fa-calendar-days"></i>
+
+                                                {% if exame.data_exame %}
+
+                                                    {{ exame.data_exame.strftime("%d/%m/%Y") }}
+
+                                                {% else %}
+
+                                                    Data não informada
+
+                                                {% endif %}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="bloco-exame">
+
+                                    <strong>Resultado</strong>
+
+                                    <br>
+
+                                    {% if exame.resultado %}
+
+                                        {{ exame.resultado }}
+
+                                    {% else %}
+
+                                        <span class="texto-nao-informado">
+                                            Resultado não informado.
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                                {% if exame.observacoes %}
+
+                                    <div class="bloco-exame">
+
+                                        <strong>Observações</strong>
+
+                                        <br>
+
+                                        {{ exame.observacoes }}
+
+                                    </div>
+
+                                {% endif %}
+
+                                <div class="acoes-exame">
+
+                                    <a
+                                        class="botao botao-pequeno botao-editar"
+                                        href="{{ url_for('exames.editar', exame_id=exame.id) }}"
+                                    >
+                                        <i class="fa-solid fa-pen"></i>
+                                        Editar
+                                    </a>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('exames.excluir', exame_id=exame.id) }}"
+                                        onsubmit="return confirm('Deseja realmente excluir este exame?');"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="botao botao-pequeno botao-excluir"
+                                        >
+                                            <i class="fa-solid fa-trash"></i>
+                                            Excluir
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
                 {% else %}
-                    <span class="texto-nao-informado">
-                        Nenhum diagnóstico informado.
-                    </span>
+
+                    <div class="estado-vazio-exames">
+
+                        <i class="fa-solid fa-vial-circle-check"></i>
+
+                        <p>
+                            Nenhum exame cadastrado para este prontuário.
+                        </p>
+
+                    </div>
+
                 {% endif %}
-            </div>
 
-        </section>
+            </section>
 
-        <section class="secao-clinica">
+        </div>
 
-            <h2>
-                <i class="fa-solid fa-prescription-bottle-medical"></i>
-                Tratamento
-            </h2>
 
-            <div class="caixa-texto">
-                {% if historico.tratamento %}
-                    {{ historico.tratamento }}
-                {% else %}
+        <div
+            id="anexos"
+            class="conteudo-aba"
+        >
+
+            <section class="secao-clinica">
+
+                <h2>
+                    <i class="fa-solid fa-paperclip"></i>
+                    Anexos
+                </h2>
+
+                <div class="caixa-texto">
+
                     <span class="texto-nao-informado">
-                        Nenhum tratamento informado.
+                        Nenhum anexo cadastrado neste atendimento.
                     </span>
-                {% endif %}
-            </div>
 
-        </section>
+                </div>
 
-        <section class="secao-clinica">
+            </section>
 
-            <h2>
-                <i class="fa-solid fa-clipboard"></i>
-                Observações
-            </h2>
+        </div>
 
-            <div class="caixa-texto">
-                {% if historico.observacoes %}
-                    {{ historico.observacoes }}
-                {% else %}
-                    <span class="texto-nao-informado">
-                        Nenhuma observação registrada.
-                    </span>
-                {% endif %}
-            </div>
 
-        </section>
+        <div
+            id="receita"
+            class="conteudo-aba"
+        >
+
+            <section class="secao-clinica">
+
+                <h2>
+                    <i class="fa-solid fa-file-prescription"></i>
+                    Receita Veterinária
+                </h2>
+
+                <div class="caixa-texto">
+
+                    <p>
+                        Gere a receita veterinária correspondente a este atendimento.
+                    </p>
+
+                    <a
+                        class="botao"
+                        href="{{ url_for('historico.receita', historico_id=historico.id) }}"
+                    >
+                        <i class="fa-solid fa-prescription"></i>
+                        Gerar Receita
+                    </a>
+
+                </div>
+
+            </section>
+
+        </div>            
+
 
         <div class="botoes">
 
@@ -447,17 +966,51 @@
                 Comprovante
             </a>
 
-            <a
-                class="botao"
-                href="{{ url_for('historico.receita', historico_id=historico.id) }}"
-            >
-                <i class="fa-solid fa-prescription"></i>
-                Gerar Receita
-            </a>
-
         </div>
 
     </main>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const botoesAbas = document.querySelectorAll(".botao-aba");
+            const conteudosAbas = document.querySelectorAll(".conteudo-aba");
+            const abaInicial = {{ aba_ativa|default('dados-clinicos')|tojson }};
+
+            function ativarAba(nomeAba) {
+
+                botoesAbas.forEach(function (item) {
+                    item.classList.toggle(
+                        "ativa",
+                        item.dataset.aba === nomeAba
+                    );
+                });
+
+                conteudosAbas.forEach(function (conteudo) {
+                    conteudo.classList.toggle(
+                        "ativa",
+                        conteudo.id === nomeAba
+                    );
+                });
+
+            }
+
+            ativarAba(abaInicial);
+
+            botoesAbas.forEach(function (botao) {
+
+                botao.addEventListener("click", function () {
+
+                    ativarAba(botao.dataset.aba);
+
+                });
+
+            });
+
+        });
+
+    </script>
 
 </body>
 

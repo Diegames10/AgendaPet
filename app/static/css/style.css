@@ -5563,3 +5563,495 @@ conteudo-destaque h2 {
     display: flex;
     gap: 8px;
 }
+
+/* =========================================================
+   FORMULÁRIO DO PRONTUÁRIO VETERINÁRIO
+========================================================= */
+
+.formulario-prontuario {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 28px;
+}
+
+
+/* =========================================================
+   CARDS DO PRONTUÁRIO
+========================================================= */
+
+.card-prontuario {
+    overflow: hidden;
+    border: 1px solid #dfe8e5;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 118, 110, 0.06);
+}
+
+
+.cabecalho-card-prontuario {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 22px;
+    border-bottom: 1px solid #e8efed;
+    background: #f8fbfa;
+}
+
+
+.icone-card-prontuario {
+    display: flex;
+    flex: 0 0 46px;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: #e7f5f1;
+    color: #087f5b;
+    font-size: 19px;
+}
+
+
+.cabecalho-card-prontuario h3 {
+    margin: 0 0 4px;
+    color: #16332d;
+    font-size: 18px;
+}
+
+
+.cabecalho-card-prontuario p {
+    margin: 0;
+    color: #6b7f79;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+
+.conteudo-card-prontuario {
+    padding: 22px;
+}
+
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.formulario-prontuario .grupo-formulario {
+    margin-bottom: 20px;
+}
+
+
+.formulario-prontuario .grupo-formulario:last-child {
+    margin-bottom: 0;
+}
+
+
+.formulario-prontuario label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: #243b35;
+    font-weight: 600;
+}
+
+
+.formulario-prontuario label i {
+    color: #087f5b;
+}
+
+
+.formulario-prontuario textarea,
+.formulario-prontuario input {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #cfdcd8;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #22342f;
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.formulario-prontuario textarea {
+    min-height: 100px;
+    padding: 14px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+
+.formulario-prontuario input {
+    min-height: 48px;
+    padding: 0 14px;
+}
+
+
+.formulario-prontuario textarea:focus,
+.formulario-prontuario input:focus {
+    border-color: #0a8f68;
+    background: #fcfffe;
+    box-shadow: 0 0 0 4px rgba(10, 143, 104, 0.1);
+}
+
+
+.formulario-prontuario textarea::placeholder,
+.formulario-prontuario input::placeholder {
+    color: #9aa9a5;
+}
+
+
+.campo-obrigatorio {
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   SINAIS VITAIS
+========================================================= */
+
+.grade-sinais-vitais {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+
+.campo-com-unidade {
+    display: flex;
+    align-items: stretch;
+}
+
+
+.campo-com-unidade input {
+    border-radius: 12px 0 0 12px;
+}
+
+
+.campo-com-unidade span {
+    display: flex;
+    min-width: 64px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cfdcd8;
+    border-left: 0;
+    border-radius: 0 12px 12px 0;
+    background: #edf6f3;
+    color: #45635b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   TEXTOS AUXILIARES
+========================================================= */
+
+.ajuda-campo {
+    display: block;
+    margin-top: 7px;
+    color: #70827d;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+
+.grupo-retorno {
+    max-width: 380px;
+}
+
+
+/* =========================================================
+   AÇÕES
+========================================================= */
+
+.acoes-prontuario {
+    margin-top: 2px;
+    padding-top: 22px;
+    border-top: 1px solid #dfe8e5;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .grade-sinais-vitais {
+        grid-template-columns: 1fr;
+    }
+
+
+    .cabecalho-card-prontuario {
+        align-items: flex-start;
+        padding: 18px;
+    }
+
+
+    .conteudo-card-prontuario {
+        padding: 18px;
+    }
+
+
+    .acoes-prontuario {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 12px;
+    }
+
+
+    .acoes-prontuario .botao-principal,
+    .acoes-prontuario .botao-secundario {
+        box-sizing: border-box;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+}
+
+
+/* ==============================
+   EXAMES
+============================== */
+
+.grade-exames{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+
+gap:20px;
+
+margin-top:30px;
+
+}
+
+
+.card-exame{
+
+background:white;
+
+border-radius:18px;
+
+padding:22px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+transition:.25s;
+
+}
+
+
+.card-exame:hover{
+
+transform:translateY(-4px);
+
+}
+
+
+.topo-card-exame{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+}
+
+
+.topo-card-exame i{
+
+font-size:30px;
+
+color:#16a34a;
+
+}
+
+
+.acoes-card{
+
+display:flex;
+
+gap:10px;
+
+margin-top:20px;
+
+}
+
+/* =========================================================
+   ABAS DO PRONTUÁRIO
+========================================================= */
+
+.abas-prontuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 24px 0;
+    padding: 8px;
+    overflow-x: auto;
+
+    background-color: #ffffff;
+    border: 1px solid #dfe7e5;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(15, 61, 52, 0.06);
+}
+
+.aba {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-width: max-content;
+    padding: 12px 18px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    background-color: transparent;
+    color: #64748b;
+
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.aba i {
+    font-size: 1rem;
+}
+
+.aba:hover {
+    background-color: #f0f9f6;
+    color: #087f5b;
+    border-color: #cce9df;
+}
+
+.aba:active {
+    transform: scale(0.98);
+}
+
+.aba.ativa {
+    background-color: #087f5b;
+    color: #ffffff;
+    border-color: #087f5b;
+    box-shadow: 0 4px 10px rgba(8, 127, 91, 0.2);
+}
+
+/* =========================================================
+   CONTEÚDO DAS ABAS
+========================================================= */
+
+.conteudo-aba {
+    display: none;
+    animation: aparecerAba 0.25s ease;
+}
+
+.conteudo-aba.ativo {
+    display: block;
+}
+
+@keyframes aparecerAba {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   ABAS AINDA NÃO IMPLEMENTADAS
+========================================================= */
+
+.aviso-aba-prontuario {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+
+    margin-top: 20px;
+    padding: 22px;
+
+    background-color: #f8fafc;
+    border: 1px dashed #b8cbc6;
+    border-radius: 12px;
+}
+
+.aviso-aba-prontuario .icone-aviso-aba {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background-color: #e6f5f0;
+    color: #087f5b;
+
+    font-size: 1.2rem;
+}
+
+.aviso-aba-prontuario h4 {
+    margin: 0 0 6px;
+    color: #1f2937;
+    font-size: 1rem;
+}
+
+.aviso-aba-prontuario p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   RESPONSIVIDADE DAS ABAS
+========================================================= */
+
+@media (max-width: 768px) {
+    .abas-prontuario {
+        justify-content: flex-start;
+        padding: 7px;
+        border-radius: 12px;
+    }
+
+    .aba {
+        padding: 11px 14px;
+        font-size: 0.88rem;
+    }
+
+    .aviso-aba-prontuario {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .aba {
+        gap: 6px;
+        padding: 10px 12px;
+    }
+
+    .aviso-aba-prontuario {
+        flex-direction: column;
+    }
+}

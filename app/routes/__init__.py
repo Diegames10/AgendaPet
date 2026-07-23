@@ -4,6 +4,7 @@ from app.routes.agendamentoConsulta import agendamento_consulta_bp
 from app.routes.veterinario import veterinarios_bp
 from app.routes.historico import historico_bp
 from app.routes.imagens import imagens_bp
+from app.routes.exames import exames_bp
 
 
 def registrar_rotas(app):
@@ -13,3 +14,4 @@ def registrar_rotas(app):
     app.register_blueprint(veterinarios_bp)
     app.register_blueprint(historico_bp)
     app.register_blueprint(imagens_bp)
+    app.register_blueprint(exames_bp)

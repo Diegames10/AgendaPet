@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Editar Exame - AgendaPet</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+</head>
+
+<body class="pagina-painel">
+
+<div class="painel-layout">
+
+
+    <main class="conteudo-painel">
+
+        <header class="cabecalho-pagina">
+
+            <div>
+
+                <span class="subtitulo-pagina">
+                    Prontuário Veterinário
+                </span>
+
+                <h1>
+                    Editar exame
+                </h1>
+
+                <p>
+                    {{ exame.historico.pet.nome }}
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <div class="cartao-formulario">
+
+            <form method="POST">
+
+                <!-- NOME DO EXAME -->
+
+                <div class="grupo-formulario">
+
+                    <label for="nome">
+
+                        <i class="fa-solid fa-flask"></i>
+
+                        Nome do exame
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nome"
+                        name="nome"
+                        required
+                        value="{{ exame.nome or '' }}"
+                        placeholder="Ex.: Hemograma Completo"
+                    >
+
+                </div>
+
+
+                <!-- CATEGORIA -->
+
+                <div class="grupo-formulario">
+
+                    <label for="categoria">
+
+                        <i class="fa-solid fa-layer-group"></i>
+
+                        Categoria
+
+                    </label>
+
+                    <select
+                        id="categoria"
+                        name="categoria"
+                    >
+
+                        <option
+                            value=""
+                            {% if not exame.categoria %}selected{% endif %}
+                        >
+                            Selecione
+                        </option>
+
+                        <option
+                            value="Laboratorial"
+                            {% if exame.categoria == "Laboratorial" %}selected{% endif %}
+                        >
+                            Laboratorial
+                        </option>
+
+                        <option
+                            value="Imagem"
+                            {% if exame.categoria == "Imagem" %}selected{% endif %}
+                        >
+                            Imagem
+                        </option>
+
+                        <option
+                            value="Cardiológico"
+                            {% if exame.categoria == "Cardiológico" %}selected{% endif %}
+                        >
+                            Cardiológico
+                        </option>
+
+                        <option
+                            value="Neurológico"
+                            {% if exame.categoria == "Neurológico" %}selected{% endif %}
+                        >
+                            Neurológico
+                        </option>
+
+                        <option
+                            value="Hormonal"
+                            {% if exame.categoria == "Hormonal" %}selected{% endif %}
+                        >
+                            Hormonal
+                        </option>
+
+                        <option
+                            value="Citologia"
+                            {% if exame.categoria == "Citologia" %}selected{% endif %}
+                        >
+                            Citologia
+                        </option>
+
+                        <option
+                            value="Biópsia"
+                            {% if exame.categoria == "Biópsia" %}selected{% endif %}
+                        >
+                            Biópsia
+                        </option>
+
+                        <option
+                            value="Outros"
+                            {% if exame.categoria == "Outros" %}selected{% endif %}
+                        >
+                            Outros
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- DATA DO EXAME -->
+
+                <div class="grupo-formulario">
+
+                    <label for="data_exame">
+
+                        <i class="fa-solid fa-calendar-days"></i>
+
+                        Data do exame
+
+                    </label>
+
+                    <input
+                        type="date"
+                        id="data_exame"
+                        name="data_exame"
+                        value="{{ exame.data_exame.strftime('%Y-%m-%d') if exame.data_exame else '' }}"
+                    >
+
+                </div>
+
+
+                <!-- RESULTADO -->
+
+                <div class="grupo-formulario">
+
+                    <label for="resultado">
+
+                        <i class="fa-solid fa-file-waveform"></i>
+
+                        Resultado
+
+                    </label>
+
+                    <textarea
+                        id="resultado"
+                        name="resultado"
+                        rows="7"
+                        placeholder="Descreva o resultado do exame..."
+                    >{{ exame.resultado or '' }}</textarea>
+
+                </div>
+
+
+                <!-- OBSERVAÇÕES -->
+
+                <div class="grupo-formulario">
+
+                    <label for="observacoes">
+
+                        <i class="fa-solid fa-notes-medical"></i>
+
+                        Observações
+
+                    </label>
+
+                    <textarea
+                        id="observacoes"
+                        name="observacoes"
+                        rows="5"
+                        placeholder="Observações adicionais..."
+                    >{{ exame.observacoes or '' }}</textarea>
+
+                </div>
+
+
+                <!-- AÇÕES -->
+
+                <div class="acoes-formulario">
+
+                    <a
+                        href="{{ url_for('exames.listar', historico_id=exame.historico_id) }}"
+                        class="botao-secundario"
+                    >
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        Cancelar
+
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="botao-principal"
+                    >
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+
+                        Salvar alterações
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

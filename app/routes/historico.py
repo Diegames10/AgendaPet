@@ -27,6 +27,11 @@ from reportlab.platypus import (
     KeepTogether
 )
 
+from decimal import Decimal
+from datetime import datetime
+
+from app.models.exame import Exame
+
 historico_bp = Blueprint(
     "historico",
     __name__,
@@ -57,7 +62,7 @@ def listar():
 
 
 # =========================================================
-# VER DETALHES DO HISTÓRICO
+# VER DETALHES DO HISTÓRICO / PRONTUÁRIO
 # =========================================================
 
 @historico_bp.route("/detalhes/<int:historico_id>")
@@ -74,9 +79,36 @@ def detalhes(historico_id):
         .first_or_404()
     )
 
+    exames = (
+        Exame.query
+        .filter_by(historico_id=historico.id)
+        .order_by(
+            Exame.data_exame.desc(),
+            Exame.id.desc()
+        )
+        .all()
+    )
+
+    aba_ativa = request.args.get(
+        "aba",
+        "dados"
+    )
+
+    abas_permitidas = {
+        "dados",
+        "exames",
+        "anexos",
+        "receita"
+    }
+
+    if aba_ativa not in abas_permitidas:
+        aba_ativa = "dados"
+
     return render_template(
         "historico/detalhes_historico.html",
-        historico=historico
+        historico=historico,
+        exames=exames,
+        aba_ativa=aba_ativa
     )
 
 
@@ -134,6 +166,46 @@ def finalizar_atendimento(agendamento_id):
             ""
         ).strip()
 
+        motivo_consulta = request.form.get(
+            "motivo_consulta",
+            ""
+        ).strip()
+
+        anamnese = request.form.get(
+            "anamnese",
+            ""
+        ).strip()
+
+        exame_clinico = request.form.get(
+            "exame_clinico",
+            ""
+        ).strip()
+
+        peso_atendimento = request.form.get(
+            "peso_atendimento",
+            ""
+        ).strip()
+
+        temperatura = request.form.get(
+            "temperatura",
+            ""
+        ).strip()
+
+        frequencia_cardiaca = request.form.get(
+            "frequencia_cardiaca",
+            ""
+        ).strip()
+
+        frequencia_respiratoria = request.form.get(
+            "frequencia_respiratoria",
+            ""
+        ).strip()
+
+        retorno_previsto = request.form.get(
+            "retorno_previsto",
+            ""
+        ).strip()
+        
         tratamento = request.form.get(
             "tratamento",
             ""
@@ -157,18 +229,114 @@ def finalizar_atendimento(agendamento_id):
             )
 
         novo_historico = Historico(
+
             data_atendimento=agendamento.data,
+
             tipo_atendimento=agendamento.tipo,
+
+            motivo_consulta=motivo_consulta,
+
+            anamnese=anamnese,
+
+            exame_clinico=exame_clinico,
+
+            peso_atendimento=peso_atendimento,
+
+            temperatura=temperatura,
+
+            frequencia_cardiaca=frequencia_cardiaca,
+
+            frequencia_respiratoria=frequencia_respiratoria,
+
+            retorno_previsto=retorno_previsto,
+
             diagnostico=diagnostico,
+
             tratamento=tratamento,
+
             observacoes=observacoes,
+
             pet_id=agendamento.pet_id,
+
             veterinario_id=agendamento.veterinario_id,
+
             agendamento_id=agendamento.id
+
         )
 
         agendamento.status = "Concluído"
 
+        try:
+
+            peso_atendimento = (
+                Decimal(
+                    peso_atendimento.replace(",", ".")
+                )
+                if peso_atendimento
+                else None
+            )
+
+        except Exception:
+
+            peso_atendimento = None
+
+
+        try:
+
+            temperatura = (
+                Decimal(
+                    temperatura.replace(",", ".")
+                )
+                if temperatura
+                else None
+            )
+
+        except Exception:
+
+            temperatura = None
+
+
+        try:
+
+            frequencia_cardiaca = (
+                int(frequencia_cardiaca)
+                if frequencia_cardiaca
+                else None
+            )
+
+        except Exception:
+
+            frequencia_cardiaca = None
+
+
+        try:
+
+            frequencia_respiratoria = (
+                int(frequencia_respiratoria)
+                if frequencia_respiratoria
+                else None
+            )
+
+        except Exception:
+
+            frequencia_respiratoria = None
+
+
+        try:
+
+            retorno_previsto = (
+                datetime.strptime(
+                    retorno_previsto,
+                    "%Y-%m-%d"
+                ).date()
+                if retorno_previsto
+                else None
+            )
+
+        except Exception:
+
+            retorno_previsto = None
+        
         try:
 
             db.session.add(novo_historico)

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Novo Exame - AgendaPet</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+</head>
+
+<body class="pagina-painel">
+
+<div class="painel-layout">
+
+
+    <main class="conteudo-painel">
+
+        <header class="cabecalho-pagina">
+
+            <div>
+
+                <span class="subtitulo-pagina">
+
+                    Prontuário Veterinário
+
+                </span>
+
+                <h1>
+
+                    Novo exame
+
+                </h1>
+
+                <p>
+
+                    {{ historico.pet.nome }}
+
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <div class="cartao-formulario">
+
+            <form method="POST">
+
+                <div class="grupo-formulario">
+
+                    <label for="nome">
+
+                        <i class="fa-solid fa-flask"></i>
+
+                        Nome do exame
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nome"
+                        name="nome"
+                        required
+                        value="{{ request.form.get('nome','') }}"
+                        placeholder="Ex.: Hemograma Completo"
+                    >
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label for="categoria">
+
+                        <i class="fa-solid fa-layer-group"></i>
+
+                        Categoria
+
+                    </label>
+
+                    <select
+                        id="categoria"
+                        name="categoria"
+                    >
+
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        <option>Laboratorial</option>
+
+                        <option>Imagem</option>
+
+                        <option>Cardiológico</option>
+
+                        <option>Neurológico</option>
+
+                        <option>Hormonal</option>
+
+                        <option>Citologia</option>
+
+                        <option>Biópsia</option>
+
+                        <option>Outros</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label for="data_exame">
+
+                        <i class="fa-solid fa-calendar-days"></i>
+
+                        Data do exame
+
+                    </label>
+
+                    <input
+                        type="date"
+                        id="data_exame"
+                        name="data_exame"
+                        value="{{ request.form.get('data_exame','') }}"
+                    >
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label for="resultado">
+
+                        <i class="fa-solid fa-file-waveform"></i>
+
+                        Resultado
+
+                    </label>
+
+                    <textarea
+                        id="resultado"
+                        name="resultado"
+                        rows="7"
+                        placeholder="Descreva o resultado do exame..."
+                    >{{ request.form.get('resultado','') }}</textarea>
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label for="observacoes">
+
+                        <i class="fa-solid fa-notes-medical"></i>
+
+                        Observações
+
+                    </label>
+
+                    <textarea
+                        id="observacoes"
+                        name="observacoes"
+                        rows="5"
+                        placeholder="Observações adicionais..."
+                    >{{ request.form.get('observacoes','') }}</textarea>
+
+                </div>
+
+
+                <div class="acoes-formulario">
+
+                    <a
+                        href="{{ url_for('exames.listar', historico_id=historico.id) }}"
+                        class="botao-secundario"
+                    >
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        Voltar
+
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="botao-principal"
+                    >
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+
+                        Salvar exame
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
