@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Editar Usuário - AgendaPet Paranaguá</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+</head>
+
+<body class="pagina-painel">
+
+<div class="painel-layout">
+
+    <!-- MENU LATERAL -->
+
+    <aside class="menu-lateral">
+
+        <div class="painel-logo">
+
+            <i class="fa-solid fa-paw"></i>
+
+            <div>
+
+                <strong>Agenda<span>Pet</span></strong>
+
+                <small>Paranaguá</small>
+
+            </div>
+
+        </div>
+
+        <nav class="menu-navegacao">
+
+            <a href="{{ url_for('auth.painel') }}" class="item-menu">
+                <i class="fa-solid fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('pets.listar') }}" class="item-menu">
+                <i class="fa-solid fa-dog"></i>
+                <span>Meus Pets</span>
+            </a>
+
+            <a href="{{ url_for('agendamento_consulta.listar') }}" class="item-menu">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>Agendamentos</span>
+            </a>
+
+            <a href="{{ url_for('veterinarios.listar') }}" class="item-menu">
+                <i class="fa-solid fa-user-doctor"></i>
+                <span>Veterinários</span>
+            </a>
+
+            <a href="{{ url_for('historico.listar') }}" class="item-menu">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Histórico</span>
+            </a>
+
+            <a href="{{ url_for('usuarios.listar') }}" class="item-menu ativo">
+                <i class="fa-solid fa-users"></i>
+                <span>Usuários</span>
+            </a>
+
+            <a href="#" class="item-menu">
+                <i class="fa-solid fa-user-gear"></i>
+                <span>Minha Conta</span>
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- CONTEÚDO -->
+
+    <main class="conteudo-painel">
+
+        <header class="cabecalho-pagina">
+
+            <div>
+
+                <span class="subtitulo-pagina">
+                    Administração
+                </span>
+
+                <h1>
+                    Editar usuário
+                </h1>
+
+                <p>
+                    Atualize as informações do usuário.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('usuarios.listar') }}"
+                class="botao-secundario"
+            >
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Voltar
+
+            </a>
+
+        </header>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+
+                <div class="mensagens-flash">
+
+                    {% for categoria, mensagem in mensagens %}
+
+                        <div class="flash {{ categoria }}">
+                            {{ mensagem }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+        {% endwith %}
+
+        <section class="secao-formulario-pet">
+
+            <div class="cabecalho-formulario-pet">
+
+                <div class="icone-formulario-pet">
+                    <i class="fa-solid fa-user-pen"></i>
+                </div>
+
+                <div>
+
+                    <h2>Dados do usuário</h2>
+
+                    <p>
+                        Altere os campos necessários.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <form method="POST">
+
+                <div class="grade-formulario-pet">
+
+                    <div class="grupo-campo campo-largo">
+
+                        <label>Nome completo</label>
+
+                        <input
+                            type="text"
+                            name="nome"
+                            value="{{ nome or '' }}"
+                            required
+                            placeholder="Nome completo"
+                        >
+
+                    </div>
+
+                    <div class="grupo-campo">
+
+                        <label>CPF</label>
+
+                        <input
+                            type="text"
+                            name="cpf"
+                            value="{{ cpf or '' }}"
+                            required
+                            placeholder="000.000.000-00"
+                        >
+
+                    </div>
+
+                    <div class="grupo-campo">
+
+                        <label>Telefone</label>
+
+                        <input
+                            type="text"
+                            name="telefone"
+                            value="{{ telefone or '' }}"
+                            placeholder="(41) 99999-9999"
+                        >
+
+                    </div>
+
+                    <div class="grupo-campo campo-largo">
+
+                        <label>E-mail</label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ email or '' }}"
+                            required
+                            placeholder="email@exemplo.com"
+                        >
+
+                    </div>
+
+                    <div class="grupo-campo">
+
+                        <label>Tipo de usuário</label>
+
+                        <select
+                            name="tipo_usuario"
+                            required
+                        >
+
+                            <option value="">Selecione...</option>
+
+                            <option
+                                value="ADMIN"
+                                {% if tipo_usuario == "ADMIN" %}selected{% endif %}
+                            >
+                                Administrador
+                            </option>
+
+                            <option
+                                value="VETERINARIO"
+                                {% if tipo_usuario == "VETERINARIO" %}selected{% endif %}
+                            >
+                                Veterinário
+                            </option>
+
+                            <option
+                                value="RECEPCIONISTA"
+                                {% if tipo_usuario == "RECEPCIONISTA" %}selected{% endif %}
+                            >
+                                Recepcionista
+                            </option>
+
+                            <option
+                                value="CLIENTE"
+                                {% if tipo_usuario == "CLIENTE" %}selected{% endif %}
+                            >
+                                Cliente
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="grupo-campo">
+
+                        <label>Usuário ativo</label>
+
+                        <div style="margin-top: 12px;">
+
+                            <input
+                                type="checkbox"
+                                name="ativo"
+                                {% if ativo %}checked{% endif %}
+                            >
+
+                            Ativo
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="acoes-formulario-pet">
+
+                    <a
+                        href="{{ url_for('usuarios.listar') }}"
+                        class="botao-cancelar"
+                    >
+                        Cancelar
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="botao-salvar-pet"
+                    >
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+
+                        Atualizar usuário
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

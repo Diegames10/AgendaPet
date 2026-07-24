@@ -1071,12 +1071,21 @@ conteudo-destaque h2 {
    PAINEL PRINCIPAL
 ===================================================== */
 
-.pagina-painel {
+body.pagina-painel {
     margin: 0;
+    padding: 0;
+
+    width: 100%;
     min-height: 100vh;
+
+    display: block;
+
     background: #f3f6f9;
     color: #24313f;
+
     font-family: Arial, Helvetica, sans-serif;
+
+    overflow-x: hidden;
 }
 
 .painel-layout {
@@ -1099,6 +1108,7 @@ conteudo-destaque h2 {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 1000;
     box-sizing: border-box;
 }
 
@@ -1199,9 +1209,13 @@ conteudo-destaque h2 {
 
 .conteudo-painel {
     width: calc(100% - 270px);
+    min-width: 0;
+
     margin-left: 270px;
     padding: 35px;
+
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .cabecalho-painel {
@@ -1639,6 +1653,25 @@ conteudo-destaque h2 {
 
 .mensagens-flash {
     margin-bottom: 22px;
+}
+
+.flash{
+    padding:14px 18px;
+    border-radius:10px;
+    font-weight:600;
+    margin-bottom:12px;
+}
+
+.flash.sucesso{
+    background:#d4edda;
+    color:#155724;
+    border:1px solid #c3e6cb;
+}
+
+.flash.erro{
+    background:#f8d7da;
+    color:#721c24;
+    border:1px solid #f5c6cb;
 }
 
 .mensagem-flash {
@@ -6053,5 +6086,156 @@ margin-top:20px;
 
     .aviso-aba-prontuario {
         flex-direction: column;
+    }
+}
+
+.acoes-usuario {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.formulario-status {
+    margin: 0;
+}
+
+.botao-acao {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.botao-editar {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.botao-editar:hover {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.botao-inativar {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.botao-inativar:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.botao-ativar {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.botao-ativar:hover {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.botao-senha{
+
+    background:#fff7d6;
+    color:#d97706;
+
+}
+
+.botao-senha:hover{
+
+    background:#d97706;
+    color:white;
+
+}
+
+.formulario-pesquisa {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.campo-pesquisa {
+    position: relative;
+    flex: 1;
+}
+
+.campo-pesquisa i {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #64748b;
+}
+
+.campo-pesquisa input {
+    width: 100%;
+    height: 46px;
+    padding: 0 16px 0 44px;
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
+    outline: none;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.campo-pesquisa input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.botao-pesquisar,
+.botao-limpar {
+    height: 46px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.botao-pesquisar {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.botao-pesquisar:hover {
+    background: #1d4ed8;
+}
+
+.botao-limpar {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.botao-limpar:hover {
+    background: #cbd5e1;
+}
+
+@media (max-width: 700px) {
+
+    .formulario-pesquisa {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .botao-pesquisar,
+    .botao-limpar {
+        width: 100%;
     }
 }

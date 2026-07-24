@@ -1,3 +1,11 @@
+{% if current_user.is_admin %}
+
+<a href="{{ url_for('usuarios.listar') }}" class="item-menu">
+    <i class="fa-solid fa-users"></i>
+    <span>Usuários</span>
+</a>
+
+{% endif %}
 <!DOCTYPE html>
 <html lang="pt-br">
 

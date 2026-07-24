@@ -32,6 +32,13 @@ from datetime import datetime
 
 from app.models.exame import Exame
 
+
+from flask_login import login_required
+
+from app.auth.permissions import roles_permitidas
+from app.models.usuario import TipoUsuario
+
+
 historico_bp = Blueprint(
     "historico",
     __name__,
@@ -45,6 +52,11 @@ historico_bp = Blueprint(
 
 @historico_bp.route("/")
 @login_required
+@roles_permitidas(
+    TipoUsuario.ADMIN,
+    TipoUsuario.VETERINARIO
+)
+
 def listar():
 
     historicos = (

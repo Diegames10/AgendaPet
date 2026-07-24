@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
 
+
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()

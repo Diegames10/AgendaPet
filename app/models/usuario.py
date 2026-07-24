@@ -5,6 +5,20 @@ from flask_login import UserMixin
 from app import db
 
 
+class TipoUsuario:
+    ADMIN = "ADMIN"
+    VETERINARIO = "VETERINARIO"
+    RECEPCIONISTA = "RECEPCIONISTA"
+    CLIENTE = "CLIENTE"
+
+    TODOS = (
+        ADMIN,
+        VETERINARIO,
+        RECEPCIONISTA,
+        CLIENTE,
+    )
+
+
 class Usuario(db.Model, UserMixin):
     __tablename__ = "usuarios"
 
@@ -45,7 +59,7 @@ class Usuario(db.Model, UserMixin):
     tipo_usuario = db.Column(
         db.String(20),
         nullable=False,
-        default="CLIENTE"
+        default=TipoUsuario.CLIENTE
     )
 
     ativo = db.Column(
@@ -129,6 +143,29 @@ class Usuario(db.Model, UserMixin):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
+
+    # =====================================================
+    # MÉTODOS DE PERFIL
+    # =====================================================
+
+    def possui_perfil(self, *tipos_usuario):
+        return self.tipo_usuario in tipos_usuario
+
+    @property
+    def is_admin(self):
+        return self.tipo_usuario == TipoUsuario.ADMIN
+
+    @property
+    def is_veterinario(self):
+        return self.tipo_usuario == TipoUsuario.VETERINARIO
+
+    @property
+    def is_recepcionista(self):
+        return self.tipo_usuario == TipoUsuario.RECEPCIONISTA
+
+    @property
+    def is_cliente(self):
+        return self.tipo_usuario == TipoUsuario.CLIENTE
 
     def __repr__(self):
         return f"<Usuario {self.email}>"
