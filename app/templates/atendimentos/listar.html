@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Atendimentos | AgendaPet Paranaguá</title>
+
+   <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+</head>
+
+<body class="pagina-painel">
+
+    <div class="painel-layout">
+
+        {% include "partials/sidebar.html" %}
+
+        <main class="conteudo-painel">
+
+            <header class="cabecalho-pagina">
+
+                <div>
+
+                    <h1>
+                        <i class="fa-solid fa-stethoscope"></i>
+                        Atendimentos
+                    </h1>
+
+                    <p>
+                        Gerencie os atendimentos veterinários.
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <section class="card-painel">
+
+                {% if agendamentos %}
+
+                    <div class="tabela-responsiva">
+
+                        <table class="tabela-atendimentos">
+
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Horário</th>
+                                    <th>Pet</th>
+                                    <th>Tutor</th>
+                                    <th>Veterinário</th>
+                                    <th>Tipo</th>
+                                    <th>Status</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for agendamento in agendamentos %}
+
+                                    <tr>
+
+                                        <td>
+                                            {{ agendamento.data.strftime('%d/%m/%Y') }}
+                                        </td>
+
+                                        <td>
+                                            {{ agendamento.horario.strftime('%H:%M') }}
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                {{ agendamento.pet.nome }}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            {{ agendamento.tutor.nome }}
+                                        </td>
+
+                                        <td>
+                                            {% if agendamento.veterinario %}
+                                                {{ agendamento.veterinario.nome }}
+                                            {% else %}
+                                                Não definido
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            {{ agendamento.tipo }}
+                                        </td>
+
+                                        <td>
+
+                                            {% if agendamento.status == "Confirmado" %}
+
+                                                <span class="badge-status badge-confirmado">
+                                                    🟡 Confirmado
+                                                </span>
+
+                                            {% elif agendamento.status == "Em atendimento" %}
+
+                                                <span class="badge-status badge-atendimento">
+                                                    🔵 Em atendimento
+                                                </span>
+
+                                            {% elif agendamento.status == "Concluído" %}
+
+                                                <span class="badge-status badge-concluido">
+                                                    ✅ Concluído
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+                                        <td>
+
+                                            {% if agendamento.status == "Confirmado" %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for(
+                                                        'atendimentos.iniciar',
+                                                        agendamento_id=agendamento.id
+                                                    ) }}"
+                                                >
+
+                                                    <button
+                                                        type="submit"
+                                                        class="botao-iniciar-atendimento"
+                                                    >
+                                                        <i class="fa-solid fa-play"></i>
+                                                        Iniciar
+                                                    </button>
+
+                                                </form>
+
+                                            {% elif agendamento.status == "Em atendimento" %}
+
+                                                <a
+                                                    href="{{ url_for(
+                                                        'historico.finalizar_atendimento',
+                                                        agendamento_id=agendamento.id
+                                                    ) }}"
+                                                    class="botao-continuar-atendimento"
+                                                >
+                                                    <i class="fa-solid fa-stethoscope"></i>
+                                                    Continuar
+                                                </a>
+
+                                            {% endif %}
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="estado-vazio">
+
+                        <i class="fa-solid fa-stethoscope"></i>
+
+                        <h2>Nenhum atendimento disponível</h2>
+
+                        <p>
+                            Os agendamentos confirmados aparecerão aqui.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

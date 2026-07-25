@@ -47,18 +47,19 @@ class AgendamentoConsulta(db.Model):
     )
 
     tutor_id = db.Column(
-        db.Integer,
-        db.ForeignKey("usuarios.id"),
-        nullable=False
-    )
-
+            db.Integer,
+            db.ForeignKey("usuarios.id"),
+            nullable=False
+        )
+    
     pet = db.relationship(
         "Pet",
         back_populates="agendamentos"
     )
-
+    
     tutor = db.relationship(
         "Usuario",
+        foreign_keys=[tutor_id],
         back_populates="agendamentos"
     )
 
@@ -70,14 +71,15 @@ class AgendamentoConsulta(db.Model):
         
     veterinario_id = db.Column(
         db.Integer,
-        db.ForeignKey("veterinarios.id"),
+        db.ForeignKey("usuarios.id"),
         nullable=True
     )
 
 
     veterinario = db.relationship(
-        "Veterinario",
-        back_populates="agendamentos"
+        "Usuario",
+        foreign_keys=[veterinario_id],
+        back_populates="agendamentos_como_veterinario"
     )
    
     historico = db.relationship(

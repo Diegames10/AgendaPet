@@ -1,16 +1,24 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    send_file,
+    abort
+)
 from flask_login import login_required, current_user
 
 from app import db
 from app.models.historico import Historico
 from app.models.agendamentoConsulta import AgendamentoConsulta
 from app.models.pet import Pet
+from app.models.exame import Exame
 
 from io import BytesIO
 import re
 import unicodedata
-
-from flask import send_file
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
@@ -27,16 +35,8 @@ from reportlab.platypus import (
     KeepTogether
 )
 
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from datetime import datetime
-
-from app.models.exame import Exame
-
-
-from flask_login import login_required
-
-from app.auth.permissions import roles_permitidas
-from app.models.usuario import TipoUsuario
 
 
 historico_bp = Blueprint(
@@ -47,23 +47,57 @@ historico_bp = Blueprint(
 
 
 # =========================================================
+# FUNÇÕES AUXILIARES DE AUTORIZAÇÃO
+# =========================================================
+
+def obter_historico_autorizado(historico_id):
+    """Retorna o histórico quando o usuário possui permissão de acesso."""
+
+    historico = Historico.query.get_or_404(historico_id)
+
+    if current_user.pode_ver_historico_completo:
+        return historico
+
+    if historico.pet.tutor_id != current_user.id:
+        abort(403)
+
+    return historico
+
+
+
+def obter_agendamento_para_atendimento(agendamento_id):
+    """Retorna o agendamento apenas para quem pode registrar atendimento."""
+
+    if not current_user.pode_registrar_atendimento:
+        abort(403)
+
+    return AgendamentoConsulta.query.get_or_404(agendamento_id)
+
+
+# =========================================================
 # LISTAR HISTÓRICOS
 # =========================================================
 
 @historico_bp.route("/")
 @login_required
-@roles_permitidas(
-    TipoUsuario.ADMIN,
-    TipoUsuario.VETERINARIO
-)
-
 def listar():
 
-    historicos = (
+    consulta = (
         Historico.query
         .join(Pet, Historico.pet_id == Pet.id)
-        .filter(Pet.tutor_id == current_user.id)
-        .order_by(Historico.data_atendimento.desc())
+    )
+
+    if not current_user.pode_ver_historico_completo:
+        consulta = consulta.filter(
+            Pet.tutor_id == current_user.id
+        )
+
+    historicos = (
+        consulta
+        .order_by(
+            Historico.data_atendimento.desc(),
+            Historico.id.desc()
+        )
         .all()
     )
 
@@ -81,14 +115,8 @@ def listar():
 @login_required
 def detalhes(historico_id):
 
-    historico = (
-        Historico.query
-        .join(Pet, Historico.pet_id == Pet.id)
-        .filter(
-            Historico.id == historico_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    historico = obter_historico_autorizado(
+        historico_id
     )
 
     exames = (
@@ -135,35 +163,28 @@ def detalhes(historico_id):
 @login_required
 def finalizar_atendimento(agendamento_id):
 
-    agendamento = AgendamentoConsulta.query.filter_by(
-        id=agendamento_id,
-        tutor_id=current_user.id
-    ).first_or_404()
+    agendamento = obter_agendamento_para_atendimento(
+        agendamento_id
+    )
 
-    # Impede finalizar um atendimento cancelado
     if agendamento.status == "Cancelado":
-
         flash(
             "Não é possível finalizar um agendamento cancelado.",
             "erro"
         )
-
         return redirect(
-            url_for("agendamento_consulta.listar")
+            url_for("atendimentos.listar")
         )
 
-    # Verifica se já existe histórico para esse agendamento
     historico_existente = Historico.query.filter_by(
         agendamento_id=agendamento.id
     ).first()
 
     if historico_existente:
-
         flash(
             "Este atendimento já foi finalizado.",
             "aviso"
         )
-
         return redirect(
             url_for(
                 "historico.detalhes",
@@ -193,31 +214,6 @@ def finalizar_atendimento(agendamento_id):
             ""
         ).strip()
 
-        peso_atendimento = request.form.get(
-            "peso_atendimento",
-            ""
-        ).strip()
-
-        temperatura = request.form.get(
-            "temperatura",
-            ""
-        ).strip()
-
-        frequencia_cardiaca = request.form.get(
-            "frequencia_cardiaca",
-            ""
-        ).strip()
-
-        frequencia_respiratoria = request.form.get(
-            "frequencia_respiratoria",
-            ""
-        ).strip()
-
-        retorno_previsto = request.form.get(
-            "retorno_previsto",
-            ""
-        ).strip()
-        
         tratamento = request.form.get(
             "tratamento",
             ""
@@ -229,128 +225,107 @@ def finalizar_atendimento(agendamento_id):
         ).strip()
 
         if not diagnostico:
-
             flash(
                 "Informe o diagnóstico do atendimento.",
                 "erro"
             )
+            return render_template(
+                "historico/finalizar.html",
+                agendamento=agendamento
+            )
 
+        peso_texto = request.form.get(
+            "peso_atendimento",
+            ""
+        ).strip()
+
+        temperatura_texto = request.form.get(
+            "temperatura",
+            ""
+        ).strip()
+
+        frequencia_cardiaca_texto = request.form.get(
+            "frequencia_cardiaca",
+            ""
+        ).strip()
+
+        frequencia_respiratoria_texto = request.form.get(
+            "frequencia_respiratoria",
+            ""
+        ).strip()
+
+        retorno_texto = request.form.get(
+            "retorno_previsto",
+            ""
+        ).strip()
+
+        try:
+            peso_atendimento = (
+                Decimal(peso_texto.replace(",", "."))
+                if peso_texto
+                else None
+            )
+
+            temperatura = (
+                Decimal(temperatura_texto.replace(",", "."))
+                if temperatura_texto
+                else None
+            )
+
+            frequencia_cardiaca = (
+                int(frequencia_cardiaca_texto)
+                if frequencia_cardiaca_texto
+                else None
+            )
+
+            frequencia_respiratoria = (
+                int(frequencia_respiratoria_texto)
+                if frequencia_respiratoria_texto
+                else None
+            )
+
+            retorno_previsto = (
+                datetime.strptime(
+                    retorno_texto,
+                    "%Y-%m-%d"
+                ).date()
+                if retorno_texto
+                else None
+            )
+
+        except (ValueError, InvalidOperation):
+            flash(
+                "Verifique os valores de peso, temperatura, "
+                "frequências e data de retorno.",
+                "erro"
+            )
             return render_template(
                 "historico/finalizar.html",
                 agendamento=agendamento
             )
 
         novo_historico = Historico(
-
             data_atendimento=agendamento.data,
-
             tipo_atendimento=agendamento.tipo,
-
-            motivo_consulta=motivo_consulta,
-
-            anamnese=anamnese,
-
-            exame_clinico=exame_clinico,
-
+            motivo_consulta=motivo_consulta or None,
+            anamnese=anamnese or None,
+            exame_clinico=exame_clinico or None,
             peso_atendimento=peso_atendimento,
-
             temperatura=temperatura,
-
             frequencia_cardiaca=frequencia_cardiaca,
-
             frequencia_respiratoria=frequencia_respiratoria,
-
             retorno_previsto=retorno_previsto,
-
             diagnostico=diagnostico,
-
-            tratamento=tratamento,
-
-            observacoes=observacoes,
-
+            tratamento=tratamento or None,
+            observacoes=observacoes or None,
             pet_id=agendamento.pet_id,
-
             veterinario_id=agendamento.veterinario_id,
-
             agendamento_id=agendamento.id
-
         )
 
         agendamento.status = "Concluído"
 
         try:
-
-            peso_atendimento = (
-                Decimal(
-                    peso_atendimento.replace(",", ".")
-                )
-                if peso_atendimento
-                else None
-            )
-
-        except Exception:
-
-            peso_atendimento = None
-
-
-        try:
-
-            temperatura = (
-                Decimal(
-                    temperatura.replace(",", ".")
-                )
-                if temperatura
-                else None
-            )
-
-        except Exception:
-
-            temperatura = None
-
-
-        try:
-
-            frequencia_cardiaca = (
-                int(frequencia_cardiaca)
-                if frequencia_cardiaca
-                else None
-            )
-
-        except Exception:
-
-            frequencia_cardiaca = None
-
-
-        try:
-
-            frequencia_respiratoria = (
-                int(frequencia_respiratoria)
-                if frequencia_respiratoria
-                else None
-            )
-
-        except Exception:
-
-            frequencia_respiratoria = None
-
-
-        try:
-
-            retorno_previsto = (
-                datetime.strptime(
-                    retorno_previsto,
-                    "%Y-%m-%d"
-                ).date()
-                if retorno_previsto
-                else None
-            )
-
-        except Exception:
-
-            retorno_previsto = None
-        
-        try:
-
             db.session.add(novo_historico)
             db.session.commit()
 
@@ -367,12 +342,8 @@ def finalizar_atendimento(agendamento_id):
             )
 
         except Exception as erro:
-
             db.session.rollback()
-
-            print(
-                f"Erro ao finalizar atendimento: {erro}"
-            )
+            print(f"Erro ao finalizar atendimento: {erro}")
 
             flash(
                 "Não foi possível finalizar o atendimento.",
@@ -383,7 +354,7 @@ def finalizar_atendimento(agendamento_id):
         "historico/finalizar.html",
         agendamento=agendamento
     )
-    
+
 # =========================================================
 # VISUALIZAR RECEITA
 # =========================================================
@@ -392,14 +363,8 @@ def finalizar_atendimento(agendamento_id):
 @login_required
 def receita(historico_id):
 
-    historico = (
-        Historico.query
-        .join(Pet, Historico.pet_id == Pet.id)
-        .filter(
-            Historico.id == historico_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    historico = obter_historico_autorizado(
+        historico_id
     )
 
     return render_template(
@@ -415,14 +380,8 @@ def receita(historico_id):
 @login_required
 def baixar_receita_pdf(historico_id):
 
-    historico = (
-        Historico.query
-        .join(Pet, Historico.pet_id == Pet.id)
-        .filter(
-            Historico.id == historico_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    historico = obter_historico_autorizado(
+        historico_id
     )
 
     buffer = BytesIO()
@@ -829,14 +788,8 @@ def baixar_receita_pdf(historico_id):
 @login_required
 def comprovante(historico_id):
 
-    historico = (
-        Historico.query
-        .join(Pet, Historico.pet_id == Pet.id)
-        .filter(
-            Historico.id == historico_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    historico = obter_historico_autorizado(
+        historico_id
     )
 
     return render_template(
@@ -853,14 +806,8 @@ def comprovante(historico_id):
 @login_required
 def baixar_comprovante_pdf(historico_id):
 
-    historico = (
-        Historico.query
-        .join(Pet, Historico.pet_id == Pet.id)
-        .filter(
-            Historico.id == historico_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    historico = obter_historico_autorizado(
+        historico_id
     )
 
     buffer = BytesIO()

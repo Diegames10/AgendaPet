@@ -123,7 +123,7 @@ class Historico(db.Model):
 
     veterinario_id = db.Column(
         db.Integer,
-        db.ForeignKey("veterinarios.id"),
+        db.ForeignKey("usuarios.id"),
         nullable=True
     )
 
@@ -144,10 +144,12 @@ class Historico(db.Model):
     )
 
     veterinario = db.relationship(
-        "Veterinario",
-        backref="historicos"
+        "Usuario",
+        foreign_keys=[veterinario_id],
+        back_populates="historicos_como_veterinario"
     )
 
+    
     agendamento = db.relationship(
         "AgendamentoConsulta",
         back_populates="historico"

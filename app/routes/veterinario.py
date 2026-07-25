@@ -1,12 +1,16 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from io import BytesIO
+
+from flask import (
+    Blueprint,
+    render_template,
+    send_file,
+    abort
+)
 
 from flask_login import login_required
 
-from app import db
+from app.models.usuario import Usuario, TipoUsuario
 
-from app.models.veterinario import Veterinario
-
-from flask import abort
 
 veterinarios_bp = Blueprint(
     "veterinarios",
@@ -19,7 +23,15 @@ veterinarios_bp = Blueprint(
 @login_required
 def listar():
 
-    veterinarios = Veterinario.query.all()
+    veterinarios = (
+        Usuario.query
+        .filter(
+            Usuario.tipo_usuario == TipoUsuario.VETERINARIO,
+            Usuario.ativo == True
+        )
+        .order_by(Usuario.nome)
+        .all()
+    )
 
     return render_template(
         "veterinarios/listar_veterinarios.html",
@@ -27,110 +39,18 @@ def listar():
     )
 
 
-@veterinarios_bp.route(
-    "/cadastrar",
-    methods=["GET", "POST"]
-)
+@veterinarios_bp.route("/<int:id>/foto")
 @login_required
-def cadastrar():
+def foto(id):
 
-    if request.method == "POST":
+    veterinario = Usuario.query.get_or_404(id)
 
-        nome = request.form.get("nome")
-        crmv = request.form.get("crmv")
-        especialidade = request.form.get("especialidade")
-        telefone = request.form.get("telefone")
-        email = request.form.get("email")
+    if not veterinario.foto_perfil:
+        abort(404)
 
+    arquivo = veterinario.foto_perfil.arquivo
 
-        novo_veterinario = Veterinario(
-            nome=nome,
-            crmv=crmv,
-            especialidade=especialidade,
-            telefone=telefone,
-            email=email
-        )
-
-
-        db.session.add(novo_veterinario)
-
-        db.session.commit()
-
-
-        flash(
-            "Veterinário cadastrado com sucesso!",
-            "success"
-        )
-
-
-        return redirect(
-            url_for("veterinarios.listar")
-        )
-
-
-    return render_template(
-        "veterinarios/cadastrar_veterinarios.html"
+    return send_file(
+        BytesIO(arquivo.dados),
+        mimetype=arquivo.tipo_mime
     )
-    
-@veterinarios_bp.route(
-    "/editar/<int:id>",
-    methods=["GET", "POST"]
-)
-@login_required
-def editar(id):
-
-    veterinario = Veterinario.query.get_or_404(id)
-
-
-    if request.method == "POST":
-
-        veterinario.nome = request.form.get("nome")
-        veterinario.crmv = request.form.get("crmv")
-        veterinario.especialidade = request.form.get("especialidade")
-        veterinario.telefone = request.form.get("telefone")
-        veterinario.email = request.form.get("email")
-
-
-        db.session.commit()
-
-
-        flash(
-            "Veterinário atualizado com sucesso!",
-            "success"
-        )
-
-
-        return redirect(
-            url_for("veterinarios.listar")
-        )
-
-
-    return render_template(
-        "veterinarios/editar_veterinario.html",
-        veterinario=veterinario
-    )
-    
-@veterinarios_bp.route(
-    "/excluir/<int:id>"
-)
-@login_required
-def excluir(id):
-
-    veterinario = Veterinario.query.get_or_404(id)
-
-
-    db.session.delete(veterinario)
-
-    db.session.commit()
-
-
-    flash(
-        "Veterinário removido com sucesso!",
-        "success"
-    )
-
-
-    return redirect(
-        url_for("veterinarios.listar")
-    )
-    

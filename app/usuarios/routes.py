@@ -7,6 +7,7 @@ from app.models.usuario import Usuario, TipoUsuario
 from werkzeug.security import generate_password_hash
 from app import db
 
+from app.services.foto_service import FotoService
 
 usuarios_bp = Blueprint(
     "usuarios",
@@ -72,6 +73,20 @@ def novo():
         tipo_usuario = request.form.get("tipo_usuario", "").strip()
         ativo = request.form.get("ativo") == "on"
 
+        crmv = request.form.get(
+            "crmv",
+            ""
+        ).strip().upper()
+
+        especialidade = request.form.get(
+            "especialidade",
+            ""
+        ).strip()
+
+        foto_perfil = request.files.get(
+            "foto_perfil"
+        )
+        
         # Mantém somente os números do CPF
         cpf_numeros = "".join(
             caractere
@@ -162,6 +177,74 @@ def novo():
             )
 
         # ==========================================
+        # DADOS PROFISSIONAIS
+        # ==========================================
+
+        if tipo_usuario == TipoUsuario.VETERINARIO:
+
+            if not crmv:
+                flash(
+                    "Informe o CRMV do veterinário.",
+                    "erro"
+                )
+
+                return render_template(
+                    "usuarios/novo.html",
+                    nome=nome,
+                    cpf=cpf,
+                    telefone=telefone,
+                    email=email,
+                    tipo_usuario=tipo_usuario,
+                    ativo=ativo,
+                    crmv=crmv,
+                    especialidade=especialidade
+                )
+
+            if not especialidade:
+                flash(
+                    "Informe a especialidade do veterinário.",
+                    "erro"
+                )
+
+                return render_template(
+                    "usuarios/novo.html",
+                    nome=nome,
+                    cpf=cpf,
+                    telefone=telefone,
+                    email=email,
+                    tipo_usuario=tipo_usuario,
+                    ativo=ativo,
+                    crmv=crmv,
+                    especialidade=especialidade
+                )
+
+            crmv_existente = Usuario.query.filter(
+                Usuario.crmv == crmv
+            ).first()
+
+            if crmv_existente:
+                flash(
+                    "Já existe um veterinário cadastrado com este CRMV.",
+                    "erro"
+                )
+
+                return render_template(
+                    "usuarios/novo.html",
+                    nome=nome,
+                    cpf=cpf,
+                    telefone=telefone,
+                    email=email,
+                    tipo_usuario=tipo_usuario,
+                    ativo=ativo,
+                    crmv=crmv,
+                    especialidade=especialidade
+                )
+
+        else:
+            crmv = None
+            especialidade = None
+        
+        # ==========================================
         # VERIFICAÇÃO DE CPF
         # ==========================================
 
@@ -208,10 +291,64 @@ def novo():
             email=email,
             senha_hash=generate_password_hash(senha),
             tipo_usuario=tipo_usuario,
-            ativo=ativo
+            ativo=ativo,
+            crmv=crmv,
+            especialidade=especialidade
         )
 
         try:
+
+            db.session.add(novo_usuario)
+
+            # Garante que o usuário receba um ID antes
+            # de relacionar a foto.
+            db.session.flush()
+
+            if (
+                foto_perfil is not None
+                and foto_perfil.filename
+            ):
+                FotoService.salvar_foto_usuario(
+                    novo_usuario,
+                    foto_perfil
+                )
+
+            db.session.commit()
+
+            flash(
+                "Usuário cadastrado com sucesso.",
+                "sucesso"
+            )
+
+            return redirect(
+                url_for("usuarios.listar")
+            )
+
+        except Exception as erro:
+
+            db.session.rollback()
+
+            print(
+                "Erro ao cadastrar usuário:",
+                repr(erro)
+            )
+
+            flash(
+                "Não foi possível cadastrar o usuário.",
+                "erro"
+            )
+
+            return render_template(
+                "usuarios/novo.html",
+                nome=nome,
+                cpf=cpf,
+                telefone=telefone,
+                email=email,
+                tipo_usuario=tipo_usuario,
+                ativo=ativo,
+                crmv=crmv or "",
+                especialidade=especialidade or ""
+            )
 
             db.session.add(novo_usuario)
             db.session.commit()

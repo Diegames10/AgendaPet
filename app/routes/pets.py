@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 
 from app import db
@@ -15,21 +15,67 @@ pets_bp = Blueprint(
     url_prefix="/pets"
 )
 
+def obter_pet_autorizado(pet_id):
+    """
+    Busca um pet e verifica se o usuário atual pode acessá-lo.
+
+    Funcionários podem acessar qualquer pet.
+    Clientes podem acessar somente os próprios pets.
+    """
+
+    pet = Pet.query.get_or_404(pet_id)
+
+    if current_user.pode_ver_todos_os_pets:
+        return pet
+
+    if pet.tutor_id != current_user.id:
+        abort(403)
+
+    return pet
 
 @pets_bp.route("/")
 @login_required
 def listar():
 
-    pets = (
-        Pet.query
-        .filter_by(tutor_id=current_user.id)
-        .order_by(Pet.nome.asc())
-        .all()
-    )
+    if current_user.pode_ver_todos_os_pets:
+
+        pets = (
+            Pet.query
+            .order_by(Pet.nome.asc())
+            .all()
+        )
+
+    else:
+
+        pets = (
+            Pet.query
+            .filter_by(tutor_id=current_user.id)
+            .order_by(Pet.nome.asc())
+            .all()
+        )
 
     return render_template(
         "pets/listar.html",
         pets=pets
+    )
+
+@pets_bp.route("/<int:pet_id>")
+@login_required
+def detalhes(pet_id):
+
+    pet = Pet.query.get_or_404(pet_id)
+
+    # Funcionários podem visualizar qualquer pet.
+    # Clientes podem visualizar somente os próprios pets.
+    if (
+        not current_user.pode_ver_todos_os_pets
+        and pet.tutor_id != current_user.id
+    ):
+        abort(403)
+
+    return render_template(
+        "pets/detalhes.html",
+        pet=pet
     )
 
 
@@ -127,10 +173,7 @@ def cadastrar():
 @login_required
 def editar(pet_id):
 
-    pet = Pet.query.filter_by(
-        id=pet_id,
-        tutor_id=current_user.id
-    ).first_or_404()
+    pet = obter_pet_autorizado(pet_id)
 
     if request.method == "POST":
 
@@ -228,15 +271,9 @@ def editar(pet_id):
     methods=["POST"]
 )
 @login_required
-def definir_foto_principal(
-    pet_id,
-    foto_id
-):
+def definir_foto_principal(pet_id, foto_id):
 
-    pet = Pet.query.filter_by(
-        id=pet_id,
-        tutor_id=current_user.id
-    ).first_or_404()
+    pet = obter_pet_autorizado(pet_id)
 
     try:
 
@@ -270,15 +307,9 @@ def definir_foto_principal(
     methods=["POST"]
 )
 @login_required
-def excluir_foto(
-    pet_id,
-    foto_id
-):
+def excluir_foto(pet_id, foto_id):
 
-    pet = Pet.query.filter_by(
-        id=pet_id,
-        tutor_id=current_user.id
-    ).first_or_404()
+    pet = obter_pet_autorizado(pet_id)
 
     try:
 
@@ -306,15 +337,11 @@ def excluir_foto(
         )
     )
 
-
 @pets_bp.route("/<int:pet_id>/excluir", methods=["POST"])
 @login_required
 def excluir(pet_id):
 
-    pet = Pet.query.filter_by(
-        id=pet_id,
-        tutor_id=current_user.id
-    ).first_or_404()
+    pet = obter_pet_autorizado(pet_id)
 
     nome_pet = pet.nome
 
@@ -327,3 +354,4 @@ def excluir(pet_id):
     )
 
     return redirect(url_for("pets.listar"))
+

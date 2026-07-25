@@ -1,0 +1,186 @@
+<aside class="menu-lateral">
+
+    <!-- LOGO -->
+
+    <div class="painel-logo">
+
+        <i class="fa-solid fa-paw"></i>
+
+        <div>
+            <strong>
+                Agenda<span>Pet</span>
+            </strong>
+
+            <small>Paranaguá</small>
+        </div>
+
+    </div>
+
+
+    <!-- NAVEGAÇÃO -->
+
+    <nav class="menu-navegacao">
+
+        <!-- DASHBOARD -->
+
+        <a
+            href="{{ url_for('auth.painel') }}"
+            class="item-menu
+            {% if request.endpoint == 'auth.painel' %}
+                ativo
+            {% endif %}"
+        >
+            <i class="fa-solid fa-house"></i>
+            <span>Dashboard</span>
+        </a>
+
+
+        <!-- PETS -->
+
+        <a
+            href="{{ url_for('pets.listar') }}"
+            class="item-menu
+            {% if request.blueprint == 'pets' %}
+                ativo
+            {% endif %}"
+        >
+            <i class="fa-solid fa-dog"></i>
+
+            <span>
+                {% if current_user.pode_ver_todos_os_pets %}
+                    Todos os pets
+                {% else %}
+                    Meus pets
+                {% endif %}
+            </span>
+        </a>
+
+
+        <!-- AGENDAMENTOS -->
+
+        <a
+            href="{{ url_for('agendamento_consulta.listar') }}"
+            class="item-menu
+            {% if request.blueprint == 'agendamento_consulta' %}
+                ativo
+            {% endif %}"
+        >
+            <i class="fa-solid fa-calendar-check"></i>
+
+            <span>
+                {% if current_user.pode_ver_todos_os_agendamentos %}
+                    Todos os agendamentos
+                {% else %}
+                    Meus agendamentos
+                {% endif %}
+            </span>
+        </a>
+
+
+        <!-- VETERINÁRIOS -->
+
+        <a
+            href="{{ url_for('veterinarios.listar') }}"
+            class="item-menu
+            {% if request.blueprint == 'veterinarios' %}
+                ativo
+            {% endif %}"
+        >
+            <i class="fa-solid fa-user-doctor"></i>
+            <span>Veterinários</span>
+        </a>
+
+
+        <!-- HISTÓRICO -->
+
+        <a
+            href="{{ url_for('historico.listar') }}"
+            class="item-menu
+            {% if request.blueprint == 'historico' %}
+                ativo
+            {% endif %}"
+        >
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+            <span>
+                {% if current_user.pode_ver_historico_completo %}
+                    Histórico completo
+                {% else %}
+                    Histórico dos pets
+                {% endif %}
+            </span>
+        </a>
+
+
+        <!-- ATENDIMENTOS -->
+
+        {% if current_user.pode_registrar_atendimento %}
+
+            <a
+                href="{{ url_for('atendimentos.listar') }}"
+                class="item-menu
+                {% if request.blueprint == 'atendimentos' %}
+                    ativo
+                {% endif %}"
+            >
+                <i class="fa-solid fa-stethoscope"></i>
+                <span>Atendimentos</span>
+            </a>
+
+        {% endif %}
+
+
+        <!-- USUÁRIOS: SOMENTE ADMINISTRADOR -->
+
+        {% if current_user.pode_gerenciar_usuarios %}
+
+            <a
+                href="{{ url_for('usuarios.listar') }}"
+                class="item-menu
+                {% if request.blueprint == 'usuarios' %}
+                    ativo
+                {% endif %}"
+            >
+                <i class="fa-solid fa-users-gear"></i>
+                <span>Usuários</span>
+            </a>
+
+        {% endif %}
+
+
+        <!-- MINHA CONTA -->
+
+        <a
+            href="{{ url_for('auth.minha_conta') }}"
+            class="item-menu
+            {% if request.endpoint == 'auth.minha_conta' %}
+                ativo
+            {% endif %}"
+        >
+            <i class="fa-solid fa-user-gear"></i>
+            <span>Minha conta</span>
+        </a>
+
+    </nav>
+
+
+    <!-- RODAPÉ DO MENU -->
+
+    <div class="menu-rodape">
+
+        <a
+            href="{{ url_for('auth.logout') }}"
+            class="item-menu botao-sair"
+        >
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+        <p>
+            Desenvolvido por<br>
+            <strong>Bruna e Diego</strong>
+        </p>
+
+    </div>
+
+</aside>

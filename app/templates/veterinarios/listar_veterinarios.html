@@ -1,274 +1,187 @@
 <!DOCTYPE html>
-
 <html lang="pt-br">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<title>Veterinários - AgendaPet</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
+    <title>Veterinários - AgendaPet</title>
 
-<link
-rel="stylesheet"
-href="{{ url_for('static', filename='css/style.css') }}"
->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
 
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
 
 </head>
 
-
 <body class="pagina-painel">
 
-
 <div class="painel-layout">
-<aside class="menu-lateral">
 
-    <div class="painel-logo">
+    {% include "partials/sidebar.html" %}
 
-        <i class="fa-solid fa-paw"></i>
+    <main class="conteudo-painel">
 
-        <div>
-            <strong>
-                Agenda<span>Pet</span>
-            </strong>
+        <header class="cabecalho-pagina">
 
-            <small>
-                Paranaguá
-            </small>
-        </div>
+            <div>
 
-    </div>
+                <span class="subtitulo-pagina">
+                    Nossa equipe
+                </span>
 
+                <h1>
+                    Veterinários
+                </h1>
 
-    <nav class="menu-navegacao">
+                <p>
+                    Conheça os profissionais responsáveis
+                    pelos atendimentos veterinários.
+                </p>
 
-        <a
-            href="{{ url_for('auth.painel') }}"
-            class="item-menu ativo"
-        >
-            <i class="fa-solid fa-house"></i>
-            <span>Dashboard</span>
-        </a>
+            </div>
 
-        <a href="{{ url_for('pets.listar') }}" class="item-menu">
-            <i class="fa-solid fa-dog"></i>
-            <span>Meus pets</span>
-        </a>
+        </header>
 
-        <a
-            href="{{ url_for('agendamento_consulta.listar') }}"
-            class="item-menu"
-        >
-            <i class="fa-solid fa-calendar-check"></i>
-            <span>Agendamentos</span>
-        </a>
+        <section class="secao-equipe-veterinaria">
 
-        <a 
-        href="{{ url_for('veterinarios.listar') }}"
-        class="item-menu"
-        >
+            {% if veterinarios %}
 
-        <i class="fa-solid fa-user-doctor"></i>
+                <div class="grade-veterinarios">
 
-        <span>Veterinários</span>
+                    {% for veterinario in veterinarios %}
 
-        </a>
+                        <article class="cartao-veterinario-equipe">
 
-        <a
-            href="{{ url_for('historico.listar') }}"
-            class="item-menu"
-        >
+                            <div class="faixa-especialidade">
 
-            <i class="fa-solid fa-clock-rotate-left"></i>
+                                <i class="fa-solid fa-stethoscope"></i>
 
-            <span>
-                Histórico
-            </span>
+                                <span>
+                                    {{ veterinario.especialidade or "Clínico Geral" }}
+                                </span>
 
-        </a>
+                            </div>
 
-        <a
-            href="{{ url_for('auth.minha_conta') }}"
-            class="item-menu"
-        >
-            <i class="fa-solid fa-user-gear"></i>
+                            <div class="conteudo-cartao-veterinario">
 
-            <span>
-                Minha conta
-            </span>
-        </a>
+                                <div class="foto-veterinario-wrapper">
 
-    </nav>
+                                    {% if veterinario.foto_perfil %}
 
-    <div class="menu-rodape">
+                                        <img
+                                            src="{{ url_for(
+                                                'veterinarios.foto',
+                                                id=veterinario.id
+                                            ) }}"
+                                            alt="Foto de {{ veterinario.nome }}"
+                                            class="foto-veterinario"
+                                        >
 
-        <a
-            href="{{ url_for('auth.logout') }}"
-            class="item-menu botao-sair"
-        >
+                                    {% else %}
 
-            <i class="fa-solid fa-right-from-bracket"></i>
+                                        <div class="foto-veterinario-padrao">
 
-            <span>
-                Sair
-            </span>
+                                            <i class="fa-solid fa-user-doctor"></i>
 
-        </a>
+                                        </div>
 
+                                    {% endif %}
 
-        <p>
-            Desenvolvido por<br>
-            <strong>Bruna e Diego</strong>
-        </p>
+                                </div>
 
-    </div>
+                                <h2>
+                                    {{ veterinario.nome }}
+                                </h2>
 
+                                <div class="crmv-veterinario">
 
-</aside>
+                                    <i class="fa-solid fa-id-card"></i>
 
-<main class="conteudo-painel">
+                                    <span>
+                                        {{ veterinario.crmv or "CRMV não informado" }}
+                                    </span>
 
-<header class="cabecalho-pagina">
+                                </div>
 
-    <div>
+                                <div class="informacoes-veterinario">
 
-        <span class="subtitulo-pagina">
-            Administração
-        </span>
+                                    {% if veterinario.telefone %}
 
-        <h1>
-            Veterinários
-        </h1>
+                                        <div class="linha-veterinario">
 
-        <p>
-            Profissionais responsáveis pelos atendimentos veterinários.
-        </p>
+                                            <i class="fa-solid fa-phone"></i>
 
-    </div>
+                                            <span>
+                                                {{ veterinario.telefone }}
+                                            </span>
 
+                                        </div>
 
-    <a
-        href="{{ url_for('veterinarios.cadastrar') }}"
-        class="botao-principal"
-    >
+                                    {% endif %}
 
-        <i class="fa-solid fa-user-plus"></i>
+                                    <div class="linha-veterinario">
 
-        Novo veterinário
+                                        <i class="fa-solid fa-envelope"></i>
 
-    </a>
+                                        <span>
+                                            {{ veterinario.email }}
+                                        </span>
 
+                                    </div>
 
-</header>
+                                </div>
 
-<section class="secao-dashboard">
+                                <div class="status-veterinario">
 
+                                    <span class="indicador-status"></span>
 
-{% for veterinario in veterinarios %}
+                                    Profissional ativo
 
+                                </div>
 
-<div class="cartao-veterinario">
+                            </div>
 
+                        </article>
 
-<div>
+                    {% endfor %}
 
-<h3>
-{{ veterinario.nome }}
-</h3>
+                </div>
 
+            {% else %}
 
-<p>
-<i class="fa-solid fa-id-card"></i>
+                <div class="estado-vazio-veterinarios">
 
-<strong>CRMV:</strong>
+                    <i class="fa-solid fa-user-doctor"></i>
 
-{{ veterinario.crmv }}
+                    <h2>
+                        Nenhum veterinário disponível
+                    </h2>
 
-</p>
+                    <p>
+                        Ainda não existem profissionais ativos
+                        cadastrados no sistema.
+                    </p>
 
+                </div>
 
-<p>
-<i class="fa-solid fa-stethoscope"></i>
+            {% endif %}
 
-{{ veterinario.especialidade }}
+        </section>
 
-</p>
-
-
-<p>
-<i class="fa-solid fa-phone"></i>
-
-{{ veterinario.telefone }}
-
-</p>
-
-
-<p>
-<i class="fa-solid fa-envelope"></i>
-
-{{ veterinario.email }}
-
-</p>
-
-<div class="acoes-veterinario">
-
-
-<a
-href="{{ url_for('veterinarios.editar', id=veterinario.id) }}"
-class="botao-editar"
->
-
-<i class="fa-solid fa-pen"></i>
-
-Editar
-
-</a>
-
-
-
-<a
-href="{{ url_for('veterinarios.excluir', id=veterinario.id) }}"
-class="botao-excluir"
-onclick="return confirm('Deseja excluir este veterinário?')"
->
-
-<i class="fa-solid fa-trash"></i>
-
-Excluir
-
-</a>
-
+    </main>
 
 </div>
-
-</div>
-
-
-</div>
-
-
-{% else %}
-
-
-<p>
-Nenhum veterinário cadastrado.
-</p>
-
-
-{% endfor %}
-
-
-
-</section>
-
-
-</div>
-
 
 </body>
 

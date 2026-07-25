@@ -1,5 +1,4 @@
 from datetime import datetime
-from app.models.veterinario import Veterinario
 
 from flask import (
     Blueprint,
@@ -15,6 +14,7 @@ from flask_login import login_required, current_user
 from app import db
 from app.models.agendamentoConsulta import AgendamentoConsulta
 from app.models.pet import Pet
+from app.models.usuario import Usuario, TipoUsuario
 
 
 agendamento_consulta_bp = Blueprint(
@@ -57,10 +57,13 @@ def cadastrar():
     )
     
     veterinarios = (
-    Veterinario.query
-    .filter_by(ativo=True)
-    .order_by(Veterinario.nome.asc())
-    .all()
+        Usuario.query
+        .filter(
+            Usuario.tipo_usuario == TipoUsuario.VETERINARIO,
+            Usuario.ativo.is_(True)
+        )
+        .order_by(Usuario.nome.asc())
+        .all()
     )
 
     if not pets:
@@ -82,6 +85,25 @@ def cadastrar():
         "veterinario_id",
         type=int
         )
+        
+        veterinario = None
+
+        if veterinario_id:
+            veterinario = Usuario.query.filter(
+                Usuario.id == veterinario_id,
+                Usuario.tipo_usuario == TipoUsuario.VETERINARIO,
+                Usuario.ativo.is_(True)
+            ).first()
+
+            if veterinario is None:
+                flash(
+                    "Selecione um veterinário válido.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for("agendamento_consulta.cadastrar")
+                )
         
         pet = Pet.query.filter_by(
             id=pet_id,
@@ -235,6 +257,7 @@ def editar(agendamento_id):
         status_validos = {
             "Agendado",
             "Confirmado",
+            "Em atendimento",
             "Concluído",
             "Cancelado"
         }

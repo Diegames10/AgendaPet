@@ -51,6 +51,18 @@ class Usuario(db.Model, UserMixin):
         nullable=True
     )
 
+    crmv = db.Column(
+        db.String(30),
+        unique=True,
+        nullable=True,
+        index=True
+    )
+
+    especialidade = db.Column(
+        db.String(120),
+        nullable=True
+    )    
+    
     senha_hash = db.Column(
         db.String(255),
         nullable=False
@@ -81,6 +93,9 @@ class Usuario(db.Model, UserMixin):
         onupdate=datetime.utcnow
     )
 
+    
+    
+    
     # =====================================================
     # ENDEREÇO OPCIONAL
     # =====================================================
@@ -132,10 +147,23 @@ class Usuario(db.Model, UserMixin):
 
     agendamentos = db.relationship(
         "AgendamentoConsulta",
+        foreign_keys="AgendamentoConsulta.tutor_id",
         back_populates="tutor",
         cascade="all, delete-orphan"
     )
 
+    agendamentos_como_veterinario = db.relationship(
+        "AgendamentoConsulta",
+        foreign_keys="AgendamentoConsulta.veterinario_id",
+        back_populates="veterinario"
+    )
+    
+    historicos_como_veterinario = db.relationship(
+        "Historico",
+        foreign_keys="Historico.veterinario_id",
+        back_populates="veterinario"
+    )
+    
     foto_perfil = db.relationship(
         "FotoUsuario",
         back_populates="usuario",
@@ -166,6 +194,110 @@ class Usuario(db.Model, UserMixin):
     @property
     def is_cliente(self):
         return self.tipo_usuario == TipoUsuario.CLIENTE
+    
+    # =====================================================
+    # PERMISSÕES DO SISTEMA
+    # =====================================================
+
+    @property
+    def is_funcionario(self):
+        return self.possui_perfil(
+            TipoUsuario.ADMIN,
+            TipoUsuario.VETERINARIO,
+            TipoUsuario.RECEPCIONISTA
+        )
+
+
+    # -------------------------------
+    # PETS
+    # -------------------------------
+
+    @property
+    def pode_ver_todos_os_pets(self):
+        return self.is_funcionario
+
+    @property
+    def pode_cadastrar_pet(self):
+        return True
+
+    @property
+    def pode_editar_pet(self):
+        return True
+
+    @property
+    def pode_excluir_pet(self):
+        return self.is_funcionario
+
+
+    # -------------------------------
+    # AGENDAMENTOS
+    # -------------------------------
+
+    @property
+    def pode_ver_todos_os_agendamentos(self):
+        return self.is_funcionario
+
+    @property
+    def pode_agendar(self):
+        return True
+
+    @property
+    def pode_cancelar_agendamento(self):
+        return True
+
+    @property
+    def pode_remarcar_agendamento(self):
+        return True
+
+
+    # -------------------------------
+    # ATENDIMENTO
+    # -------------------------------
+
+    @property
+    def pode_registrar_atendimento(self):
+        return self.possui_perfil(
+            TipoUsuario.ADMIN,
+            TipoUsuario.VETERINARIO
+        )
+
+
+    # -------------------------------
+    # EXAMES
+    # -------------------------------
+
+    @property
+    def pode_solicitar_exames(self):
+        return self.possui_perfil(
+            TipoUsuario.ADMIN,
+            TipoUsuario.VETERINARIO
+        )
+
+
+    # -------------------------------
+    # HISTÓRICO
+    # -------------------------------
+
+    @property
+    def pode_ver_historico_completo(self):
+        return self.is_funcionario
+
+
+    # -------------------------------
+    # ADMINISTRAÇÃO
+    # -------------------------------
+
+    @property
+    def pode_gerenciar_usuarios(self):
+        return self.is_admin
+
+    @property
+    def pode_gerenciar_veterinarios(self):
+        return self.is_admin
+
+    @property
+    def pode_ver_dashboard_completo(self):
+        return self.is_admin
 
     def __repr__(self):
         return f"<Usuario {self.email}>"
