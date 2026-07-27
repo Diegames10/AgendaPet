@@ -34,6 +34,23 @@
             <span>Dashboard</span>
         </a>
 
+        <!-- RECEPÇÃO -->
+
+        {% if current_user.is_admin or current_user.is_recepcionista %}
+
+            <a
+                href="{{ url_for('recepcionista.painel') }}"
+                class="item-menu
+                {% if request.blueprint == 'recepcionista' %}
+                    ativo
+                {% endif %}"
+            >
+                <i class="fa-solid fa-headset"></i>
+                <span>Recepção</span>
+            </a>
+
+        {% endif %}
+
 
         <!-- PETS -->
 

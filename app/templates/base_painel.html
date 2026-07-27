@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block titulo %}
+            AgendaPet Paranaguá
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+    {% block estilos %}
+    {% endblock %}
+
+</head>
+
+<body class="pagina-painel">
+
+    <div class="painel-layout">
+
+        {% include "partials/sidebar.html" %}
+
+        <main class="conteudo-painel">
+
+            {% with mensagens = get_flashed_messages(with_categories=true) %}
+
+                {% if mensagens %}
+
+                    <div class="mensagens-flash">
+
+                        {% for categoria, mensagem in mensagens %}
+
+                            <div class="mensagem-flash {{ categoria }}">
+                                {{ mensagem }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            {% block conteudo %}
+            {% endblock %}
+
+        </main>
+
+    </div>
+
+    {% block scripts %}
+    {% endblock %}
+
+</body>
+
+</html>

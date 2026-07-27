@@ -7,6 +7,7 @@ from app.routes.imagens import imagens_bp
 from app.routes.exames import exames_bp
 from app.usuarios import usuarios_bp
 from app.routes.atendimentos import atendimentos_bp
+from app.routes.recepcionista import recepcionista_bp
 
 def registrar_rotas(app):
     app.register_blueprint(auth_bp)
@@ -18,3 +19,4 @@ def registrar_rotas(app):
     app.register_blueprint(exames_bp)
     app.register_blueprint(usuarios_bp)
     app.register_blueprint(atendimentos_bp)
+    app.register_blueprint(recepcionista_bp)

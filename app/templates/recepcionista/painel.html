@@ -1,0 +1,410 @@
+{% extends "base_painel.html" %}
+
+{% block titulo %}
+Recepção - AgendaPet Paranaguá
+{% endblock %}
+
+{% block conteudo %}
+
+<!-- CABEÇALHO -->
+
+<header class="cabecalho-painel">
+
+    <div>
+
+        <p class="saudacao-painel">
+            Central de Atendimento
+        </p>
+
+        <h1>
+            Painel da Recepção
+        </h1>
+
+        <p>
+            Gerencie os agendamentos, as chegadas e os atendimentos do dia.
+        </p>
+
+    </div>
+
+    <a
+        href="{{ url_for('agendamento_consulta.cadastrar') }}"
+        class="botao-novo-agendamento"
+    >
+
+        <i class="fa-solid fa-calendar-plus"></i>
+
+        Novo Agendamento
+
+    </a>
+
+</header>
+
+<!-- CARTÕES -->
+
+<section class="resumo-painel">
+
+    <article class="cartao-resumo">
+
+        <div class="icone-resumo icone-agendamentos">
+            <i class="fa-solid fa-calendar-day"></i>
+        </div>
+
+        <div>
+
+            <span>Agendamentos Hoje</span>
+
+            <strong>
+
+                {{ total_agendamentos_hoje }}
+
+            </strong>
+
+        </div>
+
+    </article>
+
+
+    <article class="cartao-resumo">
+
+        <div class="icone-resumo icone-pets">
+            <i class="fa-solid fa-user-clock"></i>
+        </div>
+
+        <div>
+
+            <span>Aguardando Chegada</span>
+
+            <strong>
+
+                {{ aguardando_chegada }}
+
+            </strong>
+
+        </div>
+
+    </article>
+
+
+    <article class="cartao-resumo">
+
+        <div class="icone-resumo icone-historico">
+            <i class="fa-solid fa-stethoscope"></i>
+        </div>
+
+        <div>
+
+            <span>Em Atendimento</span>
+
+            <strong>
+
+                {{ em_atendimento }}
+
+            </strong>
+
+        </div>
+
+    </article>
+
+
+    <article class="cartao-resumo">
+
+        <div class="icone-resumo icone-agendamentos">
+            <i class="fa-solid fa-clock"></i>
+        </div>
+
+        <div>
+
+            <span>Horários Livres</span>
+
+            <strong>
+
+                {{ horarios_livres }}
+
+            </strong>
+
+        </div>
+
+    </article>
+
+</section>
+
+<!-- AÇÕES RÁPIDAS -->
+
+<section class="secao-dashboard">
+
+    <div class="titulo-dashboard">
+
+        <div>
+
+            <span>Acesso rápido</span>
+
+            <h2>
+                O que deseja fazer?
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="acoes-rapidas">
+
+        <a
+            href="{{ url_for('agendamento_consulta.cadastrar') }}"
+            class="cartao-acao"
+        >
+
+            <div class="icone-acao">
+
+                <i class="fa-solid fa-calendar-plus"></i>
+
+            </div>
+
+            <div>
+
+                <h3>Novo Agendamento</h3>
+
+                <p>
+                    Agende um atendimento para um cliente.
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right seta-acao"></i>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('agendamento_consulta.listar') }}"
+            class="cartao-acao"
+        >
+
+            <div class="icone-acao">
+
+                <i class="fa-solid fa-calendar-days"></i>
+
+            </div>
+
+            <div>
+
+                <h3>Agenda Inteligente</h3>
+
+                <p>
+                    Organize e visualize os horários.
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right seta-acao"></i>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('pets.listar') }}"
+            class="cartao-acao"
+        >
+
+            <div class="icone-acao">
+
+                <i class="fa-solid fa-paw"></i>
+
+            </div>
+
+            <div>
+
+                <h3>Clientes e Pets</h3>
+
+                <p>
+                    Localize pacientes e responsáveis.
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right seta-acao"></i>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('veterinarios.listar') }}"
+            class="cartao-acao"
+        >
+
+            <div class="icone-acao">
+
+                <i class="fa-solid fa-user-doctor"></i>
+
+            </div>
+
+            <div>
+
+                <h3>Veterinários</h3>
+
+                <p>
+                    Consulte a equipe disponível.
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right seta-acao"></i>
+
+        </a>
+
+    </div>
+
+</section>
+
+<!-- AGENDA -->
+
+<section class="secao-dashboard">
+
+    <div class="titulo-dashboard">
+
+        <div>
+
+            <span>Agenda</span>
+
+            <h2>
+                Agenda de Hoje
+            </h2>
+
+        </div>
+
+        <a
+            href="{{ url_for('agendamento_consulta.listar') }}"
+            class="link-ver-todos"
+        >
+
+            Ver agenda completa
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </a>
+
+    </div>
+
+
+    {% if agendamentos_hoje %}
+
+    <div class="lista-proximos-agendamentos">
+
+        {% for agendamento in agendamentos_hoje %}
+
+        <div class="card-proximo-atendimento">
+
+            <div class="icone-atendimento">
+
+                <i class="fa-solid fa-calendar-check"></i>
+
+            </div>
+
+
+            <div class="dados-atendimento">
+
+                <span class="tipo-atendimento">
+
+                    {{ agendamento.tipo }}
+
+                </span>
+
+
+                <h3>
+
+                    <i class="fa-solid fa-paw"></i>
+
+                    {{ agendamento.pet.nome }}
+
+                </h3>
+
+
+                <div class="info-atendimento">
+
+                    <div>
+
+                        <i class="fa-solid fa-clock"></i>
+
+                        {{ agendamento.horario.strftime('%H:%M') }}
+
+                    </div>
+
+
+                    <div>
+
+                        <i class="fa-solid fa-user"></i>
+
+                        {{ agendamento.tutor.nome }}
+
+                    </div>
+
+
+                    {% if agendamento.veterinario %}
+
+                    <div>
+
+                        <i class="fa-solid fa-user-doctor"></i>
+
+                        {{ agendamento.veterinario.nome }}
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <span class="status-atendimento">
+
+                    {{ agendamento.status }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="estado-vazio">
+
+        <div class="icone-vazio">
+
+            <i class="fa-regular fa-calendar-xmark"></i>
+
+        </div>
+
+        <h3>
+
+            Nenhum agendamento encontrado
+
+        </h3>
+
+        <p>
+
+            Não existem atendimentos agendados para hoje.
+
+        </p>
+
+        <a
+            href="{{ url_for('agendamento_consulta.cadastrar') }}"
+            class="botao-novo-agendamento"
+        >
+
+            <i class="fa-solid fa-calendar-plus"></i>
+
+            Realizar Agendamento
+
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

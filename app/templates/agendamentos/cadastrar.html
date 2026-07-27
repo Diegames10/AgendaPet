@@ -104,6 +104,34 @@
 
                         <div class="grupo-campo campo-largo">
 
+                            {% if pode_agendar_para_outros %}
+
+                                <label for="tutor_id">
+                                    Cliente *
+                                </label>
+
+                                <select
+                                    id="tutor_id"
+                                    name="tutor_id"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Selecione um cliente
+                                    </option>
+
+                                    {% for cliente in clientes %}
+
+                                    <option value="{{ cliente.id }}">
+                                        {{ cliente.nome }}
+                                    </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            {% endif %}    
+
                             <label for="pet_id">
                                 Pet *
                             </label>
@@ -120,9 +148,12 @@
 
                                 {% for pet in pets %}
 
-                                    <option value="{{ pet.id }}">
-                                        {{ pet.nome }} — {{ pet.especie }}
-                                    </option>
+                                <option
+                                    value="{{ pet.id }}"
+                                    data-tutor="{{ pet.tutor_id }}"
+                                >
+                                    {{ pet.nome }} — {{ pet.especie }}
+                                </option>
 
                                 {% endfor %}
 
@@ -283,6 +314,36 @@
         campoData.min = `${ano}-${mes}-${dia}`;
     </script>
 
+<script>
+
+const clienteSelect = document.getElementById("tutor_id");
+const petSelect = document.getElementById("pet_id");
+
+if(clienteSelect){
+
+    clienteSelect.addEventListener("change", function(){
+
+        const tutor = this.value;
+
+        petSelect.value = "";
+
+        Array.from(petSelect.options).forEach(opcao=>{
+
+            if(opcao.value===""){
+                opcao.hidden=false;
+                return;
+            }
+
+            opcao.hidden = opcao.dataset.tutor !== tutor;
+
+        });
+
+    });
+
+}
+
+</script>
+    
 </body>
 
 </html>

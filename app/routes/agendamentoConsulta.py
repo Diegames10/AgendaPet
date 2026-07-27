@@ -23,13 +23,38 @@ agendamento_consulta_bp = Blueprint(
     url_prefix="/agendamentos"
 )
 
+def buscar_agendamento_permitido(agendamento_id):
+    """
+    Administradores e recepcionistas podem acessar qualquer agendamento.
+
+    Clientes podem acessar somente os próprios agendamentos.
+    """
+
+    consulta = AgendamentoConsulta.query.filter_by(
+        id=agendamento_id
+    )
+
+    if not current_user.pode_ver_todos_os_agendamentos:
+        consulta = consulta.filter_by(
+            tutor_id=current_user.id
+        )
+
+    return consulta.first_or_404()
 
 @agendamento_consulta_bp.route("/")
 @login_required
 def listar():
+
+    consulta = AgendamentoConsulta.query
+
+    # Cliente visualiza somente os próprios agendamentos.
+    if not current_user.pode_ver_todos_os_agendamentos:
+        consulta = consulta.filter(
+            AgendamentoConsulta.tutor_id == current_user.id
+        )
+
     agendamentos = (
-        AgendamentoConsulta.query
-        .filter_by(tutor_id=current_user.id)
+        consulta
         .order_by(
             AgendamentoConsulta.data.asc(),
             AgendamentoConsulta.horario.asc()
@@ -42,20 +67,59 @@ def listar():
         agendamentos=agendamentos
     )
 
-
 @agendamento_consulta_bp.route(
     "/cadastrar",
     methods=["GET", "POST"]
 )
 @login_required
 def cadastrar():
-    pets = (
-        Pet.query
-        .filter_by(tutor_id=current_user.id)
-        .order_by(Pet.nome.asc())
-        .all()
+
+    pode_agendar_para_outros = (
+        current_user.pode_ver_todos_os_agendamentos
     )
-    
+
+    clientes = []
+
+    # Recepcionista e administrador podem escolher o cliente.
+    if pode_agendar_para_outros:
+
+        clientes = (
+            Usuario.query
+            .filter(
+                Usuario.tipo_usuario == TipoUsuario.CLIENTE,
+                Usuario.ativo.is_(True)
+            )
+            .order_by(Usuario.nome.asc())
+            .all()
+        )
+
+        pets = (
+            Pet.query
+            .order_by(Pet.nome.asc())
+            .all()
+        )
+
+    else:
+
+        # Cliente acessa somente os próprios pets.
+        pets = (
+            Pet.query
+            .filter_by(tutor_id=current_user.id)
+            .order_by(Pet.nome.asc())
+            .all()
+        )
+
+        if not pets:
+            flash(
+                "Cadastre pelo menos um pet antes de realizar "
+                "um agendamento.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("pets.cadastrar")
+            )
+
     veterinarios = (
         Usuario.query
         .filter(
@@ -66,29 +130,91 @@ def cadastrar():
         .all()
     )
 
-    if not pets:
-        flash(
-            "Cadastre pelo menos um pet antes de realizar um agendamento.",
-            "warning"
-        )
-
-        return redirect(url_for("pets.cadastrar"))
-
     if request.method == "POST":
-        pet_id = request.form.get("pet_id", type=int)
-        tipo = request.form.get("tipo", "").strip()
-        data_texto = request.form.get("data", "").strip()
-        horario_texto = request.form.get("horario", "").strip()
-        observacoes = request.form.get("observacoes", "").strip()
+
+        # Define o tutor responsável pelo agendamento.
+        if pode_agendar_para_outros:
+
+            tutor_id = request.form.get(
+                "tutor_id",
+                type=int
+            )
+
+            tutor = Usuario.query.filter(
+                Usuario.id == tutor_id,
+                Usuario.tipo_usuario == TipoUsuario.CLIENTE,
+                Usuario.ativo.is_(True)
+            ).first()
+
+            if tutor is None:
+                flash(
+                    "Selecione um cliente válido.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "agendamento_consulta.cadastrar"
+                    )
+                )
+
+        else:
+
+            tutor = current_user
+            tutor_id = current_user.id
+
+        pet_id = request.form.get(
+            "pet_id",
+            type=int
+        )
 
         veterinario_id = request.form.get(
-        "veterinario_id",
-        type=int
+            "veterinario_id",
+            type=int
         )
-        
+
+        tipo = request.form.get(
+            "tipo",
+            ""
+        ).strip()
+
+        data_texto = request.form.get(
+            "data",
+            ""
+        ).strip()
+
+        horario_texto = request.form.get(
+            "horario",
+            ""
+        ).strip()
+
+        observacoes = request.form.get(
+            "observacoes",
+            ""
+        ).strip()
+
+        # O pet precisa pertencer ao cliente selecionado.
+        pet = Pet.query.filter_by(
+            id=pet_id,
+            tutor_id=tutor_id
+        ).first()
+
+        if pet is None:
+            flash(
+                "Selecione um pet válido para o cliente informado.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "agendamento_consulta.cadastrar"
+                )
+            )
+
         veterinario = None
 
         if veterinario_id:
+
             veterinario = Usuario.query.filter(
                 Usuario.id == veterinario_id,
                 Usuario.tipo_usuario == TipoUsuario.VETERINARIO,
@@ -102,31 +228,26 @@ def cadastrar():
                 )
 
                 return redirect(
-                    url_for("agendamento_consulta.cadastrar")
+                    url_for(
+                        "agendamento_consulta.cadastrar"
+                    )
                 )
-        
-        pet = Pet.query.filter_by(
-            id=pet_id,
-            tutor_id=current_user.id
-        ).first()
-
-        if not pet:
-            flash("Selecione um pet válido.", "danger")
-            return redirect(
-                url_for("agendamento_consulta.cadastrar")
-            )
 
         if not tipo or not data_texto or not horario_texto:
+
             flash(
                 "Preencha o pet, o tipo, a data e o horário.",
                 "danger"
             )
 
             return redirect(
-                url_for("agendamento_consulta.cadastrar")
+                url_for(
+                    "agendamento_consulta.cadastrar"
+                )
             )
 
         try:
+
             data_agendamento = datetime.strptime(
                 data_texto,
                 "%Y-%m-%d"
@@ -138,13 +259,16 @@ def cadastrar():
             ).time()
 
         except ValueError:
+
             flash(
                 "A data ou o horário informado é inválido.",
                 "danger"
             )
 
             return redirect(
-                url_for("agendamento_consulta.cadastrar")
+                url_for(
+                    "agendamento_consulta.cadastrar"
+                )
             )
 
         novo_agendamento = AgendamentoConsulta(
@@ -154,7 +278,7 @@ def cadastrar():
             status="Agendado",
             observacoes=observacoes or None,
             pet_id=pet.id,
-            tutor_id=current_user.id,
+            tutor_id=tutor_id,
             veterinario_id=veterinario_id
         )
 
@@ -166,16 +290,23 @@ def cadastrar():
             "success"
         )
 
+        # Recepção volta para o painel operacional.
+        if pode_agendar_para_outros:
+            return redirect(
+                url_for("recepcionista.painel")
+            )
+
         return redirect(
             url_for("agendamento_consulta.listar")
         )
 
     return render_template(
-    "agendamentos/cadastrar.html",
-    pets=pets,
-    veterinarios=veterinarios
-)
-
+        "agendamentos/cadastrar.html",
+        pets=pets,
+        clientes=clientes,
+        veterinarios=veterinarios,
+        pode_agendar_para_outros=pode_agendar_para_outros
+    )
 
 @agendamento_consulta_bp.route(
     "/<int:agendamento_id>/editar",
@@ -183,14 +314,13 @@ def cadastrar():
 )
 @login_required
 def editar(agendamento_id):
-    agendamento = AgendamentoConsulta.query.filter_by(
-        id=agendamento_id,
-        tutor_id=current_user.id
-    ).first_or_404()
+    agendamento = buscar_agendamento_permitido(
+    agendamento_id
+    )
 
     pets = (
         Pet.query
-        .filter_by(tutor_id=current_user.id)
+        .filter_by(tutor_id=agendamento.tutor_id)
         .order_by(Pet.nome.asc())
         .all()
     )
@@ -205,7 +335,7 @@ def editar(agendamento_id):
 
         pet = Pet.query.filter_by(
             id=pet_id,
-            tutor_id=current_user.id
+            tutor_id=agendamento.tutor_id
         ).first()
 
         if not pet:
@@ -296,10 +426,9 @@ def editar(agendamento_id):
 )
 @login_required
 def cancelar(agendamento_id):
-    agendamento = AgendamentoConsulta.query.filter_by(
-        id=agendamento_id,
-        tutor_id=current_user.id
-    ).first_or_404()
+    agendamento = buscar_agendamento_permitido(
+    agendamento_id
+    )
 
     agendamento.status = "Cancelado"
 
@@ -321,10 +450,9 @@ def cancelar(agendamento_id):
 )
 @login_required
 def excluir(agendamento_id):
-    agendamento = AgendamentoConsulta.query.filter_by(
-        id=agendamento_id,
-        tutor_id=current_user.id
-    ).first_or_404()
+    agendamento = buscar_agendamento_permitido(
+        agendamento_id
+    )
 
     db.session.delete(agendamento)
     db.session.commit()
