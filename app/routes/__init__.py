@@ -9,6 +9,7 @@ from app.usuarios import usuarios_bp
 from app.routes.atendimentos import atendimentos_bp
 from app.routes.recepcionista import recepcionista_bp
 from app.routes.agenda_inteligente import agenda_inteligente_bp
+from app.routes.calendario import calendario_bp
 
 def registrar_rotas(app):
     app.register_blueprint(auth_bp)
@@ -22,3 +23,4 @@ def registrar_rotas(app):
     app.register_blueprint(atendimentos_bp)
     app.register_blueprint(recepcionista_bp)
     app.register_blueprint(agenda_inteligente_bp)
+    app.register_blueprint(calendario_bp)

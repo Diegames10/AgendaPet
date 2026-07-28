@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Calendário de Agendamentos</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/calendario.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="pagina-calendario">
+
+        <header class="cabecalho-calendario">
+
+            <div>
+                <p class="subtitulo">
+                    AgendaPet Paranaguá
+                </p>
+
+                <h1>
+                    Calendário de Agendamentos
+                </h1>
+            </div>
+
+            <a
+                href="javascript:history.back()"
+                class="botao-voltar"
+            >
+                Voltar
+            </a>
+
+        </header>
+        
+        <div class="legenda-status">
+
+            <div class="item-legenda">
+                <span class="cor agendado"></span>
+                Agendado
+            </div>
+
+            <div class="item-legenda">
+                <span class="cor confirmado"></span>
+                Confirmado
+            </div>
+
+            <div class="item-legenda">
+                <span class="cor atendimento"></span>
+                Em atendimento
+            </div>
+
+            <div class="item-legenda">
+                <span class="cor finalizado"></span>
+                Finalizado
+            </div>
+
+            <div class="item-legenda">
+                <span class="cor cancelado"></span>
+                Cancelado
+            </div>
+
+        </div>
+
+
+        <section class="cartao-calendario">
+
+            <div id="calendar"></div>
+
+        </section>
+
+        <div
+            id="modal-agendamento"
+            class="modal-agendamento"
+            aria-hidden="true"
+        >
+            <div class="modal-conteudo">
+
+                <div class="modal-cabecalho">
+                    <div>
+                        <p class="modal-subtitulo">
+                            Detalhes do agendamento
+                        </p>
+
+                        <h2 id="modal-pet">
+                            Pet
+                        </h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="fechar-modal"
+                        class="botao-fechar"
+                        aria-label="Fechar"
+                    >
+                        &times;
+                    </button>
+                </div>
+
+                <div class="modal-corpo">
+
+                    <div class="detalhe-item">
+                        <span>Tutor</span>
+                        <strong id="modal-tutor"></strong>
+                    </div>
+
+                    <div class="detalhe-item">
+                        <span>Veterinário</span>
+                        <strong id="modal-veterinario"></strong>
+                    </div>
+
+                    <div class="detalhe-item">
+                        <span>Tipo</span>
+                        <strong id="modal-tipo"></strong>
+                    </div>
+
+                    <div class="detalhe-item">
+                        <span>Data</span>
+                        <strong id="modal-data"></strong>
+                    </div>
+
+                    <div class="detalhe-item">
+                        <span>Horário</span>
+                        <strong id="modal-horario"></strong>
+                    </div>
+
+                    <div class="detalhe-item">
+                        <span>Status</span>
+
+                        <strong
+                            id="modal-status"
+                            class="status-agendamento"
+                        ></strong>
+                    </div>
+
+                    <div class="detalhe-item detalhe-observacoes">
+                        <span>Observações</span>
+                        <p id="modal-observacoes"></p>
+                    </div>
+
+                </div>
+
+                <div class="modal-rodape">
+                    
+                    <div id="acoes-agendamento"></div>
+                        <button
+                            type="button"
+                            id="botao-fechar-modal"
+                            class="botao-secundario"
+                        >
+                            Fechar
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/locales-all.global.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
+
+    <script
+        src="{{ url_for('static', filename='js/calendario.js') }}"
+    ></script>
+
+</body>
+
+</html>
