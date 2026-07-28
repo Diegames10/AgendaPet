@@ -15,6 +15,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const campoStatus = document.getElementById('modal-status');
     const campoObservacoes = document.getElementById('modal-observacoes');
     const acoesAgendamento = document.getElementById('acoes-agendamento');
+    const modalConfirmacao = document.getElementById('modal-confirmacao');
+
+    const botaoVoltarCancelamento =
+        document.getElementById('voltar-cancelamento');
+
+    const botaoConfirmarCancelamento =
+        document.getElementById('confirmar-cancelamento');
+
+    let eventoPendenteCancelamento = null;
 
     function normalizarStatus(status) {
         return String(status || '')
@@ -49,8 +58,23 @@ document.addEventListener('DOMContentLoaded', function () {
             .replace(/\b\w/g, letra => letra.toUpperCase());
     }
 
-    function montarAcoes(dados) {
+    function abrirModalConfirmacao(evento) {
+        eventoPendenteCancelamento = evento;
 
+        modalConfirmacao.classList.add('aberto');
+        modalConfirmacao.setAttribute('aria-hidden', 'false');
+    }
+
+    function fecharModalConfirmacao() {
+        eventoPendenteCancelamento = null;
+
+        modalConfirmacao.classList.remove('aberto');
+        modalConfirmacao.setAttribute('aria-hidden', 'true');
+    }    
+
+    function montarAcoes(evento) {
+    
+    const dados = evento.extendedProps;
     acoesAgendamento.innerHTML = '';
 
     if (!dados.podeGerenciar) {
@@ -59,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const status = normalizarStatus(dados.status);
 
-    function criarBotao(texto, classe) {
+    function criarBotao(texto, classe, callback) {
 
         const botao = document.createElement('button');
 
@@ -67,35 +91,212 @@ document.addEventListener('DOMContentLoaded', function () {
         botao.className = classe;
         botao.textContent = texto;
 
+        if (callback) {
+            botao.addEventListener('click', callback);
+        }
+
         return botao;
     }
+
+    async function cancelarAgendamento() {
+
+    abrirModalConfirmacao(evento);
+
+    if (!confirmarCancelamento) {
+        return;
+    }
+
+    const resposta = await fetch(
+        `/calendario/cancelar/${evento.id}`,
+        {
+            method: 'POST'
+        }
+    );
+
+    const dadosResposta = await resposta.json();
+
+    if (!resposta.ok || !dadosResposta.sucesso) {
+        alert(
+            dadosResposta.mensagem ||
+            'Não foi possível cancelar o agendamento.'
+        );
+        return;
+    }
+
+    evento.setExtendedProp(
+        'status',
+        dadosResposta.novo_status
+    );
+
+    const novaCor = obterCorStatus(
+        dadosResposta.novo_status
+    );
+
+    evento.setProp('backgroundColor', novaCor);
+    evento.setProp('borderColor', novaCor);
+
+    abrirModal(evento);
+}
 
     if (status === 'agendado') {
 
         acoesAgendamento.appendChild(
-            criarBotao('Confirmar', 'btn-confirmar')
+
+            criarBotao(
+
+                'Confirmar',
+
+                'btn-confirmar',
+
+                async function () {
+
+                    const resposta = await fetch(
+                        `/calendario/confirmar/${evento.id}`,
+                        {
+                            method: 'POST'
+                        }
+                    );
+
+                    const dadosResposta = await resposta.json();
+
+                    if (!dadosResposta.sucesso) {
+
+                        alert(dadosResposta.mensagem);
+
+                        return;
+                    }
+
+                    evento.setExtendedProp(
+                        'status',
+                        dadosResposta.novo_status
+                    );
+
+                    evento.setProp(
+                        'backgroundColor',
+                        obterCorStatus(dadosResposta.novo_status)
+                    );
+
+                    evento.setProp(
+                        'borderColor',
+                        obterCorStatus(dadosResposta.novo_status)
+                    );
+
+                    abrirModal(evento);
+
+                }
+
+            )
+
         );
 
         acoesAgendamento.appendChild(
-            criarBotao('Cancelar', 'btn-cancelar')
+            criarBotao(
+                'Cancelar',
+                'btn-cancelar',
+                cancelarAgendamento
+            )
         );
     }
 
     else if (status === 'confirmado') {
 
         acoesAgendamento.appendChild(
-            criarBotao('Iniciar atendimento', 'btn-atendimento')
+            criarBotao(
+                'Iniciar atendimento',
+                'btn-atendimento',
+
+                async function () {
+
+                    const resposta = await fetch(
+                        `/calendario/iniciar-atendimento/${evento.id}`,
+                        {
+                            method: 'POST'
+                        }
+                    );
+
+                    const dadosResposta = await resposta.json();
+
+                    if (!resposta.ok || !dadosResposta.sucesso) {
+                        alert(
+                            dadosResposta.mensagem ||
+                            'Não foi possível iniciar o atendimento.'
+                        );
+                        return;
+                    }
+
+                    evento.setExtendedProp(
+                        'status',
+                        dadosResposta.novo_status
+                    );
+
+                    const novaCor = obterCorStatus(
+                        dadosResposta.novo_status
+                    );
+
+                    evento.setProp('backgroundColor', novaCor);
+                    evento.setProp('borderColor', novaCor);
+
+                    abrirModal(evento);
+                }
+            )
         );
 
         acoesAgendamento.appendChild(
-            criarBotao('Cancelar', 'btn-cancelar')
+            criarBotao(
+                'Cancelar',
+                'btn-cancelar',
+                cancelarAgendamento
+            )
         );
     }
 
-    else if (status === 'em atendimento' || status === 'em_atendimento') {
+
+
+
+    else if (
+        status === 'em atendimento' ||
+        status === 'em_atendimento'
+    ) {
 
         acoesAgendamento.appendChild(
-            criarBotao('Finalizar', 'btn-finalizar')
+            criarBotao(
+                'Finalizar',
+                'btn-finalizar',
+
+                async function () {
+
+                    const resposta = await fetch(
+                        `/calendario/finalizar/${evento.id}`,
+                        {
+                            method: 'POST'
+                        }
+                    );
+
+                    const dadosResposta = await resposta.json();
+
+                    if (!resposta.ok || !dadosResposta.sucesso) {
+                        alert(
+                            dadosResposta.mensagem ||
+                            'Não foi possível finalizar o atendimento.'
+                        );
+                        return;
+                    }
+
+                    evento.setExtendedProp(
+                        'status',
+                        dadosResposta.novo_status
+                    );
+
+                    const novaCor = obterCorStatus(
+                        dadosResposta.novo_status
+                    );
+
+                    evento.setProp('backgroundColor', novaCor);
+                    evento.setProp('borderColor', novaCor);
+
+                    abrirModal(evento);
+                }
+            )
         );
     }
 
@@ -128,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
         campoObservacoes.textContent =
             dados.observacoes || 'Nenhuma observação cadastrada.';
 
-        montarAcoes(dados);
+        montarAcoes(evento);
         modal.classList.add('aberto');
         modal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('modal-aberto');
@@ -193,6 +394,78 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    botaoVoltarCancelamento.addEventListener(
+    'click',
+    fecharModalConfirmacao
+);
+
+botaoConfirmarCancelamento.addEventListener(
+    'click',
+    async function () {
+
+        if (!eventoPendenteCancelamento) {
+            return;
+        }
+
+        const evento = eventoPendenteCancelamento;
+
+        botaoConfirmarCancelamento.disabled = true;
+        botaoConfirmarCancelamento.textContent = 'Cancelando...';
+
+        try {
+            const resposta = await fetch(
+                `/calendario/cancelar/${evento.id}`,
+                {
+                    method: 'POST'
+                }
+            );
+
+            const dadosResposta = await resposta.json();
+
+            if (!resposta.ok || !dadosResposta.sucesso) {
+                alert(
+                    dadosResposta.mensagem ||
+                    'Não foi possível cancelar o agendamento.'
+                );
+
+                return;
+            }
+
+            evento.setExtendedProp(
+                'status',
+                dadosResposta.novo_status
+            );
+
+            const novaCor = obterCorStatus(
+                dadosResposta.novo_status
+            );
+
+            evento.setProp('backgroundColor', novaCor);
+            evento.setProp('borderColor', novaCor);
+
+            fecharModalConfirmacao();
+            abrirModal(evento);
+
+        } catch (erro) {
+            alert(
+                'Ocorreu um erro ao cancelar o agendamento.'
+            );
+
+            console.error(erro);
+
+        } finally {
+            botaoConfirmarCancelamento.disabled = false;
+
+            botaoConfirmarCancelamento.textContent =
+                'Cancelar agendamento';
+        }
+    });
+    modalConfirmacao.addEventListener('click', function (event) {
+        if (event.target === modalConfirmacao) {
+            fecharModalConfirmacao();
+        }
+    });
+    
     calendar.render();
 
 });

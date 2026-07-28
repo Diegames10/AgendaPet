@@ -392,3 +392,83 @@ body.modal-aberto {
 .btn-cancelar:hover{
     background:#b91c1c;
 }
+
+
+.modal-confirmacao{
+    position:fixed;
+    inset:0;
+
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:rgba(15, 23, 42, .65);
+
+    z-index:2000;
+}
+
+.modal-confirmacao.aberto{
+    display:flex;
+}
+
+.confirmacao-conteudo{
+    width:100%;
+    max-width:440px;
+
+    padding:28px;
+
+    border-radius:18px;
+
+    background:#fff;
+
+    box-shadow:0 24px 70px rgba(15, 23, 42, .28);
+
+    text-align:center;
+}
+
+.confirmacao-icone{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:58px;
+    height:58px;
+
+    margin:0 auto 18px;
+
+    border-radius:50%;
+
+    background:#fee2e2;
+    color:#dc2626;
+
+    font-size:30px;
+    font-weight:800;
+}
+
+.confirmacao-texto h2{
+    margin:0 0 10px;
+
+    color:#0f172a;
+
+    font-size:1.45rem;
+}
+
+.confirmacao-texto p{
+    margin:0;
+
+    color:#475569;
+
+    font-size:1rem;
+    line-height:1.5;
+}
+
+.confirmacao-acoes{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+
+    margin-top:26px;
+}

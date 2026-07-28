@@ -171,6 +171,48 @@
             </div>
         </div>
 
+        <div
+            id="modal-confirmacao"
+            class="modal-confirmacao"
+            aria-hidden="true"
+        >
+            <div class="confirmacao-conteudo">
+
+                <div class="confirmacao-icone">
+                    !
+                </div>
+
+                <div class="confirmacao-texto">
+                    <h2>Cancelar agendamento</h2>
+
+                    <p>
+                        Deseja realmente cancelar este agendamento?
+                    </p>
+                </div>
+
+                <div class="confirmacao-acoes">
+
+                    <button
+                        type="button"
+                        id="voltar-cancelamento"
+                        class="botao-secundario"
+                    >
+                        Voltar
+                    </button>
+
+                    <button
+                        type="button"
+                        id="confirmar-cancelamento"
+                        class="btn-cancelar"
+                    >
+                        Cancelar agendamento
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
@@ -179,9 +221,6 @@
 
     <script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
 
-    <script
-        src="{{ url_for('static', filename='js/calendario.js') }}"
-    ></script>
 
 </body>
 
