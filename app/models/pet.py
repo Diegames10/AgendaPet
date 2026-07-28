@@ -69,6 +69,8 @@ class Pet(db.Model):
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
+    
+    
 
     # =====================================================
     # RELACIONAMENTOS
@@ -85,6 +87,12 @@ class Pet(db.Model):
         cascade="all, delete-orphan"
     )
 
+    historicos = db.relationship(
+        "Historico",
+        back_populates="pet",
+        cascade="all, delete-orphan"
+    )
+    
     fotos = db.relationship(
         "FotoPet",
         back_populates="pet",

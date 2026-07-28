@@ -6,6 +6,7 @@ from flask import (
     request,
     redirect,
     url_for,
+    jsonify,
     flash
 )
 
@@ -15,7 +16,8 @@ from app import db
 from app.models.agendamentoConsulta import AgendamentoConsulta
 from app.models.pet import Pet
 from app.models.usuario import Usuario, TipoUsuario
-
+from app.models.horario_veterinario import HorarioVeterinario
+from app.utils.agenda import gerar_horarios_disponiveis
 
 agendamento_consulta_bp = Blueprint(
     "agendamento_consulta",
@@ -67,6 +69,94 @@ def listar():
         agendamentos=agendamentos
     )
 
+
+
+@agendamento_consulta_bp.route("/horarios")
+@login_required
+def horarios_disponiveis():
+
+    veterinario_id = request.args.get(
+        "veterinario_id",
+        type=int
+    )
+
+    data_texto = request.args.get("data")
+
+    if not veterinario_id or not data_texto:
+
+        return jsonify([])
+
+    try:
+
+        data = datetime.strptime(
+            data_texto,
+            "%Y-%m-%d"
+        ).date()
+
+    except ValueError:
+
+        return jsonify([])
+
+    dia_semana = data.weekday()
+
+    print("Veterinário:", veterinario_id)
+    print("Data:", data)
+    print("Dia da semana:", dia_semana)
+
+    expediente = (
+        HorarioVeterinario.query
+        .filter_by(
+            veterinario_id=veterinario_id,
+            dia_semana=dia_semana,
+            ativo=True
+        )
+        .first()
+    )
+
+    print("Expediente:", expediente)
+
+    if expediente is None:
+
+        return jsonify([])
+
+    ocupados = [
+
+        agendamento.horario
+
+        for agendamento in (
+            AgendamentoConsulta.query
+            .filter_by(
+                veterinario_id=veterinario_id,
+                data=data
+            )
+            .all()
+        )
+
+    ]
+
+    horarios = gerar_horarios_disponiveis(
+
+        expediente.hora_inicio,
+        expediente.hora_fim,
+        expediente.inicio_almoco,
+        expediente.fim_almoco,
+        expediente.intervalo_minutos,
+        ocupados
+
+    )
+
+    return jsonify(
+
+        [
+
+            horario.strftime("%H:%M")
+
+            for horario in horarios
+
+        ]
+
+    )
+    
 @agendamento_consulta_bp.route(
     "/cadastrar",
     methods=["GET", "POST"]

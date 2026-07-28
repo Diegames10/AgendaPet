@@ -1,0 +1,190 @@
+{% extends "base_painel.html" %}
+
+{% block titulo %}
+Agenda Inteligente - AgendaPet
+{% endblock %}
+
+{% block conteudo %}
+
+<header class="cabecalho-painel">
+
+    <div>
+
+        <p class="saudacao-painel">
+            Configuração de expedientes
+        </p>
+
+        <h1>
+            Agenda Inteligente
+        </h1>
+
+        <p>
+            Configure os dias e horários de atendimento dos veterinários.
+        </p>
+
+    </div>
+
+    <a
+        href="{{ url_for('agenda_inteligente.cadastrar') }}"
+        class="botao-novo-agendamento"
+    >
+        <i class="fa-solid fa-plus"></i>
+        Novo horário
+    </a>
+
+</header>
+
+<section class="secao-dashboard">
+
+    {% if horarios %}
+
+        {% for horario in horarios %}
+
+            <div class="card-proximo-atendimento">
+
+                <div class="icone-atendimento">
+                    <i class="fa-solid fa-user-doctor"></i>
+                </div>
+
+                <div class="dados-atendimento">
+
+                    <span class="tipo-atendimento">
+                        {{ dias_semana[horario.dia_semana] }}
+                    </span>
+
+                    <h3>
+                        {{ horario.veterinario.nome }}
+                    </h3>
+
+                    <div class="info-atendimento">
+
+                        <div>
+                            <i class="fa-solid fa-clock"></i>
+
+                            {{ horario.hora_inicio.strftime('%H:%M') }}
+                            até
+                            {{ horario.hora_fim.strftime('%H:%M') }}
+                        </div>
+
+                        <div>
+                            <i class="fa-solid fa-hourglass-half"></i>
+
+                            Intervalos de
+                            {{ horario.intervalo_minutos }}
+                            minutos
+                        </div>
+
+                        {% if horario.inicio_almoco and horario.fim_almoco %}
+
+                            <div>
+                                <i class="fa-solid fa-utensils"></i>
+
+                                Almoço:
+                                {{ horario.inicio_almoco.strftime('%H:%M') }}
+                                até
+                                {{ horario.fim_almoco.strftime('%H:%M') }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                    <span class="status-atendimento">
+
+                        {% if horario.ativo %}
+                            Ativo
+                        {% else %}
+                            Inativo
+                        {% endif %}
+
+                    </span>
+
+                    <div>
+
+                        <a
+                            href="{{ url_for(
+                                'agenda_inteligente.editar',
+                                id=horario.id
+                            ) }}"
+                        >
+                            Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'agenda_inteligente.alternar_status',
+                                id=horario.id
+                            ) }}"
+                            style="display: inline;"
+                        >
+
+                            <button type="submit">
+
+                                {% if horario.ativo %}
+                                    Desativar
+                                {% else %}
+                                    Ativar
+                                {% endif %}
+
+                            </button>
+
+                        </form>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'agenda_inteligente.excluir',
+                                id=horario.id
+                            ) }}"
+                            style="display: inline;"
+                            onsubmit="return confirm(
+                                'Deseja realmente excluir este horário?'
+                            );"
+                        >
+
+                            <button type="submit">
+                                Excluir
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="estado-vazio">
+
+            <div class="icone-vazio">
+                <i class="fa-regular fa-calendar-xmark"></i>
+            </div>
+
+            <h3>
+                Nenhum expediente cadastrado
+            </h3>
+
+            <p>
+                Cadastre os horários de trabalho dos veterinários.
+            </p>
+
+            <a
+                href="{{ url_for('agenda_inteligente.cadastrar') }}"
+                class="botao-novo-agendamento"
+            >
+                <i class="fa-solid fa-plus"></i>
+                Cadastrar horário
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

@@ -164,6 +164,12 @@ class Usuario(db.Model, UserMixin):
         back_populates="veterinario"
     )
     
+    horarios_trabalho = db.relationship(
+        "HorarioVeterinario",
+        back_populates="veterinario",
+        cascade="all, delete-orphan"
+    )
+    
     foto_perfil = db.relationship(
         "FotoUsuario",
         back_populates="usuario",

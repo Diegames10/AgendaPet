@@ -4,7 +4,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 
 from app import db
+
 from app.models.pet import Pet
+from app.models.usuario import Usuario, TipoUsuario
 
 from app.services.foto_service import FotoService
 
@@ -83,6 +85,22 @@ def detalhes(pet_id):
 @login_required
 def cadastrar():
 
+    pode_escolher_tutor = current_user.pode_ver_todos_os_pets
+
+    clientes = []
+
+    if pode_escolher_tutor:
+
+        clientes = (
+            Usuario.query
+            .filter(
+                Usuario.tipo_usuario == TipoUsuario.CLIENTE,
+                Usuario.ativo.is_(True)
+            )
+            .order_by(Usuario.nome.asc())
+            .all()
+        )
+    
     if request.method == "POST":
 
         nome = request.form.get("nome", "").strip()
@@ -126,6 +144,27 @@ def cadastrar():
                 flash("Informe um peso válido.", "danger")
                 return redirect(url_for("pets.cadastrar"))
 
+            
+        if current_user.pode_ver_todos_os_pets:
+
+            tutor_id = request.form.get(
+                "tutor_id",
+                type=int
+            )
+
+            if not tutor_id:
+                flash(
+                    "Selecione o cliente responsável pelo pet.",
+                    "danger"
+                )
+                return redirect(
+                    url_for("pets.cadastrar")
+                )
+
+        else:
+
+            tutor_id=tutor_id
+        
         novo_pet = Pet(
             nome=nome,
             especie=especie,
@@ -166,7 +205,11 @@ def cadastrar():
 
         return redirect(url_for("pets.listar"))
 
-    return render_template("pets/cadastrar.html")
+    return render_template(
+        "pets/cadastrar.html",
+        clientes=clientes,
+        pode_escolher_tutor=pode_escolher_tutor
+    )
 
 
 @pets_bp.route("/<int:pet_id>/editar", methods=["GET", "POST"])

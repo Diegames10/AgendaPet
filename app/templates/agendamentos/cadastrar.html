@@ -135,7 +135,7 @@
                             <label for="pet_id">
                                 Pet *
                             </label>
-
+                            
                             <select
                                 id="pet_id"
                                 name="pet_id"
@@ -249,12 +249,20 @@
                                 Horário *
                             </label>
 
-                            <input
-                                type="time"
+                            <select
                                 id="horario"
                                 name="horario"
                                 required
+                                disabled
                             >
+
+                                <option value="">
+                                    Selecione primeiro o veterinário e a data
+                                </option>
+
+                            </select>
+
+                            <small id="mensagem-horario"></small>
 
                         </div>
 
@@ -315,35 +323,179 @@
     </script>
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
 
-const clienteSelect = document.getElementById("tutor_id");
-const petSelect = document.getElementById("pet_id");
+    const clienteSelect = document.getElementById("tutor_id");
+    const petSelect = document.getElementById("pet_id");
 
-if(clienteSelect){
+    if (!clienteSelect || !petSelect) {
+        return;
+    }
 
-    clienteSelect.addEventListener("change", function(){
+    function filtrarPets() {
 
-        const tutor = this.value;
+        const tutorSelecionado = clienteSelect.value;
 
         petSelect.value = "";
 
-        Array.from(petSelect.options).forEach(opcao=>{
+        Array.from(petSelect.options).forEach(function (opcao) {
 
-            if(opcao.value===""){
-                opcao.hidden=false;
+            if (opcao.value === "") {
+                opcao.hidden = false;
                 return;
             }
 
-            opcao.hidden = opcao.dataset.tutor !== tutor;
-
+            opcao.hidden =
+                opcao.dataset.tutor !== tutorSelecionado;
         });
 
-    });
+    }
 
-}
+    clienteSelect.addEventListener(
+        "change",
+        filtrarPets
+    );
 
+    filtrarPets();
+
+});
 </script>
-    
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const veterinarioSelect = document.getElementById("veterinario_id");
+    const dataInput = document.getElementById("data");
+    const horarioSelect = document.getElementById("horario");
+    const mensagemHorario = document.getElementById("mensagem-horario");
+
+    function limparHorarios(texto) {
+
+        horarioSelect.innerHTML = "";
+
+        const opcao = document.createElement("option");
+
+        opcao.value = "";
+        opcao.textContent = texto;
+
+        horarioSelect.appendChild(opcao);
+        horarioSelect.disabled = true;
+
+        if (mensagemHorario) {
+            mensagemHorario.textContent = "";
+        }
+    }
+
+    async function carregarHorarios() {
+
+        const veterinarioId = veterinarioSelect.value;
+        const data = dataInput.value;
+
+        if (!veterinarioId || !data) {
+
+            limparHorarios(
+                "Selecione primeiro o veterinário e a data"
+            );
+
+            return;
+        }
+
+        horarioSelect.innerHTML = "";
+        horarioSelect.disabled = true;
+
+        const opcaoCarregando = document.createElement("option");
+
+        opcaoCarregando.value = "";
+        opcaoCarregando.textContent = "Carregando horários...";
+
+        horarioSelect.appendChild(opcaoCarregando);
+
+        if (mensagemHorario) {
+            mensagemHorario.textContent = "";
+        }
+
+        try {
+
+            const url =
+                "{{ url_for('agendamento_consulta.horarios_disponiveis') }}"
+                + "?veterinario_id="
+                + encodeURIComponent(veterinarioId)
+                + "&data="
+                + encodeURIComponent(data);
+
+            const resposta = await fetch(url);
+
+            if (!resposta.ok) {
+                throw new Error("Erro ao consultar os horários.");
+            }
+
+            const horarios = await resposta.json();
+
+            horarioSelect.innerHTML = "";
+
+            if (horarios.length === 0) {
+
+                limparHorarios(
+                    "Nenhum horário disponível"
+                );
+
+                if (mensagemHorario) {
+                    mensagemHorario.textContent =
+                        "O veterinário não possui expediente ou horários livres nessa data.";
+                }
+
+                return;
+            }
+
+            const opcaoInicial = document.createElement("option");
+
+            opcaoInicial.value = "";
+            opcaoInicial.textContent = "Selecione um horário";
+
+            horarioSelect.appendChild(opcaoInicial);
+
+            horarios.forEach(function (horario) {
+
+                const opcao = document.createElement("option");
+
+                opcao.value = horario;
+                opcao.textContent = horario;
+
+                horarioSelect.appendChild(opcao);
+
+            });
+
+            horarioSelect.disabled = false;
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            limparHorarios(
+                "Não foi possível carregar os horários"
+            );
+
+            if (mensagemHorario) {
+                mensagemHorario.textContent =
+                    "Ocorreu um erro ao consultar a agenda.";
+            }
+        }
+    }
+
+    veterinarioSelect.addEventListener(
+        "change",
+        carregarHorarios
+    );
+
+    dataInput.addEventListener(
+        "change",
+        carregarHorarios
+    );
+
+});
+</script>
+
+
 </body>
 
 </html>

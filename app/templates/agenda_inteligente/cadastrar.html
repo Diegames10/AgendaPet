@@ -1,0 +1,410 @@
+{% extends "base_painel.html" %}
+
+{% block titulo %}
+Cadastrar Horário - Agenda Inteligente
+{% endblock %}
+
+{% block conteudo %}
+
+<header class="cabecalho-painel">
+
+    <div>
+
+        <p class="saudacao-painel">
+            Agenda Inteligente
+        </p>
+
+        <h1>
+            Novo Expediente
+        </h1>
+
+        <p>
+            Configure os dias e horários de atendimento do veterinário.
+        </p>
+
+    </div>
+
+</header>
+
+
+<form
+    method="POST"
+    class="formulario-painel"
+>
+
+    <section class="secao-dashboard">
+
+        <div class="titulo-dashboard">
+
+            <div>
+
+                <span>Informações</span>
+
+                <h2>Dados do expediente</h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- Veterinário -->
+
+        <div class="campo-formulario">
+
+            <label>
+                Veterinário
+            </label>
+
+            <select
+                id="veterinario_id"
+                name="veterinario_id"
+                required
+            >
+
+                <option value="">
+                    Selecione o veterinário
+                </option>
+
+                {% for veterinario in veterinarios %}
+
+                    <option value="{{ veterinario.id }}">
+                        {{ veterinario.nome }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+        </div>
+
+
+        <!-- Dias -->
+
+        <div class="campo-formulario">
+
+            <label>
+                Dias da semana
+            </label>
+
+            <div class="dias-semana">
+
+                {% for numero, nome in dias_semana.items() %}
+
+                    <label class="checkbox-dia">
+
+                        <input
+                            type="checkbox"
+                            name="dias_semana"
+                            value="{{ numero }}"
+                        >
+
+                        {{ nome }}
+
+                    </label>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Horários -->
+
+        <div class="linha-formulario">
+
+            <div class="campo-formulario">
+
+                <label>
+                    Início
+                </label>
+
+                <input
+                    type="time"
+                    name="hora_inicio"
+                    required
+                >
+
+            </div>
+
+
+            <div class="campo-formulario">
+
+                <label>
+                    Fim
+                </label>
+
+                <input
+                    type="time"
+                    name="hora_fim"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- Almoço -->
+
+        <div class="linha-formulario">
+
+            <div class="campo-formulario">
+
+                <label>
+                    Início do almoço
+                </label>
+
+                <input
+                    type="time"
+                    name="inicio_almoco"
+                >
+
+            </div>
+
+
+            <div class="campo-formulario">
+
+                <label>
+                    Fim do almoço
+                </label>
+
+                <input
+                    type="time"
+                    name="fim_almoco"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- Intervalo -->
+
+        <div class="campo-formulario">
+
+            <label>
+
+                Intervalo entre consultas
+
+            </label>
+
+            <select
+                name="intervalo_minutos"
+                required
+            >
+
+                <option value="10">10 minutos</option>
+                <option value="15">15 minutos</option>
+                <option value="20">20 minutos</option>
+                <option value="30" selected>30 minutos</option>
+                <option value="40">40 minutos</option>
+                <option value="45">45 minutos</option>
+                <option value="60">60 minutos</option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Ativo -->
+
+        <div class="campo-formulario">
+
+            <label>
+
+                <input
+                    type="checkbox"
+                    name="ativo"
+                    checked
+                >
+
+                Expediente ativo
+
+            </label>
+
+        </div>
+
+
+        <div
+            style="
+                display:flex;
+                gap:15px;
+                margin-top:30px;
+            "
+        >
+
+            <button
+                class="botao-novo-agendamento"
+                type="submit"
+            >
+
+                <i class="fa-solid fa-floppy-disk"></i>
+
+                Salvar
+
+            </button>
+
+
+            <a
+                href="{{ url_for('agenda_inteligente.listar') }}"
+                class="botao-cancelar"
+            >
+
+                Cancelar
+
+            </a>
+
+        </div>
+
+    </section>
+
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const veterinarioSelect = document.getElementById(
+        "veterinario_id"
+    );
+
+    const dataInput = document.getElementById("data");
+    const horarioSelect = document.getElementById("horario");
+
+    const mensagemHorarios = document.getElementById(
+        "mensagem-horarios"
+    );
+
+    function limparHorarios(mensagem) {
+
+        horarioSelect.innerHTML = "";
+
+        const option = document.createElement("option");
+
+        option.value = "";
+        option.textContent = mensagem;
+
+        horarioSelect.appendChild(option);
+        horarioSelect.disabled = true;
+
+        mensagemHorarios.textContent = "";
+    }
+
+
+    async function carregarHorarios() {
+
+        const veterinarioId = veterinarioSelect.value;
+        const data = dataInput.value;
+
+        if (!veterinarioId || !data) {
+
+            limparHorarios(
+                "Selecione o veterinário e a data"
+            );
+
+            return;
+        }
+
+        horarioSelect.disabled = true;
+        horarioSelect.innerHTML = "";
+
+        const carregando = document.createElement("option");
+
+        carregando.value = "";
+        carregando.textContent = "Carregando horários...";
+
+        horarioSelect.appendChild(carregando);
+
+        mensagemHorarios.textContent = "";
+
+        try {
+
+            const url = new URL(
+                "{{ url_for('agendamento_consulta.horarios_disponiveis') }}",
+                window.location.origin
+            );
+
+            url.searchParams.set(
+                "veterinario_id",
+                veterinarioId
+            );
+
+            url.searchParams.set("data", data);
+            console.log(url.toString());
+            const resposta = await fetch(url);
+
+            if (!resposta.ok) {
+                throw new Error("Erro ao consultar horários.");
+            }
+
+            const horarios = await resposta.json();
+            console.log(horarios);
+            horarioSelect.innerHTML = "";
+
+            if (horarios.length === 0) {
+
+                limparHorarios(
+                    "Nenhum horário disponível"
+                );
+
+                mensagemHorarios.textContent =
+                    "O veterinário não possui expediente ou horários livres nessa data.";
+
+                return;
+            }
+
+            const optionInicial = document.createElement(
+                "option"
+            );
+
+            optionInicial.value = "";
+            optionInicial.textContent =
+                "Selecione um horário";
+
+            horarioSelect.appendChild(optionInicial);
+
+            horarios.forEach(function (horario) {
+
+                const option = document.createElement(
+                    "option"
+                );
+
+                option.value = horario;
+                option.textContent = horario;
+
+                horarioSelect.appendChild(option);
+
+            });
+
+            horarioSelect.disabled = false;
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            limparHorarios(
+                "Não foi possível carregar os horários"
+            );
+
+            mensagemHorarios.textContent =
+                "Ocorreu um erro ao consultar a agenda.";
+
+        }
+
+    }
+
+    veterinarioSelect.addEventListener(
+        "change",
+        carregarHorarios
+    );
+
+    dataInput.addEventListener(
+        "change",
+        carregarHorarios
+    );
+
+});
+</script>
+
+{% endblock %}

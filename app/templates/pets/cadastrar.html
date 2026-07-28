@@ -73,7 +73,7 @@
                     enctype="multipart/form-data"
                 >
 
-                    <<section
+                    <section
                         class="secao-fotos-pet"
                         data-upload-fotos-pet
                         data-limite-fotos="3"
@@ -158,6 +158,38 @@
 
                     <div class="grade-formulario-pet">
 
+                        {% if pode_escolher_tutor %}
+
+                        <div class="grupo-campo campo-largo">
+
+                            <label for="tutor_id">
+                                Cliente responsável *
+                            </label>
+
+                            <select
+                                id="tutor_id"
+                                name="tutor_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Selecione o cliente
+                                </option>
+
+                                {% for cliente in clientes %}
+
+                                <option value="{{ cliente.id }}">
+                                    {{ cliente.nome }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+                        {% endif %}
+                        
                         <div class="grupo-campo campo-largo">
                             <label for="nome">
                                 Nome do pet *

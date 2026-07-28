@@ -140,7 +140,7 @@ class Historico(db.Model):
 
     pet = db.relationship(
         "Pet",
-        backref="historicos"
+        back_populates="historicos"
     )
 
     veterinario = db.relationship(
