@@ -191,6 +191,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         acoesAgendamento.appendChild(
             criarBotao(
+                'Editar',
+                'btn-editar',
+
+                function () {
+                    window.location.href =
+                        `/agendamentos/${evento.id}/editar`;
+                }
+            )
+        );
+
+        acoesAgendamento.appendChild(
+            criarBotao(
                 'Cancelar',
                 'btn-cancelar',
                 cancelarAgendamento
@@ -237,6 +249,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     evento.setProp('borderColor', novaCor);
 
                     abrirModal(evento);
+                }
+            )
+        );
+        
+        acoesAgendamento.appendChild(
+            criarBotao(
+                'Editar',
+                'btn-editar',
+
+                function () {
+                    window.location.href =
+                        `/agendamentos/${evento.id}/editar`;
                 }
             )
         );
@@ -465,7 +489,7 @@ botaoConfirmarCancelamento.addEventListener(
             fecharModalConfirmacao();
         }
     });
-    
+
     calendar.render();
 
 });

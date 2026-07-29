@@ -18,14 +18,21 @@
 
     <link
         rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
         href="{{ url_for('static', filename='css/calendario.css') }}"
     >
 </head>
 
-<body>
+<body class="pagina-calendario-body">
 
     <main class="pagina-calendario">
-
+        
+        {% include 'partials/sidebar.html' %}
+        
         <header class="cabecalho-calendario">
 
             <div>
@@ -155,8 +162,9 @@
                 </div>
 
                 <div class="modal-rodape">
-                    
-                    <div id="acoes-agendamento"></div>
+
+                    <div id="acoes-agendamento">
+
                         <button
                             type="button"
                             id="botao-fechar-modal"
@@ -165,7 +173,6 @@
                             Fechar
                         </button>
                     </div>
-
                 </div>
 
             </div>

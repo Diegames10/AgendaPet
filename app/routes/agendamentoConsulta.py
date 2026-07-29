@@ -19,6 +19,9 @@ from app.models.usuario import Usuario, TipoUsuario
 from app.models.horario_veterinario import HorarioVeterinario
 from app.utils.agenda import gerar_horarios_disponiveis
 
+from flask import abort
+
+
 agendamento_consulta_bp = Blueprint(
     "agendamento_consulta",
     __name__,
@@ -82,6 +85,11 @@ def horarios_disponiveis():
 
     data_texto = request.args.get("data")
 
+    agendamento_id = request.args.get(
+        "agendamento_id",
+        type=int
+    )
+    
     if not veterinario_id or not data_texto:
 
         return jsonify([])
@@ -119,19 +127,24 @@ def horarios_disponiveis():
 
         return jsonify([])
 
-    ocupados = [
+    consulta_ocupados = (
+        AgendamentoConsulta.query
+        .filter(
+            AgendamentoConsulta.veterinario_id == veterinario_id,
+            AgendamentoConsulta.data == data,
+            AgendamentoConsulta.status != "Cancelado"
+        )
+    )
 
-        agendamento.horario
-
-        for agendamento in (
-            AgendamentoConsulta.query
-            .filter_by(
-                veterinario_id=veterinario_id,
-                data=data
-            )
-            .all()
+    # Durante a edição, ignora o próprio agendamento.
+    if agendamento_id:
+        consulta_ocupados = consulta_ocupados.filter(
+            AgendamentoConsulta.id != agendamento_id
         )
 
+    ocupados = [
+        agendamento.horario
+        for agendamento in consulta_ocupados.all()
     ]
 
     horarios = gerar_horarios_disponiveis(
@@ -260,7 +273,7 @@ def cadastrar():
 
         veterinario_id = request.form.get(
             "veterinario_id",
-            type=int
+            type=int 
         )
 
         tipo = request.form.get(
@@ -305,24 +318,8 @@ def cadastrar():
 
         if veterinario_id:
 
-            veterinario = Usuario.query.filter(
-                Usuario.id == veterinario_id,
-                Usuario.tipo_usuario == TipoUsuario.VETERINARIO,
-                Usuario.ativo.is_(True)
-            ).first()
-
-            if veterinario is None:
-                flash(
-                    "Selecione um veterinário válido.",
-                    "danger"
-                )
-
-                return redirect(
-                    url_for(
-                        "agendamento_consulta.cadastrar"
-                    )
-                )
-
+            veterinario = None
+        
         if not tipo or not data_texto or not horario_texto:
 
             flash(
@@ -369,7 +366,8 @@ def cadastrar():
             observacoes=observacoes or None,
             pet_id=pet.id,
             tutor_id=tutor_id,
-            veterinario_id=veterinario_id
+            veterinario_id=veterinario_id,
+            
         )
 
         db.session.add(novo_agendamento)
@@ -404,6 +402,13 @@ def cadastrar():
 )
 @login_required
 def editar(agendamento_id):
+    
+    if current_user.tipo_usuario not in {
+        TipoUsuario.ADMIN,
+        TipoUsuario.RECEPCIONISTA
+    }:
+        abort(403)
+    
     agendamento = buscar_agendamento_permitido(
     agendamento_id
     )
@@ -414,7 +419,22 @@ def editar(agendamento_id):
         .order_by(Pet.nome.asc())
         .all()
     )
-
+    
+    veterinarios = (
+        Usuario.query
+        .filter(
+            Usuario.tipo_usuario == TipoUsuario.VETERINARIO,
+            Usuario.ativo.is_(True)
+        )
+        .order_by(Usuario.nome.asc())
+        .all()
+    )
+    
+    veterinario_id = request.form.get(
+            "veterinario_id",
+            type=int
+        )
+    
     if request.method == "POST":
         pet_id = request.form.get("pet_id", type=int)
         tipo = request.form.get("tipo", "").strip()
@@ -474,11 +494,43 @@ def editar(agendamento_id):
                 )
             )
 
+        veterinario = Usuario.query.filter(
+            Usuario.id == veterinario_id,
+            Usuario.tipo_usuario == TipoUsuario.VETERINARIO,
+            Usuario.ativo.is_(True)
+        ).first()
+
+        if veterinario is None:
+            flash(
+                "Selecione um veterinário válido.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "agendamento_consulta.editar",
+                    agendamento_id=agendamento.id
+                )
+            )
+        
+        if agendamento.status not in {
+            "Agendado",
+            "Confirmado"
+        }:
+            flash(
+                "Este agendamento não pode mais ser editado.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("calendario.visualizar")
+            )
+                
         status_validos = {
             "Agendado",
             "Confirmado",
             "Em atendimento",
-            "Concluído",
+            "Finalizado",
             "Cancelado"
         }
 
@@ -491,6 +543,7 @@ def editar(agendamento_id):
         agendamento.horario = horario_agendamento
         agendamento.status = status
         agendamento.observacoes = observacoes or None
+        agendamento.veterinario_id = veterinario.id
 
         db.session.commit()
 
@@ -506,7 +559,8 @@ def editar(agendamento_id):
     return render_template(
         "agendamentos/editar.html",
         agendamento=agendamento,
-        pets=pets
+        pets=pets,
+        veterinarios=veterinarios
     )
 
 

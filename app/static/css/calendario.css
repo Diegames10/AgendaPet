@@ -11,11 +11,6 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.pagina-calendario {
-    width: min(1400px, 94%);
-    margin: 0 auto;
-    padding: 32px 0;
-}
 
 .cabecalho-calendario {
     display: flex;
@@ -89,8 +84,9 @@ body {
 
 @media (max-width: 768px) {
     .pagina-calendario {
-        width: 96%;
-        padding: 18px 0;
+        width: 100%;
+        margin-left: 0;
+        padding: 18px;
     }
 
     .cabecalho-calendario {
@@ -471,4 +467,103 @@ body.modal-aberto {
     flex-wrap:wrap;
 
     margin-top:26px;
+}
+
+.btn-editar{
+    background:#7c3aed;
+    border:none;
+    border-radius:10px;
+    padding:10px 18px;
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.btn-editar:hover{
+    background:#6d28d9;
+}
+
+
+
+/* Evita que largura e padding ultrapassem o tamanho definido */
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+}
+
+/* Área principal da página */
+.pagina-calendario {
+    width: calc(100% - 270px);
+    min-height: 100vh;
+
+    margin-left: 270px;
+    padding: 30px 35px;
+
+    background: #eef2f5;
+}
+
+/* Cabeçalho e calendário não podem forçar a largura */
+.cabecalho-calendario,
+.legenda-status,
+.cartao-calendario {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Cartão que contém o FullCalendar */
+.cartao-calendario {
+    padding: 20px;
+    border-radius: 24px;
+    background-color: #ffffff;
+    overflow: hidden;
+}
+
+/* FullCalendar */
+#calendar {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Impede que o texto do evento ultrapasse a célula */
+.fc-event {
+    overflow: hidden;
+}
+
+.fc-event-title,
+.fc-event-time {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Permite que a área central diminua corretamente */
+.fc,
+.fc-view-harness,
+.fc-scrollgrid {
+    max-width: 100%;
+    min-width: 0;
+}
+
+body.pagina-calendario-body {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+
+    margin: 0;
+    padding: 0;
+
+    background: #eef2f5;
+    color: #1e293b;
+
+    overflow-x: hidden;
 }

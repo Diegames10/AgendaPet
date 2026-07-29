@@ -307,3 +307,15 @@ class Usuario(db.Model, UserMixin):
 
     def __repr__(self):
         return f"<Usuario {self.email}>"
+    
+    # -------------------------------
+    # CALENDARIO PARA DEVIDAS PERMISSSOES
+    # -------------------------------
+    
+    @property
+    def pode_acessar_calendario(self):
+        return self.tipo_usuario in {
+            TipoUsuario.ADMIN,
+            TipoUsuario.RECEPCIONISTA,
+            TipoUsuario.VETERINARIO
+        }

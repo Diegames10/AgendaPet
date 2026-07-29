@@ -1,3 +1,4 @@
+
 <aside class="menu-lateral">
 
     <!-- LOGO -->
@@ -51,6 +52,26 @@
 
         {% endif %}
 
+        <!-- AGENDA -->
+
+        {% if current_user.is_authenticated
+            and current_user.pode_acessar_calendario %}
+
+            <a
+                href="{{ url_for('calendario.visualizar') }}"
+                class="item-menu
+                {% if request.blueprint == 'calendario' %}
+                    ativo
+                {% endif %}"
+            >
+                <i class="fa-solid fa-calendar-days"></i>
+
+                <span>
+                    Calendário
+                </span>
+            </a>
+
+        {% endif %}
 
         <!-- PETS -->
 

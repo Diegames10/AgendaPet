@@ -137,6 +137,39 @@
                             </select>
 
                         </div>
+                        
+                        <div class="grupo-campo">
+
+                            <label for="veterinario_id">
+                                Veterinário responsável *
+                            </label>
+
+                            <select
+                                id="veterinario_id"
+                                name="veterinario_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Selecione um veterinário
+                                </option>
+
+                                {% for veterinario in veterinarios %}
+
+                                    <option
+                                        value="{{ veterinario.id }}"
+                                        {% if veterinario.id == agendamento.veterinario_id %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ veterinario.nome }} — {{ veterinario.especialidade }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
 
                         <div class="grupo-campo">
 
@@ -216,13 +249,21 @@
                                 Horário *
                             </label>
 
-                            <input
-                                type="time"
+                            <select
                                 id="horario"
                                 name="horario"
-                                value="{{ agendamento.horario.strftime('%H:%M') }}"
+                                data-horario-atual="{{ agendamento.horario.strftime('%H:%M') }}"
                                 required
                             >
+                                <option
+                                    value="{{ agendamento.horario.strftime('%H:%M') }}"
+                                    selected
+                                >
+                                    {{ agendamento.horario.strftime('%H:%M') }}
+                                </option>
+                            </select>
+
+                            <small id="mensagem-horarios"></small>
 
                         </div>
 
@@ -255,14 +296,23 @@
                                 >
                                     Confirmado
                                 </option>
-
+                                
                                 <option
-                                    value="Concluído"
-                                    {% if agendamento.status == "Concluído" %}
+                                    value="Em atendimento"
+                                    {% if agendamento.status == "Em atendimento" %}
                                         selected
                                     {% endif %}
                                 >
-                                    Concluído
+                                    Em atendimento
+                                </option>
+
+                                <option
+                                    value="Finalizado"
+                                    {% if agendamento.status == "Finalizado" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Finalizado
                                 </option>
 
                                 <option
@@ -322,6 +372,157 @@
         </main>
 
     </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const campoVeterinario =
+        document.getElementById('veterinario_id');
+
+    const campoData =
+        document.getElementById('data');
+
+    const campoHorario =
+        document.getElementById('horario');
+
+    const mensagemHorarios =
+        document.getElementById('mensagem-horarios');
+
+    const horarioAtual =
+        campoHorario.dataset.horarioAtual;
+
+    const agendamentoId =
+        {{ agendamento.id }};
+
+    async function carregarHorarios(manterHorarioAtual = false) {
+
+        const veterinarioId =
+            campoVeterinario.value;
+
+        const data =
+            campoData.value;
+
+        campoHorario.innerHTML = '';
+
+        mensagemHorarios.textContent = '';
+
+        if (!veterinarioId || !data) {
+
+            campoHorario.innerHTML = `
+                <option value="">
+                    Selecione o veterinário e a data
+                </option>
+            `;
+
+            campoHorario.disabled = true;
+
+            return;
+        }
+
+        campoHorario.disabled = true;
+
+        campoHorario.innerHTML = `
+            <option value="">
+                Carregando horários...
+            </option>
+        `;
+
+        try {
+
+            const parametros = new URLSearchParams({
+                veterinario_id: veterinarioId,
+                data: data,
+                agendamento_id: agendamentoId
+            });
+
+            const resposta = await fetch(
+                `{{ url_for(
+                    'agendamento_consulta.horarios_disponiveis'
+                ) }}?${parametros.toString()}`
+            );
+
+            if (!resposta.ok) {
+                throw new Error(
+                    'Não foi possível carregar os horários.'
+                );
+            }
+
+            const horarios = await resposta.json();
+
+            campoHorario.innerHTML = '';
+
+            if (horarios.length === 0) {
+
+                campoHorario.innerHTML = `
+                    <option value="">
+                        Nenhum horário disponível
+                    </option>
+                `;
+
+                mensagemHorarios.textContent =
+                    'O veterinário não possui horários disponíveis nesta data.';
+
+                return;
+            }
+
+            campoHorario.innerHTML = `
+                <option value="">
+                    Selecione um horário
+                </option>
+            `;
+
+            horarios.forEach(function (horario) {
+
+                const opcao =
+                    document.createElement('option');
+
+                opcao.value = horario;
+                opcao.textContent = horario;
+
+                if (
+                    manterHorarioAtual &&
+                    horario === horarioAtual
+                ) {
+                    opcao.selected = true;
+                }
+
+                campoHorario.appendChild(opcao);
+            });
+
+            campoHorario.disabled = false;
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            campoHorario.innerHTML = `
+                <option value="">
+                    Erro ao carregar horários
+                </option>
+            `;
+
+            mensagemHorarios.textContent =
+                'Não foi possível consultar os horários disponíveis.';
+        }
+    }
+
+    campoVeterinario.addEventListener(
+        'change',
+        function () {
+            carregarHorarios(false);
+        }
+    );
+
+    campoData.addEventListener(
+        'change',
+        function () {
+            carregarHorarios(false);
+        }
+    );
+
+    carregarHorarios(true);
+});
+</script>
 
 </body>
 
