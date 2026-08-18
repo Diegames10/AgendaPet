@@ -15,3 +15,5 @@ instance/
 .vscode/
 .DS_Store
 Thumbs.db
+
+storage/

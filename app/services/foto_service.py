@@ -38,7 +38,8 @@ class FotoService:
             db.session.flush()
 
         arquivo = UploadService.criar_arquivo(
-            file_storage
+            file_storage,
+            pasta=f"usuarios/{usuario.id}"
         )
 
         foto = FotoUsuario(
@@ -102,7 +103,8 @@ class FotoService:
             )
 
         arquivo = UploadService.criar_arquivo(
-            file_storage
+            file_storage,
+            pasta=f"pets/{pet.id}"
         )
 
         primeira_foto = len(fotos_atuais) == 0
@@ -197,7 +199,8 @@ class FotoService:
         db.session.flush()
 
         arquivo = UploadService.criar_arquivo(
-            file_storage
+            file_storage,
+            pasta=f"pets/{pet.id}"
         )
 
         nova_foto = FotoPet(

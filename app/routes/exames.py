@@ -14,6 +14,41 @@ exames_bp = Blueprint(
     url_prefix="/exames"
 )
 
+def _buscar_historico_permitido(historico_id):
+
+    consulta = (
+        Historico.query
+        .join(Pet, Historico.pet_id == Pet.id)
+        .filter(
+            Historico.id == historico_id
+        )
+    )
+
+    if not current_user.pode_ver_historico_completo:
+        consulta = consulta.filter(
+            Pet.tutor_id == current_user.id
+        )
+
+    return consulta.first_or_404()
+
+
+def _buscar_exame_permitido(exame_id):
+
+    consulta = (
+        Exame.query
+        .join(Historico)
+        .join(Pet)
+        .filter(
+            Exame.id == exame_id
+        )
+    )
+
+    if not current_user.pode_ver_historico_completo:
+        consulta = consulta.filter(
+            Pet.tutor_id == current_user.id
+        )
+
+    return consulta.first_or_404()
 
 # ==========================================================
 # LISTAR EXAMES DE UM PRONTUÁRIO
@@ -23,14 +58,8 @@ exames_bp = Blueprint(
 @login_required
 def listar(historico_id):
 
-    historico = (
-        Historico.query
-        .join(Pet, Historico.pet_id == Pet.id)
-        .filter(
-            Historico.id == historico_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    historico = _buscar_historico_permitido(
+        historico_id
     )
 
     exames = (
@@ -61,14 +90,8 @@ def listar(historico_id):
 @login_required
 def novo(historico_id):
 
-    historico = (
-        Historico.query
-        .join(Pet, Historico.pet_id == Pet.id)
-        .filter(
-            Historico.id == historico_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    historico = _buscar_historico_permitido(
+        historico_id
     )
 
     if request.method == "POST":
@@ -164,15 +187,8 @@ def novo(historico_id):
 @login_required
 def editar(exame_id):
 
-    exame = (
-        Exame.query
-        .join(Historico)
-        .join(Pet)
-        .filter(
-            Exame.id == exame_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    exame = _buscar_exame_permitido(
+        exame_id
     )
 
     if request.method == "POST":
@@ -256,15 +272,8 @@ def editar(exame_id):
 @login_required
 def excluir(exame_id):
 
-    exame = (
-        Exame.query
-        .join(Historico)
-        .join(Pet)
-        .filter(
-            Exame.id == exame_id,
-            Pet.tutor_id == current_user.id
-        )
-        .first_or_404()
+    exame = _buscar_exame_permitido(
+        exame_id
     )
 
     historico_id = exame.historico_id

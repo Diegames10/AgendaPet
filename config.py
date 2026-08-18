@@ -17,3 +17,15 @@ class Config:
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # =====================================================
+    # ARMAZENAMENTO DE ARQUIVOS
+    # =====================================================
+
+    STORAGE_PATH = os.getenv(
+        "STORAGE_PATH",
+        os.path.join(
+            os.getcwd(),
+            "storage"
+        )
+    )

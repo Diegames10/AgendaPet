@@ -5,6 +5,7 @@ from flask_login import current_user, login_required
 
 from app.models.pet import Pet
 from app.models.foto_pet import FotoPet
+from app.services.storage_service import StorageService
 
 
 imagens_bp = Blueprint(
@@ -20,23 +21,98 @@ imagens_bp = Blueprint(
 
 def _enviar_imagem(
     arquivo,
-    dados,
-    nome_download
+    nome_download,
+    usar_miniatura=False
 ):
     """
-    Retorna uma imagem armazenada no banco.
+    Retorna uma imagem.
+
+    Prioridade:
+    1. Arquivo físico no storage.
+    2. Dados binários antigos no PostgreSQL.
+
+    Isso permite manter compatibilidade durante
+    a migração do armazenamento.
     """
 
+    if arquivo is None:
+        abort(404)
+
+    # =====================================================
+    # NOVO MODELO: ARQUIVO NO STORAGE
+    # =====================================================
+
+    caminho_relativo = (
+        arquivo.caminho_miniatura
+        if usar_miniatura
+        else arquivo.caminho
+    )
+
+    # Se foi solicitada miniatura, mas ela não existir,
+    # usa a imagem principal.
     if (
-        arquivo is None
-        or dados is None
-        or not dados
+        usar_miniatura
+        and not caminho_relativo
     ):
+        caminho_relativo = arquivo.caminho
+
+    if caminho_relativo:
+
+        try:
+            caminho_fisico = (
+                StorageService.obter_caminho(
+                    caminho_relativo
+                )
+            )
+
+        except ValueError:
+            abort(404)
+
+        if caminho_fisico.is_file():
+
+            resposta = send_file(
+                caminho_fisico,
+                mimetype=(
+                    arquivo.tipo_mime
+                    or "image/webp"
+                ),
+                download_name=nome_download,
+                as_attachment=False,
+                max_age=3600
+            )
+
+            resposta.headers["Cache-Control"] = (
+                "private, max-age=3600, must-revalidate"
+            )
+
+            return resposta
+
+    # =====================================================
+    # MODELO ANTIGO: ARQUIVO NO POSTGRESQL
+    # =====================================================
+
+    dados = None
+
+    if usar_miniatura:
+
+        dados = (
+            arquivo.miniatura
+            or arquivo.dados
+        )
+
+    else:
+
+        dados = arquivo.dados
+
+    if not dados:
         abort(404)
 
     resposta = send_file(
         BytesIO(dados),
-        mimetype=arquivo.tipo_mime or "image/webp",
+        mimetype=(
+            arquivo.tipo_mime
+            or "image/webp"
+        ),
         download_name=nome_download,
         as_attachment=False,
         max_age=3600
@@ -69,13 +145,13 @@ def foto_perfil():
 
     return _enviar_imagem(
         arquivo=arquivo,
-        dados=arquivo.dados if arquivo else None,
         nome_download=(
             f"foto_perfil_usuario_{current_user.id}."
             f"{arquivo.extensao or 'webp'}"
             if arquivo
             else "foto_perfil.webp"
-        )
+        ),
+        usar_miniatura=False
     )
 
 
@@ -97,19 +173,13 @@ def miniatura_foto_perfil():
 
     arquivo = foto_usuario.arquivo
 
-    dados = (
-        arquivo.miniatura or arquivo.dados
-        if arquivo
-        else None
-    )
-
     return _enviar_imagem(
         arquivo=arquivo,
-        dados=dados,
         nome_download=(
             f"miniatura_perfil_usuario_"
             f"{current_user.id}.webp"
-        )
+        ),
+        usar_miniatura=True
     )
 
 
@@ -137,13 +207,13 @@ def foto_principal_pet(pet_id):
 
     return _enviar_imagem(
         arquivo=arquivo,
-        dados=arquivo.dados if arquivo else None,
         nome_download=(
             f"pet_{pet.id}_foto_principal."
             f"{arquivo.extensao or 'webp'}"
             if arquivo
             else f"pet_{pet.id}.webp"
-        )
+        ),
+        usar_miniatura=False
     )
 
 
@@ -171,18 +241,12 @@ def miniatura_foto_principal_pet(pet_id):
 
     arquivo = foto.arquivo
 
-    dados = (
-        arquivo.miniatura or arquivo.dados
-        if arquivo
-        else None
-    )
-
     return _enviar_imagem(
         arquivo=arquivo,
-        dados=dados,
         nome_download=(
             f"pet_{pet.id}_miniatura.webp"
-        )
+        ),
+        usar_miniatura=True
     )
 
 
@@ -215,13 +279,13 @@ def foto_pet(pet_id, foto_id):
 
     return _enviar_imagem(
         arquivo=arquivo,
-        dados=arquivo.dados if arquivo else None,
         nome_download=(
             f"pet_{pet.id}_foto_{foto.id}."
             f"{arquivo.extensao or 'webp'}"
             if arquivo
             else f"pet_{pet.id}_foto.webp"
-        )
+        ),
+        usar_miniatura=False
     )
 
 
@@ -255,18 +319,12 @@ def miniatura_foto_pet(
 
     arquivo = foto.arquivo
 
-    dados = (
-        arquivo.miniatura or arquivo.dados
-        if arquivo
-        else None
-    )
-
     return _enviar_imagem(
         arquivo=arquivo,
-        dados=dados,
         nome_download=(
             f"pet_{pet.id}_foto_{foto.id}_miniatura.webp"
-        )
+        ),
+        usar_miniatura=True
     )
 
 
@@ -276,17 +334,24 @@ def miniatura_foto_pet(
 
 def _buscar_pet_do_usuario(pet_id):
     """
-    Garante que o usuário autenticado só visualize
-    imagens dos próprios pets.
+    Controla o acesso às imagens dos pets.
 
-    Administradores poderão receber uma regra adicional
-    futuramente.
+    Funcionários podem visualizar todos os pets.
+    Clientes podem visualizar somente os próprios pets.
     """
 
-    pet = Pet.query.filter_by(
-        id=pet_id,
-        tutor_id=current_user.id
-    ).first()
+    if current_user.pode_ver_todos_os_pets:
+
+        pet = Pet.query.filter_by(
+            id=pet_id
+        ).first()
+
+    else:
+
+        pet = Pet.query.filter_by(
+            id=pet_id,
+            tutor_id=current_user.id
+        ).first()
 
     if pet is None:
         abort(404)

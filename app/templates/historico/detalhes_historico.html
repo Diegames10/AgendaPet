@@ -142,7 +142,7 @@
         }
 
         .secao-clinica {
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .secao-clinica h2 {
@@ -158,9 +158,10 @@
         }
 
         .caixa-texto {
-            min-height: 70px;
+            min-height: 0;
+            height: auto;
 
-            padding: 16px 18px;
+            padding: 12px 16px;
 
             color: #2c2c2c;
             background: #f7faf7;
@@ -168,9 +169,8 @@
             border-left: 5px solid #2e8437;
             border-radius: 8px;
 
-            line-height: 1.6;
-
-            white-space: pre-wrap;
+            line-height: 1.5;
+            white-space: normal;
         }
 
         .botoes {
@@ -310,7 +310,7 @@
         }
 
         .card-exame {
-            padding: 20px;
+            padding: 16px;
 
             background: #f8fbf8;
 
@@ -374,19 +374,26 @@
         }
 
         .bloco-exame {
-            margin-top: 12px;
-            padding: 13px 15px;
+            margin-top: 10px;
+            padding: 12px 15px;
+
+            min-height: 0;
+            height: auto;
+
+            display: block;
 
             background: #ffffff;
 
             border: 1px solid #dde6df;
             border-radius: 8px;
 
-            line-height: 1.6;
-            white-space: pre-wrap;
+            line-height: 1.5;
+            white-space: normal;
         }
 
         .bloco-exame strong {
+            display: block;
+            margin-bottom: 6px;
             color: #23752d;
         }
 
@@ -807,18 +814,12 @@
 
                                     <strong>Resultado</strong>
 
-                                    <br>
-
                                     {% if exame.resultado %}
-
                                         {{ exame.resultado }}
-
                                     {% else %}
-
                                         <span class="texto-nao-informado">
                                             Resultado não informado.
                                         </span>
-
                                     {% endif %}
 
                                 </div>
@@ -829,7 +830,7 @@
 
                                         <strong>Observações</strong>
 
-                                        <br>
+                                    
 
                                         {{ exame.observacoes }}
 

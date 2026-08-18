@@ -43,14 +43,16 @@ class Arquivo(db.Model):
         default="webp"
     )
 
-    dados = db.Column(
-        db.LargeBinary,
-        nullable=False
+    caminho = db.Column(
+        db.String(500),
+        nullable=True,
+        unique=True
     )
 
-    miniatura = db.Column(
-        db.LargeBinary,
-        nullable=True
+    caminho_miniatura = db.Column(
+        db.String(500),
+        nullable=True,
+        unique=True
     )
 
     tamanho_bytes = db.Column(
