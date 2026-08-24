@@ -11,3 +11,5 @@ from app.models.foto_pet import FotoPet
 from app.models.exame import Exame
 
 from .horario_veterinario import HorarioVeterinario
+
+from app.models.conta_oauth import ContaOAuth

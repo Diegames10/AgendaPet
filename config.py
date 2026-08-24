@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -29,3 +30,44 @@ class Config:
             "storage"
         )
     )
+    
+    
+    # =====================================================
+    # OAUTH - GOOGLE
+    # =====================================================
+
+    GOOGLE_CLIENT_ID = os.getenv(
+        "GOOGLE_CLIENT_ID"
+    )
+
+    GOOGLE_CLIENT_SECRET = os.getenv(
+        "GOOGLE_CLIENT_SECRET"
+    )
+
+
+    # =====================================================
+    # OAUTH - MICROSOFT
+    # =====================================================
+
+    MICROSOFT_CLIENT_ID = os.getenv(
+        "MICROSOFT_CLIENT_ID"
+    )
+
+    MICROSOFT_CLIENT_SECRET = os.getenv(
+        "MICROSOFT_CLIENT_SECRET"
+    )
+    
+    # =====================================================
+    # SESSÃO / REMEMBER ME
+    # =====================================================
+
+    REMEMBER_COOKIE_DURATION = timedelta(days=30)
+
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = "Lax"
+    
+    SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_SECURE = False

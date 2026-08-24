@@ -20,16 +20,28 @@ def create_app():
     migrate.init_app(app, db)
     login_manager.init_app(app)
 
+    # =====================================================
+    # OAUTH
+    # =====================================================
+
+    from app.auth.oauth import init_oauth
+
+    init_oauth(app)    
+    
+    # =====================================================
+    # FLASK-LOGIN
+    # =====================================================
+    
     login_manager.login_view = "auth.login"
     login_manager.login_message = "Faça login para acessar esta página."
     login_manager.login_message_category = "aviso"
-
+  
     from app.models import Usuario
 
     from app.routes.agendamentoConsulta import agendamento_consulta_bp
     
     from app.models.exame import Exame
-    
+        
     @login_manager.user_loader
     def carregar_usuario(usuario_id):
         try:

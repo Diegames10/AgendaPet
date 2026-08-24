@@ -76,8 +76,28 @@
         >
     </div>
 
-    <div class="esqueceu">
-        <a href="#">Esqueceu sua senha?</a>
+    <div class="opcoes-login">
+
+        <label class="manter-conectado">
+
+            <input
+                type="checkbox"
+                name="remember"
+                value="1"
+            >
+
+            <span>
+                Manter-me conectado
+            </span>
+
+        </label>
+
+        <div class="esqueceu">
+            <a href="#">
+                Esqueceu sua senha?
+            </a>
+        </div>
+
     </div>
 
     <button type="submit" class="btn-login">
@@ -86,9 +106,37 @@
 
 </form>
 
-        <div class="divisor">
-            <span>ou</span>
-        </div>
+</form>
+
+    <div class="divisor">
+        <span>ou continue com</span>
+    </div>
+
+    <div class="login-social">
+
+        <a
+            href="{{ url_for('auth.login_google') }}"
+            class="btn-social btn-google"
+        >
+            <i class="fa-brands fa-google"></i>
+            Continuar com Google
+        </a>
+
+        <a
+            href="{{ url_for('auth.login_microsoft') }}"
+            class="btn-social btn-microsoft"
+        >
+            <i class="fa-brands fa-microsoft"></i>
+            Continuar com Microsoft
+        </a>
+
+    </div>
+
+    <div class="divisor">
+        <span>ou</span>
+    </div>
+
+    
 
         <div class="cadastro">
 

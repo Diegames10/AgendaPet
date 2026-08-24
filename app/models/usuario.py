@@ -177,6 +177,13 @@ class Usuario(db.Model, UserMixin):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
+    
+    contas_oauth = db.relationship(
+        "ContaOAuth",
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
 
     # =====================================================
     # MÉTODOS DE PERFIL

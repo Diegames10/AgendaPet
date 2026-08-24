@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash
+from abc import ABC, abstractmethod
 
 from app import db
 from app.models.usuario import Usuario
@@ -13,9 +14,80 @@ from app.models.pet import Pet
 
 from app.models.agendamentoConsulta import AgendamentoConsulta
 
-from app.utils.validacoes import cpf_valido
+from app.utils.validacoes import (
+    cpf_valido,
+    telefone_valido
+)
 
 auth_bp = Blueprint("auth", __name__)
+
+
+class Request(ABC):
+    """Utilitário para acesso seguro a dados de requisição.
+
+    A implementação concentra a lógica de leitura de parâmetros, JSON e
+    conversão de tipos em um único ponto, mantendo o uso em rotas simples e
+    previsível.
+    """
+
+    @property
+    @abstractmethod
+    def data(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def files(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def method(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def headers(self):
+        raise NotImplementedError
+
+    def get(self, key, default=None, type=None):
+        valor = self.data.get(key, default)
+        if valor is None or valor == "":
+            return default
+        if type is not None:
+            try:
+                return type(valor)
+            except (TypeError, ValueError):
+                return default
+        return valor
+
+    def getlist(self, key, default=None):
+        valores = self.data.getlist(key)
+        return valores if valores else (default or [])
+
+    def get_json(self, default=None, silent=False):
+        payload = self.data.get_json(silent=silent)
+        return payload if payload is not None else default
+
+    def get_int(self, key, default=0):
+        return self.get(key, default, int)
+
+    def get_float(self, key, default=0.0):
+        return self.get(key, default, float)
+
+    def get_bool(self, key, default=False):
+        valor = self.get(key)
+        if isinstance(valor, bool):
+            return valor
+        if valor is None:
+            return default
+        if isinstance(valor, str):
+            return valor.strip().lower() in {"1", "true", "yes", "on"}
+        return bool(valor)
+
+    def is_json(self):
+        return "application/json" in (self.headers.get("Content-Type", "") or "")
+
 
 import re
 
@@ -31,34 +103,682 @@ from app.services.imagem.excecoes import (
     CompressaoError
 )
 
+from app.models.conta_oauth import ContaOAuth
+from app.auth.oauth import oauth
+
+import secrets
+
+# =========================================================
+# AUXILIAR - LOGIN OAUTH
+# =========================================================
+
+def _processar_login_oauth(
+    provedor,
+    provedor_usuario_id,
+    nome,
+    email
+):
+
+    email = (email or "").strip().lower()
+    nome = (nome or "").strip()
+
+    if not provedor_usuario_id:
+
+        flash(
+            "Não foi possível identificar a conta externa.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+    if not email:
+
+        flash(
+            "O provedor não forneceu um endereço de e-mail.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+    # =====================================================
+    # 1. JÁ EXISTE VÍNCULO OAUTH?
+    # =====================================================
+
+    conta_oauth = ContaOAuth.query.filter_by(
+        provedor=provedor,
+        provedor_usuario_id=provedor_usuario_id
+    ).first()
+
+    if conta_oauth:
+
+        usuario = conta_oauth.usuario
+
+        if not usuario.ativo:
+
+            flash(
+                "Esta conta está desativada.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
+
+        login_user(
+            usuario,
+            remember=True
+        )
+
+        flash(
+            f"Login com {provedor.title()} realizado com sucesso!",
+            "success"
+        )
+
+        return redirect(
+            url_for("auth.painel")
+        )
+
+    # =====================================================
+    # 2. PROCURA USUÁRIO PELO E-MAIL
+    # =====================================================
+
+    usuario = Usuario.query.filter_by(
+        email=email
+    ).first()
+
+    if usuario:
+
+        if not usuario.ativo:
+
+            flash(
+                "Esta conta está desativada.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
+
+        # =================================================
+        # VINCULA OAUTH À CONTA EXISTENTE
+        # =================================================
+
+        nova_conta_oauth = ContaOAuth(
+            usuario_id=usuario.id,
+            provedor=provedor,
+            provedor_usuario_id=provedor_usuario_id,
+            email_provedor=email
+        )
+
+        try:
+
+            db.session.add(
+                nova_conta_oauth
+            )
+
+            db.session.commit()
+
+        except Exception as erro:
+
+            db.session.rollback()
+
+            print(
+                "Erro ao vincular conta OAuth:",
+                repr(erro)
+            )
+
+            flash(
+                "Não foi possível vincular a conta externa.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
+
+        # =================================================
+        # LOGIN APÓS VÍNCULO
+        # =================================================
+
+        login_user(
+            usuario,
+            remember=True
+        )
+
+        flash(
+            f"Conta {provedor.title()} vinculada com sucesso!",
+            "success"
+        )
+
+        return redirect(
+            url_for("auth.painel")
+        )
+        
+    # =====================================================
+    # 3. USUÁRIO NOVO
+    # =====================================================
+
+    session["oauth_cadastro"] = {
+        "provedor": provedor,
+        "provedor_usuario_id": provedor_usuario_id,
+        "nome": nome,
+        "email": email
+    }
+
+    return redirect(
+        url_for(
+            "auth.completar_cadastro_oauth"
+        )
+    )
+
 @auth_bp.route("/")
 def index():
     return render_template("index.html")
 
 
-@auth_bp.route("/login", methods=["GET", "POST"])
-def login():
+# =========================================================
+# LOGIN GOOGLE
+# =========================================================
+
+@auth_bp.route("/login/google")
+def login_google():
+
+    if current_user.is_authenticated:
+
+        return redirect(
+            url_for("auth.painel")
+        )
+
+    redirect_uri = url_for(
+        "auth.google_callback",
+        _external=True
+    )
+
+    return oauth.google.authorize_redirect(
+        redirect_uri
+    )
+    
+# =========================================================
+# CALLBACK GOOGLE
+# =========================================================
+
+@auth_bp.route("/login/google/callback")
+def google_callback():
+
+    try:
+
+        token = oauth.google.authorize_access_token()
+
+        usuario_google = token.get(
+            "userinfo"
+        )
+
+        if not usuario_google:
+
+            usuario_google = (
+                oauth.google.userinfo(
+                    token=token
+                )
+            )
+
+        return _processar_login_oauth(
+            provedor="google",
+            provedor_usuario_id=usuario_google.get(
+                "sub"
+            ),
+            nome=usuario_google.get(
+                "name"
+            ),
+            email=usuario_google.get(
+                "email"
+            )
+        )
+
+    except Exception:
+
+        flash(
+            "Não foi possível realizar o login com Google.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+        
+# =========================================================
+# LOGIN MICROSOFT
+# =========================================================
+
+@auth_bp.route("/login/microsoft")
+def login_microsoft():
+
+    if current_user.is_authenticated:
+
+        return redirect(
+            url_for("auth.painel")
+        )
+
+    redirect_uri = url_for(
+        "auth.microsoft_callback",
+        _external=True
+    )
+
+    return oauth.microsoft.authorize_redirect(
+        redirect_uri
+    )
+    
+# =========================================================
+# CALLBACK MICROSOFT
+# =========================================================
+
+@auth_bp.route("/login/microsoft/callback")
+def microsoft_callback():
+
+    try:
+
+        token = (
+            oauth.microsoft.authorize_access_token()
+        )
+
+        usuario_microsoft = token.get(
+            "userinfo"
+        )
+
+        if not usuario_microsoft:
+
+            usuario_microsoft = (
+                oauth.microsoft.userinfo(
+                    token=token
+                )
+            )
+
+        email = (
+            usuario_microsoft.get("email")
+            or usuario_microsoft.get(
+                "preferred_username"
+            )
+        )
+
+        return _processar_login_oauth(
+            provedor="microsoft",
+            provedor_usuario_id=usuario_microsoft.get(
+                "sub"
+            ),
+            nome=usuario_microsoft.get(
+                "name"
+            ),
+            email=email
+        )
+
+    except Exception:
+
+        flash(
+            "Não foi possível realizar o login com Microsoft.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+        
+# =========================================================
+# COMPLETAR CADASTRO OAUTH
+# =========================================================
+
+@auth_bp.route(
+    "/cadastro/oauth/completar",
+    methods=["GET", "POST"]
+)
+def completar_cadastro_oauth():
+
+    dados_oauth = session.get(
+        "oauth_cadastro"
+    )
+
+    if not dados_oauth:
+
+        flash(
+            "Sessão de cadastro social expirada.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
 
     if request.method == "POST":
 
-        email = request.form.get("email")
-        senha = request.form.get("senha")
+        # ================================================
+        # DADOS DO FORMULÁRIO
+        # ================================================
 
-        usuario = Usuario.query.filter_by(email=email).first()
+        cpf = request.form.get(
+            "cpf",
+            ""
+        ).strip()
 
-        if usuario and check_password_hash(usuario.senha_hash, senha):
+        telefone = request.form.get(
+            "telefone",
+            ""
+        ).strip()
 
-            login_user(usuario)
+        cpf_numeros = re.sub(
+            r"\D",
+            "",
+            cpf
+        )
 
-            flash("Login realizado com sucesso!", "success")
+        telefone_numeros = re.sub(
+            r"\D",
+            "",
+            telefone
+        )
 
-            return redirect(url_for("auth.painel"))
+        # ================================================
+        # VALIDAÇÃO DO TELEFONE
+        # ================================================
 
-        flash("E-mail ou senha inválidos.", "danger")
+        if telefone and not telefone_valido(
+            telefone
+        ):
 
-        return redirect(url_for("auth.login"))
+            flash(
+                "Informe um telefone válido com DDD.",
+                "warning"
+            )
 
-    return render_template("login.html")
+            return redirect(
+                url_for(
+                    "auth.completar_cadastro_oauth"
+                )
+            )
+
+        # ================================================
+        # CPF OBRIGATÓRIO
+        # ================================================
+
+        if not cpf_numeros:
+
+            flash(
+                "Informe o CPF.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "auth.completar_cadastro_oauth"
+                )
+            )
+
+        # ================================================
+        # TAMANHO DO CPF
+        # ================================================
+
+        if len(cpf_numeros) != 11:
+
+            flash(
+                "O CPF deve possuir 11 números.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "auth.completar_cadastro_oauth"
+                )
+            )
+
+        # ================================================
+        # CPF VÁLIDO
+        # ================================================
+
+        if not cpf_valido(
+            cpf_numeros
+        ):
+
+            flash(
+                "Informe um CPF válido.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "auth.completar_cadastro_oauth"
+                )
+            )
+
+        # ================================================
+        # CPF DUPLICADO
+        # ================================================
+
+        cpf_existente = Usuario.query.filter_by(
+            cpf=cpf_numeros
+        ).first()
+
+        if cpf_existente:
+
+            flash(
+                "Este CPF já está cadastrado em outra conta.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "auth.completar_cadastro_oauth"
+                )
+            )
+
+        # ================================================
+        # E-MAIL DUPLICADO
+        # ================================================
+
+        usuario_existente = Usuario.query.filter_by(
+            email=dados_oauth["email"]
+        ).first()
+
+        if usuario_existente:
+
+            session.pop(
+                "oauth_cadastro",
+                None
+            )
+
+            flash(
+                "Este e-mail já possui uma conta no AgendaPet.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
+
+        # ================================================
+        # CRIA SENHA INTERNA ALEATÓRIA
+        # ================================================
+
+        senha_interna = secrets.token_urlsafe(
+            48
+        )
+
+        # ================================================
+        # CRIA USUÁRIO
+        # ================================================
+
+        usuario = Usuario(
+            nome=dados_oauth["nome"],
+            email=dados_oauth["email"],
+            cpf=cpf_numeros,
+
+            # Telefone NÃO é único.
+            telefone=telefone_numeros or None,
+
+            senha_hash=generate_password_hash(
+                senha_interna
+            ),
+
+            tipo_usuario="CLIENTE",
+            ativo=True
+        )
+
+        try:
+
+            db.session.add(
+                usuario
+            )
+
+            # Precisamos do ID antes de criar ContaOAuth
+            db.session.flush()
+
+            # ============================================
+            # CRIA VÍNCULO OAUTH
+            # ============================================
+
+            conta_oauth = ContaOAuth(
+                usuario_id=usuario.id,
+
+                provedor=dados_oauth[
+                    "provedor"
+                ],
+
+                provedor_usuario_id=dados_oauth[
+                    "provedor_usuario_id"
+                ],
+
+                email_provedor=dados_oauth[
+                    "email"
+                ]
+            )
+
+            db.session.add(
+                conta_oauth
+            )
+
+            # ============================================
+            # SALVA USUÁRIO + OAUTH
+            # ============================================
+
+            db.session.commit()
+
+        except Exception as erro:
+
+            db.session.rollback()
+
+            print(
+                "Erro no cadastro OAuth:",
+                repr(erro)
+            )
+
+            flash(
+                "Não foi possível concluir o cadastro.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "auth.completar_cadastro_oauth"
+                )
+            )
+
+        # ================================================
+        # REMOVE DADOS TEMPORÁRIOS DA SESSÃO
+        # ================================================
+
+        session.pop(
+            "oauth_cadastro",
+            None
+        )
+
+        # ================================================
+        # LOGIN AUTOMÁTICO
+        # ================================================
+
+        login_user(
+            usuario,
+            remember=True
+        )
+
+        flash(
+            "Cadastro realizado com sucesso!",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "auth.painel"
+            )
+        )
+
+    return render_template(
+        "completar_cadastro_oauth.html",
+        dados_oauth=dados_oauth
+    )
+
+@auth_bp.route("/login", methods=["GET", "POST"])
+def login():
+    
+    if current_user.is_authenticated:
+
+        return redirect(
+            url_for("auth.painel")
+        )
+    
+    if request.method == "POST":
+
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        senha = request.form.get(
+            "senha",
+            ""
+        )
+
+        remember = (
+            request.form.get("remember") == "1"
+        )
+
+        usuario = Usuario.query.filter_by(
+            email=email
+        ).first()
+
+        if (
+            usuario
+            and check_password_hash(
+                usuario.senha_hash,
+                senha
+            )
+        ):
+
+            login_user(
+                usuario,
+                remember=remember
+            )
+
+            flash(
+                "Login realizado com sucesso!",
+                "success"
+            )
+
+            return redirect(
+                url_for("auth.painel")
+            )
+
+        flash(
+            "E-mail ou senha inválidos.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+    return render_template(
+        "login.html"
+    )
 
 @auth_bp.route("/painel")
 @login_required
@@ -122,7 +842,17 @@ def cadastro():
             ""
         ).strip()
 
-        
+        if telefone and not telefone_valido(telefone):
+
+            flash(
+                "Informe um telefone válido com DDD.",
+                "warning"
+            )
+
+            return render_template(
+                "cadastro.html",
+                dados=dados_formulario
+            )
         
         
         senha = request.form.get(

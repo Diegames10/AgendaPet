@@ -36,3 +36,25 @@ def cpf_valido(cpf):
     return cpf[-2:] == (
         f"{primeiro_digito}{segundo_digito}"
     )
+    
+def telefone_valido(telefone):
+
+    if not telefone:
+        return True
+
+    numeros = re.sub(
+        r"\D",
+        "",
+        telefone
+    )
+
+    # Fixo com DDD = 10 dígitos
+    # Celular com DDD = 11 dígitos
+    if len(numeros) not in (10, 11):
+        return False
+
+    # DDD não deve começar com 0
+    if numeros[0] == "0":
+        return False
+
+    return True

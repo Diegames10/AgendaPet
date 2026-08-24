@@ -7377,3 +7377,176 @@ body.pagina-inicial {
         transition-duration: 0.01ms !important;
     }
 }
+
+
+/* =========================================
+   LOGIN SOCIAL - GOOGLE / MICROSOFT
+========================================= */
+
+.login-social {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.btn-social {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    padding: 13px 18px;
+
+    border: 1px solid #dcdcdc;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #333333;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.btn-social i {
+    font-size: 20px;
+}
+
+.btn-social:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.10);
+
+    text-decoration: none;
+}
+
+.btn-google:hover {
+    border-color: #4285f4;
+}
+
+.btn-google i {
+    color: #4285f4;
+}
+
+.btn-microsoft:hover {
+    border-color: #0078d4;
+}
+
+.btn-microsoft i {
+    color: #0078d4;
+}
+
+/* =========================================
+   ALERTAS - CADASTRO OAUTH
+========================================= */
+
+.mensagens-flash {
+    width: 100%;
+    margin: 0 0 20px 0;
+}
+
+.alerta {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 14px 18px;
+    margin-bottom: 10px;
+
+    border-radius: 12px;
+
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* ERRO */
+
+.alerta-danger,
+.alerta-erro {
+    background: #fdecec;
+    color: #a61b1b;
+    border: 1px solid #f1b8b8;
+}
+
+/* AVISO */
+
+.alerta-warning,
+.alerta-aviso {
+    background: #fff7e6;
+    color: #8a6100;
+    border: 1px solid #eed28a;
+}
+
+/* SUCESSO */
+
+.alerta-success,
+.alerta-sucesso {
+    background: #e9f8ee;
+    color: #176b32;
+    border: 1px solid #a9dfba;
+}
+
+.manter-conectado {
+    margin: 10px 0 15px;
+    font-size: 14px;
+}
+
+.manter-conectado label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+
+/* =========================================
+   OPÇÕES DO LOGIN
+========================================= */
+
+.opcoes-login {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin: 10px 0 18px;
+}
+
+.manter-conectado {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.manter-conectado input {
+    width: 16px;
+    height: 16px;
+
+    cursor: pointer;
+}
+
+.esqueceu {
+    margin: 0;
+}
+
+.esqueceu a {
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.esqueceu a:hover {
+    text-decoration: underline;
+}
