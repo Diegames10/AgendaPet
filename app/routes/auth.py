@@ -19,6 +19,13 @@ from app.utils.validacoes import (
     telefone_valido
 )
 
+import requests
+
+from io import BytesIO
+from werkzeug.datastructures import FileStorage
+
+from app.services.foto_service import FotoService
+
 auth_bp = Blueprint("auth", __name__)
 
 
@@ -116,7 +123,9 @@ def _processar_login_oauth(
     provedor,
     provedor_usuario_id,
     nome,
-    email
+    email,
+    foto_url=None,
+    token=None,
 ):
 
     email = (email or "").strip().lower()
@@ -168,6 +177,20 @@ def _processar_login_oauth(
                 url_for("auth.login")
             )
 
+        if provedor == "google":
+            # Importa foto do Google caso ainda não exista
+            _importar_foto_google(
+                usuario,
+                foto_url
+            )
+        
+        elif provedor == "microsoft":
+
+            _importar_foto_microsoft(
+                usuario,
+                token
+            )
+        
         login_user(
             usuario,
             remember=True
@@ -266,7 +289,8 @@ def _processar_login_oauth(
         "provedor": provedor,
         "provedor_usuario_id": provedor_usuario_id,
         "nome": nome,
-        "email": email
+        "email": email,
+        "foto_url": foto_url
     }
 
     return redirect(
@@ -279,7 +303,45 @@ def _processar_login_oauth(
 def index():
     return render_template("index.html")
 
+# =========================================================
+# SALVAR FOTO RECEBIDA DO OAUTH
+# =========================================================
 
+def _salvar_foto_oauth(
+    usuario,
+    dados_imagem,
+    nome_arquivo="foto_oauth.jpg",
+    content_type="image/jpeg"
+):
+
+    if not dados_imagem:
+        return False
+
+    try:
+
+        arquivo = FileStorage(
+            stream=BytesIO(dados_imagem),
+            filename=nome_arquivo,
+            content_type=content_type
+        )
+
+        FotoService.salvar_foto_usuario(
+            usuario,
+            arquivo
+        )
+
+        return True
+
+    except Exception as erro:
+
+        print(
+            "Erro ao salvar foto OAuth:",
+            repr(erro)
+        )
+
+        return False
+    
+    
 # =========================================================
 # LOGIN GOOGLE
 # =========================================================
@@ -327,18 +389,30 @@ def google_callback():
 
         return _processar_login_oauth(
             provedor="google",
+
             provedor_usuario_id=usuario_google.get(
                 "sub"
             ),
+
             nome=usuario_google.get(
                 "name"
             ),
+
             email=usuario_google.get(
                 "email"
+            ),
+
+            foto_url=usuario_google.get(
+                "picture"
             )
         )
 
-    except Exception:
+    except Exception as erro:
+
+        print(
+            "Erro no login Google:",
+            repr(erro)
+        )
 
         flash(
             "Não foi possível realizar o login com Google.",
@@ -348,7 +422,77 @@ def google_callback():
         return redirect(
             url_for("auth.login")
         )
-        
+
+# =========================================================
+# IMPORTAR FOTO DE PERFIL DO GOOGLE
+# =========================================================
+
+def _importar_foto_google(
+    usuario,
+    foto_url
+):
+    print("=== TESTE FOTO GOOGLE ===")
+    print("Usuário:", usuario.id)
+    print("URL recebida:", foto_url)
+    print("Foto atual:", usuario.foto_perfil)
+
+    if not foto_url:
+        print("ERRO: Google não enviou picture")
+        return False
+    
+    # Não sobrescreve foto escolhida pelo usuário
+    if usuario.foto_perfil:
+         return False
+
+    try:
+
+        resposta = requests.get(
+            foto_url,
+            timeout=10
+        )
+
+        if not resposta.ok:
+
+            print(
+                "Google foto HTTP:",
+                resposta.status_code
+            )
+
+            return False
+
+        sucesso = _salvar_foto_oauth(
+            usuario,
+            resposta.content,
+            nome_arquivo="google_perfil.jpg",
+            content_type=(
+                resposta.headers.get(
+                    "Content-Type",
+                    "image/jpeg"
+                )
+            )
+        )
+
+        if sucesso:
+
+            db.session.commit()
+
+            print(
+                "Foto Google importada com sucesso."
+            )
+
+            return True
+
+    except Exception as erro:
+
+        db.session.rollback()
+
+        print(
+            "Erro ao importar foto Google:",
+            repr(erro)
+        )
+
+    return False
+
 # =========================================================
 # LOGIN MICROSOFT
 # =========================================================
@@ -403,18 +547,32 @@ def microsoft_callback():
             )
         )
 
+        access_token = token.get(
+            "access_token"
+        )
+
         return _processar_login_oauth(
             provedor="microsoft",
+
             provedor_usuario_id=usuario_microsoft.get(
                 "sub"
             ),
+
             nome=usuario_microsoft.get(
                 "name"
             ),
-            email=email
+
+            email=email,
+
+            token=access_token
         )
 
-    except Exception:
+    except Exception as erro:
+
+        print(
+            "Erro no login Microsoft:",
+            repr(erro)
+        )
 
         flash(
             "Não foi possível realizar o login com Microsoft.",
@@ -425,6 +583,88 @@ def microsoft_callback():
             url_for("auth.login")
         )
         
+        
+# =========================================================
+# IMPORTAR FOTO DE PERFIL MICROSOFT
+# =========================================================
+
+def _importar_foto_microsoft(
+    usuario,
+    access_token
+):
+
+    if not access_token:
+        return False
+
+    # Não sobrescreve foto escolhida manualmente
+    if usuario.foto_perfil:
+        return False
+
+    try:
+
+        resposta = requests.get(
+            "https://graph.microsoft.com/v1.0/me/photo/$value",
+
+            headers={
+                "Authorization": (
+                    f"Bearer {access_token}"
+                )
+            },
+
+            timeout=10
+        )
+
+        if resposta.status_code == 404:
+
+            print(
+                "Conta Microsoft sem foto de perfil."
+            )
+
+            return False
+
+        if not resposta.ok:
+
+            print(
+                "Erro Microsoft foto HTTP:",
+                resposta.status_code,
+                resposta.text
+            )
+
+            return False
+
+        sucesso = _salvar_foto_oauth(
+            usuario,
+            resposta.content,
+            nome_arquivo="microsoft_perfil.jpg",
+            content_type=(
+                resposta.headers.get(
+                    "Content-Type",
+                    "image/jpeg"
+                )
+            )
+        )
+
+        if sucesso:
+
+            db.session.commit()
+
+            print(
+                "Foto Microsoft importada com sucesso."
+            )
+
+            return True
+
+    except Exception as erro:
+
+        db.session.rollback()
+
+        print(
+            "Erro ao importar foto Microsoft:",
+            repr(erro)
+        )
+
+    return False
+
 # =========================================================
 # COMPLETAR CADASTRO OAUTH
 # =========================================================
@@ -662,6 +902,16 @@ def completar_cadastro_oauth():
 
             db.session.commit()
 
+            if (
+                dados_oauth["provedor"] == "google"
+                and dados_oauth.get("foto_url")
+            ):
+
+                _importar_foto_google(
+                    usuario,
+                    dados_oauth.get("foto_url")
+                )
+                
         except Exception as erro:
 
             db.session.rollback()

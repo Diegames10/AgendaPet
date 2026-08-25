@@ -54,7 +54,13 @@ def init_oauth(app):
             "MICROSOFT_CLIENT_SECRET"
         ),
 
+        
         client_kwargs={
-            "scope": "openid email profile"
+            "scope": (
+                "openid "
+                "email "
+                "profile "
+                "User.Read"
+            )
         }
     )

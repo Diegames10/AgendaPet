@@ -7550,3 +7550,243 @@ body.pagina-inicial {
 .esqueceu a:hover {
     text-decoration: underline;
 }
+
+/* =====================================================
+   MINHA CONTA - LAYOUT RESPONSIVO
+===================================================== */
+
+.minha-conta-grid {
+    width: 100%;
+    max-width: 1600px;
+
+    margin: 25px auto 0;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(280px, 0.95fr)
+        minmax(320px, 1fr)
+        minmax(380px, 1.15fr);
+
+    gap: 22px;
+
+    align-items: stretch;
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.card-conta {
+    width: 100%;
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #e5ebe8;
+
+    border-radius: 16px;
+
+    padding: 24px;
+
+    box-shadow:
+        0 8px 24px
+        rgba(0, 0, 0, 0.05);
+}
+
+
+/* =====================================================
+   PRIMEIRA LINHA
+===================================================== */
+
+.card-perfil,
+.card-seguranca,
+.card-dados {
+    min-height: 520px;
+}
+
+
+/* =====================================================
+   ENDEREÇO
+===================================================== */
+
+.card-endereco {
+    grid-column: 1 / -1;
+
+    min-height: auto;
+}
+
+
+/* =====================================================
+   FORMULÁRIO DE ENDEREÇO
+===================================================== */
+
+.grade-endereco {
+    display: grid;
+
+    grid-template-columns:
+        0.8fr
+        1.1fr
+        1fr;
+
+    gap: 16px 18px;
+
+    align-items: end;
+}
+
+
+/* LOGRADOURO MAIOR */
+
+.campo-logradouro {
+    grid-column: span 2;
+}
+
+
+/* CIDADE MAIOR */
+
+.campo-cidade {
+    grid-column: span 2;
+}
+
+
+/* =====================================================
+   CAMPOS
+===================================================== */
+
+.card-conta input,
+.card-conta select {
+    width: 100%;
+    box-sizing: border-box;
+
+    min-height: 46px;
+
+    padding: 10px 13px;
+
+    border: 1px solid #dbe3df;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   BOTÕES
+===================================================== */
+
+.card-conta .btn-salvar,
+.card-conta .btn-alterar-senha {
+    width: 100%;
+
+    min-height: 45px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   TELAS MUITO GRANDES
+===================================================== */
+
+@media (min-width: 1600px) {
+
+    .minha-conta-grid {
+        max-width: 1700px;
+
+        grid-template-columns:
+            0.9fr
+            1fr
+            1.2fr;
+
+        gap: 26px;
+    }
+
+}
+
+
+/* =====================================================
+   NOTEBOOK / TABLET GRANDE
+===================================================== */
+
+@media (max-width: 1200px) {
+
+    .minha-conta-grid {
+        grid-template-columns:
+            repeat(2, minmax(300px, 1fr));
+    }
+
+    .card-dados {
+        grid-column: 1 / -1;
+    }
+
+    .card-perfil,
+    .card-seguranca,
+    .card-dados {
+        min-height: auto;
+    }
+
+    .grade-endereco {
+        grid-template-columns:
+            repeat(2, minmax(220px, 1fr));
+    }
+
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 850px) {
+
+    .minha-conta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-perfil,
+    .card-seguranca,
+    .card-dados,
+    .card-endereco {
+        grid-column: 1;
+    }
+
+    .grade-endereco {
+        grid-template-columns: 1fr;
+    }
+
+    .campo-logradouro,
+    .campo-cidade {
+        grid-column: 1;
+    }
+
+}
+
+
+/* =====================================================
+   CELULAR
+===================================================== */
+
+@media (max-width: 576px) {
+
+    .minha-conta-grid {
+        margin-top: 15px;
+
+        gap: 15px;
+    }
+
+    .card-conta {
+        padding: 18px;
+
+        border-radius: 12px;
+    }
+
+}

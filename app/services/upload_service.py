@@ -56,11 +56,6 @@ class UploadService:
 
                 extensao=resultado.extensao,
 
-                # Novos arquivos não ficam armazenados
-                # diretamente no PostgreSQL.
-                dados=None,
-                miniatura=None,
-
                 caminho=caminho,
 
                 caminho_miniatura=caminho_miniatura,

@@ -23,8 +23,215 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     >
 
-</head>
 
+    <style>
+        /* =====================================================
+           MINHA CONTA - LAYOUT RESPONSIVO
+           Em telas grandes: Perfil | Segurança | Dados pessoais
+           Endereço ocupa toda a segunda linha.
+        ===================================================== */
+
+        .conteudo-painel {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        .secao-minha-conta {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .grade-minha-conta {
+            width: 100%;
+            max-width: none;
+            display: grid;
+            grid-template-columns:
+                minmax(280px, 0.90fr)
+                minmax(320px, 1fr)
+                minmax(380px, 1.20fr);
+            grid-template-areas:
+                "perfil seguranca dados"
+                "endereco endereco endereco";
+            gap: 24px;
+            align-items: stretch;
+            box-sizing: border-box;
+        }
+
+        .cartao-perfil {
+            grid-area: perfil;
+        }
+
+        .cartao-seguranca {
+            grid-area: seguranca;
+        }
+
+        .cartao-dados-pessoais {
+            grid-area: dados;
+        }
+
+        .cartao-endereco {
+            grid-area: endereco;
+            width: 100%;
+        }
+
+        .cartao-perfil,
+        .cartao-seguranca,
+        .cartao-dados-pessoais {
+            height: 100%;
+            min-width: 0;
+        }
+
+        /* Endereço mais horizontal no desktop */
+        .cartao-endereco .formulario-endereco {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 16px 18px;
+            align-items: end;
+        }
+
+        .cartao-endereco .campo-cep {
+            grid-column: span 3;
+        }
+
+        .cartao-endereco .campo-logradouro {
+            grid-column: span 9;
+        }
+
+        .cartao-endereco .linha-endereco-conta {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 18px;
+        }
+
+        .cartao-endereco > .formulario-endereco > .grupo-campo-conta:not(.campo-cep):not(.campo-logradouro) {
+            grid-column: 1 / -1;
+        }
+
+        .cartao-endereco .linha-cidade-uf {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 130px;
+            gap: 18px;
+        }
+
+        .cartao-endereco .acoes-endereco {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .cartao-endereco .botao-salvar-endereco {
+            width: auto;
+            min-width: 220px;
+        }
+
+        /* Flash: uma única área, discreta e acima dos cards */
+        .mensagens-flash {
+            width: 100%;
+            margin: 0 0 18px;
+        }
+
+        .mensagens-flash .alerta {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .mensagens-flash .alerta-success,
+        .mensagens-flash .alerta-sucesso {
+            background: #e9f8ef;
+            border: 1px solid #b7e4c7;
+            color: #146c43;
+        }
+
+        .mensagens-flash .alerta-warning,
+        .mensagens-flash .alerta-aviso {
+            background: #fff7e6;
+            border: 1px solid #f0cf80;
+            color: #8a6100;
+        }
+
+        .mensagens-flash .alerta-danger,
+        .mensagens-flash .alerta-erro {
+            background: #fdecec;
+            border: 1px solid #efb5b5;
+            color: #a61b1b;
+        }
+
+        @media (min-width: 1600px) {
+            .conteudo-painel {
+                padding-left: 36px !important;
+                padding-right: 36px !important;
+            }
+
+            .grade-minha-conta {
+                grid-template-columns:
+                    minmax(300px, 0.90fr)
+                    minmax(340px, 1fr)
+                    minmax(420px, 1.22fr);
+                gap: 28px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .grade-minha-conta {
+                grid-template-columns: repeat(2, minmax(280px, 1fr));
+                grid-template-areas:
+                    "perfil seguranca"
+                    "dados dados"
+                    "endereco endereco";
+            }
+
+            .cartao-endereco .campo-cep,
+            .cartao-endereco .campo-logradouro {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grade-minha-conta {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "perfil"
+                    "dados"
+                    "seguranca"
+                    "endereco";
+                gap: 18px;
+            }
+
+            .cartao-endereco .formulario-endereco {
+                grid-template-columns: 1fr;
+            }
+
+            .cartao-endereco .campo-cep,
+            .cartao-endereco .campo-logradouro,
+            .cartao-endereco .linha-endereco-conta,
+            .cartao-endereco .linha-cidade-uf,
+            .cartao-endereco .acoes-endereco,
+            .cartao-endereco > .formulario-endereco > .grupo-campo-conta:not(.campo-cep):not(.campo-logradouro) {
+                grid-column: 1;
+            }
+
+            .cartao-endereco .linha-endereco-conta,
+            .cartao-endereco .linha-cidade-uf {
+                grid-template-columns: 1fr;
+            }
+
+            .cartao-endereco .botao-salvar-endereco {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+    </style>
+
+</head>
 
 <body class="pagina-painel">
 
@@ -208,32 +415,25 @@
         ================================================== -->
 
         {% with mensagens = get_flashed_messages(with_categories=true) %}
-
             {% if mensagens %}
-
-                {% for categoria, mensagem in mensagens %}
-
-                    <div class="mensagem-flash {{ categoria }}">
-                        {{ mensagem }}
-                    </div>
-
-                {% endfor %}
-
+                <div class="mensagens-flash">
+                    {% for categoria, mensagem in mensagens %}
+                        <div class="alerta alerta-{{ categoria }}">
+                            {{ mensagem }}
+                        </div>
+                    {% endfor %}
+                </div>
             {% endif %}
-
         {% endwith %}
 
 
         <section class="secao-minha-conta">
 
-
             <!-- =============================================
                  RESUMO DA CONTA
             ============================================== -->
 
-           <section class="secao-minha-conta">
-
-    <div class="grade-minha-conta">
+            <div class="grade-minha-conta">
 
 
         <!-- =============================================
@@ -396,9 +596,6 @@
 
 
         </article>
-
-
-            <div class="grade-minha-conta">
 
 
                 <!-- =========================================
@@ -629,7 +826,7 @@
                      SEGURANÇA
                 ========================================== -->
 
-                <article class="cartao-conta">
+                <article class="cartao-conta cartao-seguranca">
 
                     <div class="titulo-cartao-conta">
 
@@ -1444,6 +1641,29 @@ document.addEventListener("DOMContentLoaded", function () {
         leitor.readAsDataURL(
             arquivo
         );
+
+    });
+
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const alertas = document.querySelectorAll(".mensagens-flash .alerta");
+
+    alertas.forEach((alerta, index) => {
+
+        setTimeout(() => {
+
+            alerta.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+
+            alerta.style.opacity = "0";
+            alerta.style.transform = "translateY(-8px)";
+
+            setTimeout(() => {
+                alerta.remove();
+            }, 400);
+
+        }, 3500 + (index * 300));
 
     });
 

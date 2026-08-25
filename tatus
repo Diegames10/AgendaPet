@@ -1,4 +1,6 @@
-[33m3c46543[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Versão 3.5.2 - Adicionando o sidebar o link calendario com permissão de usuario adequado
+[33mb3f7c98[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Versão 3.6 - adiciona autenticação OAuth com Google e Microsoft e login persistente
+[33mfb0b013[m Versão 3.6 - armazenamento persistente de arquivos e ajustes no prontuario
+[33m3c46543[m Versão 3.5.2 - Adicionando o sidebar o link calendario com permissão de usuario adequado
 [33m5c6e0d9[m Versão 3.5.1 - adicionando botoes e rotas do full calendar.js
 [33mbc595d9[m Versão 3.5 - adicionando calendario - FullCalendar..js
 [33m00e7b78[m Versão 3.4 - agendamento inteligente
@@ -6,7 +8,3 @@
 [33m33d5dd3[m Versão 3.2 - ajuste de relacionamentos e permissoes de usuario, além  de adicionar o sidebar
 [33m4a7d009[m Versão 3.1 - conta admin
 [33m4dfa9f8[m Versão 3.0 -refactor: reorganiza estrutura do prontuário veterinário
-[33m0c627fd[m Remover pasta duplicada e arquivos temporarios
-[33m459b573[m Merge branch 'main' of https://github.com/Diegames10/AgendaPet
-[33m214e09a[m Projeto AgendaPet
-[33md787dbc[m Add files via upload
