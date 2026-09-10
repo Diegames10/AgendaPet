@@ -21,6 +21,8 @@ from app.utils.agenda import gerar_horarios_disponiveis
 
 from flask import abort
 
+from app.services.notificacao_service import NotificacaoService
+
 
 agendamento_consulta_bp = Blueprint(
     "agendamento_consulta",
@@ -373,11 +375,21 @@ def cadastrar():
         db.session.add(novo_agendamento)
         db.session.commit()
 
+        try:
+            NotificacaoService.agendamento_criado(
+                novo_agendamento
+            )
+
+        except Exception as erro:
+            print(
+                "Erro ao enviar e-mail de agendamento:",
+                repr(erro)
+            )
+
         flash(
             "Agendamento realizado com sucesso!",
             "success"
         )
-
         # Recepção volta para o painel operacional.
         if pode_agendar_para_outros:
             return redirect(
@@ -402,13 +414,7 @@ def cadastrar():
 )
 @login_required
 def editar(agendamento_id):
-    
-    if current_user.tipo_usuario not in {
-        TipoUsuario.ADMIN,
-        TipoUsuario.RECEPCIONISTA
-    }:
-        abort(403)
-    
+        
     agendamento = buscar_agendamento_permitido(
     agendamento_id
     )
@@ -526,16 +532,23 @@ def editar(agendamento_id):
                 url_for("calendario.visualizar")
             )
                 
-        status_validos = {
-            "Agendado",
-            "Confirmado",
-            "Em atendimento",
-            "Finalizado",
-            "Cancelado"
-        }
+        if current_user.tipo_usuario == TipoUsuario.CLIENTE:
 
-        if status not in status_validos:
-            status = "Agendado"
+            # Cliente não pode alterar status internos.
+            status = agendamento.status
+
+        else:
+
+            status_validos = {
+                "Agendado",
+                "Confirmado",
+                "Em atendimento",
+                "Finalizado",
+                "Cancelado"
+            }
+
+            if status not in status_validos:
+                status = agendamento.status
 
         agendamento.pet_id = pet.id
         agendamento.tipo = tipo
@@ -546,6 +559,17 @@ def editar(agendamento_id):
         agendamento.veterinario_id = veterinario.id
 
         db.session.commit()
+
+        try:
+            NotificacaoService.agendamento_alterado(
+                agendamento
+            )
+
+        except Exception as erro:
+            print(
+                "Erro ao enviar e-mail de atualização:",
+                repr(erro)
+            )
 
         flash(
             "Agendamento atualizado com sucesso!",
@@ -560,7 +584,10 @@ def editar(agendamento_id):
         "agendamentos/editar.html",
         agendamento=agendamento,
         pets=pets,
-        veterinarios=veterinarios
+        veterinarios=veterinarios,
+        pode_alterar_status=(
+            current_user.tipo_usuario != TipoUsuario.CLIENTE
+        )
     )
 
 
@@ -570,13 +597,25 @@ def editar(agendamento_id):
 )
 @login_required
 def cancelar(agendamento_id):
+
     agendamento = buscar_agendamento_permitido(
-    agendamento_id
+        agendamento_id
     )
 
     agendamento.status = "Cancelado"
 
     db.session.commit()
+
+    try:
+        NotificacaoService.agendamento_cancelado(
+            agendamento
+        )
+
+    except Exception as erro:
+        print(
+            "Erro ao enviar e-mail de cancelamento:",
+            repr(erro)
+        )
 
     flash(
         "Agendamento cancelado com sucesso.",
@@ -586,7 +625,6 @@ def cancelar(agendamento_id):
     return redirect(
         url_for("agendamento_consulta.listar")
     )
-
 
 @agendamento_consulta_bp.route(
     "/<int:agendamento_id>/excluir",

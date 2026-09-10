@@ -163,7 +163,7 @@ def cadastrar():
 
         else:
 
-            tutor_id=tutor_id
+            tutor_id = current_user.id
         
         novo_pet = Pet(
             nome=nome,
@@ -174,7 +174,7 @@ def cadastrar():
             peso=peso,
             cor=cor or None,
             observacoes=observacoes or None,
-            tutor_id=current_user.id
+            tutor_id=tutor_id
         )
 
         db.session.add(novo_pet)

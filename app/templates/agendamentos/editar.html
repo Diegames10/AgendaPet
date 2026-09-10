@@ -266,67 +266,68 @@
                             <small id="mensagem-horarios"></small>
 
                         </div>
+                        {% if pode_alterar_status %}
+                            <div class="grupo-campo campo-completo">
 
-                        <div class="grupo-campo campo-completo">
+                                <label for="status">
+                                    Status *
+                                </label>
 
-                            <label for="status">
-                                Status *
-                            </label>
-
-                            <select
-                                id="status"
-                                name="status"
-                                required
-                            >
-
-                                <option
-                                    value="Agendado"
-                                    {% if agendamento.status == "Agendado" %}
-                                        selected
-                                    {% endif %}
+                                <select
+                                    id="status"
+                                    name="status"
+                                    required
                                 >
-                                    Agendado
-                                </option>
 
-                                <option
-                                    value="Confirmado"
-                                    {% if agendamento.status == "Confirmado" %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    Confirmado
-                                </option>
-                                
-                                <option
-                                    value="Em atendimento"
-                                    {% if agendamento.status == "Em atendimento" %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    Em atendimento
-                                </option>
+                                    <option
+                                        value="Agendado"
+                                        {% if agendamento.status == "Agendado" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Agendado
+                                    </option>
 
-                                <option
-                                    value="Finalizado"
-                                    {% if agendamento.status == "Finalizado" %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    Finalizado
-                                </option>
+                                    <option
+                                        value="Confirmado"
+                                        {% if agendamento.status == "Confirmado" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Confirmado
+                                    </option>
+                                    
+                                    <option
+                                        value="Em atendimento"
+                                        {% if agendamento.status == "Em atendimento" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Em atendimento
+                                    </option>
 
-                                <option
-                                    value="Cancelado"
-                                    {% if agendamento.status == "Cancelado" %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    Cancelado
-                                </option>
+                                    <option
+                                        value="Finalizado"
+                                        {% if agendamento.status == "Finalizado" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Finalizado
+                                    </option>
 
-                            </select>
+                                    <option
+                                        value="Cancelado"
+                                        {% if agendamento.status == "Cancelado" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Cancelado
+                                    </option>
 
-                        </div>
+                                </select>
+
+                            </div>
+                        {% endif %}
 
                         <div class="grupo-campo campo-completo">
 
