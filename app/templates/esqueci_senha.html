@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Recuperar senha - AgendaPet Paranaguá</title>
+
+    <!-- CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <!-- ÍCONES -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- LOGO -->
+
+        <div class="logo">
+
+            <h1 class="logo-titulo">
+
+                <i class="fa-solid fa-paw"></i>
+
+                Agenda<span>Pet</span><br>
+                <span class="paranagua">Paranaguá</span>
+
+            </h1>
+
+            <p>
+                Sistema de Agendamento da SEMMA
+            </p>
+
+        </div>
+
+
+        <!-- TÍTULO -->
+
+        <div class="topo">
+
+            <div class="icon">
+                <i class="fa-solid fa-key"></i>
+            </div>
+
+            <div>
+                <h2>Recuperar senha</h2>
+            </div>
+
+        </div>
+
+
+        <!-- DESCRIÇÃO -->
+
+        <p class="descricao">
+            Informe o e-mail cadastrado na sua conta.
+            Enviaremos um link para você criar uma nova senha.
+        </p>
+
+
+        <!-- MENSAGENS -->
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+
+            {% if mensagens %}
+
+                <div class="mensagens-flash">
+
+                    {% for categoria, mensagem in mensagens %}
+
+                        <div class="mensagem-flash {{ categoria }}">
+                            {{ mensagem }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- FORMULÁRIO -->
+
+        <form
+            method="POST"
+            action="{{ url_for('auth.esqueci_senha') }}"
+        >
+
+            <div class="input-box">
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="E-mail"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn-login"
+            >
+
+                <i class="fa-solid fa-envelope"></i>
+
+                Enviar link
+
+            </button>
+
+        </form>
+
+
+        <!-- VOLTAR -->
+
+        <div class="divisor">
+            <span>ou</span>
+        </div>
+
+
+        <button
+            type="button"
+            class="btn-cadastro"
+            onclick="window.location.href='{{ url_for('auth.login') }}'"
+        >
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Voltar para o login
+
+        </button>
+
+    </div>
+
+
+    <!-- RODAPÉ -->
+
+    <footer class="rodape">
+
+        Desenvolvido por
+        <strong>Bruna</strong>
+        e
+        <strong>Diego</strong>
+
+    </footer>
+
+
+    <!-- JS -->
+
+    <script
+        src="{{ url_for('static', filename='js/script.js') }}"
+    ></script>
+
+</body>
+
+</html>

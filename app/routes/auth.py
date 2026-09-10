@@ -26,6 +26,9 @@ from werkzeug.datastructures import FileStorage
 
 from app.services.foto_service import FotoService
 
+from app.services.email_service import EmailService
+from app.services.password_reset_service import PasswordResetService
+
 auth_bp = Blueprint("auth", __name__)
 
 
@@ -1718,3 +1721,293 @@ def logout():
     flash("Você saiu do sistema com sucesso.", "success")
 
     return redirect(url_for("auth.login"))
+
+# =========================================================
+# ESQUECI MINHA SENHA
+# =========================================================
+
+@auth_bp.route(
+    "/esqueci-senha",
+    methods=["GET", "POST"]
+)
+def esqueci_senha():
+
+    if current_user.is_authenticated:
+
+        return redirect(
+            url_for("auth.painel")
+        )
+
+    if request.method == "POST":
+
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        if not email:
+
+            flash(
+                "Informe seu endereço de e-mail.",
+                "warning"
+            )
+
+            return render_template(
+                "esqueci_senha.html"
+            )
+
+        usuario = Usuario.query.filter_by(
+            email=email
+        ).first()
+
+        # ================================================
+        # ENVIA SOMENTE SE USUÁRIO EXISTIR E ESTIVER ATIVO
+        # ================================================
+
+        if usuario and usuario.ativo:
+
+            try:
+
+                token = (
+                    PasswordResetService
+                    .gerar_token(usuario)
+                )
+
+                link = url_for(
+                    "auth.redefinir_senha",
+                    token=token,
+                    _external=True
+                )
+
+                html = f"""
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: auto;
+                    padding: 30px;
+                ">
+
+                    <h2>
+                        AgendaPet Paranaguá
+                    </h2>
+
+                    <p>
+                        Olá, {usuario.nome}.
+                    </p>
+
+                    <p>
+                        Recebemos uma solicitação para
+                        redefinir a senha da sua conta
+                        no AgendaPet Paranaguá.
+                    </p>
+
+                    <p style="margin: 30px 0;">
+
+                        <a
+                            href="{link}"
+                            style="
+                                background: #198754;
+                                color: white;
+                                padding: 12px 22px;
+                                text-decoration: none;
+                                border-radius: 6px;
+                                display: inline-block;
+                            "
+                        >
+                            Redefinir minha senha
+                        </a>
+
+                    </p>
+
+                    <p>
+                        Este link é válido por
+                        <strong>30 minutos</strong>.
+                    </p>
+
+                    <p>
+                        Se você não solicitou esta
+                        alteração, ignore este e-mail.
+                    </p>
+
+                    <hr>
+
+                    <small>
+                        AgendaPet Paranaguá<br>
+                        Sistema de Agendamento da SEMMA
+                    </small>
+
+                </div>
+                """
+
+                EmailService.enviar(
+                    destinatario_email=usuario.email,
+                    destinatario_nome=usuario.nome,
+                    assunto=(
+                        "Redefinição de senha - "
+                        "AgendaPet Paranaguá"
+                    ),
+                    html=html
+                )
+
+            except Exception as erro:
+
+                print(
+                    "Erro ao enviar redefinição de senha:",
+                    repr(erro)
+                )
+
+        # IMPORTANTE:
+        # não revelamos se o e-mail existe no sistema.
+        flash(
+            (
+                "Se o e-mail informado estiver cadastrado, "
+                "você receberá um link para redefinir sua senha."
+            ),
+            "success"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+    return render_template(
+        "esqueci_senha.html"
+    )
+    
+# =========================================================
+# REDEFINIR SENHA
+# =========================================================
+
+@auth_bp.route(
+    "/redefinir-senha/<token>",
+    methods=["GET", "POST"]
+)
+def redefinir_senha(token):
+
+    if current_user.is_authenticated:
+
+        return redirect(
+            url_for("auth.painel")
+        )
+
+    usuario = (
+        PasswordResetService
+        .validar_token(token)
+    )
+
+    if not usuario:
+
+        flash(
+            (
+                "Este link de redefinição é inválido "
+                "ou expirou."
+            ),
+            "danger"
+        )
+
+        return redirect(
+            url_for("auth.esqueci_senha")
+        )
+
+    if request.method == "POST":
+
+        senha = request.form.get(
+            "senha",
+            ""
+        )
+
+        confirmar_senha = request.form.get(
+            "confirmar_senha",
+            ""
+        )
+
+        if not senha:
+
+            flash(
+                "Informe a nova senha.",
+                "warning"
+            )
+
+            return render_template(
+                "redefinir_senha.html",
+                token=token
+            )
+
+        if len(senha) < 8:
+
+            flash(
+                (
+                    "A senha deve possuir "
+                    "pelo menos 8 caracteres."
+                ),
+                "warning"
+            )
+
+            return render_template(
+                "redefinir_senha.html",
+                token=token
+            )
+
+        if senha != confirmar_senha:
+
+            flash(
+                (
+                    "A senha e a confirmação "
+                    "não coincidem."
+                ),
+                "warning"
+            )
+
+            return render_template(
+                "redefinir_senha.html",
+                token=token
+            )
+
+        try:
+
+            usuario.senha_hash = (
+                generate_password_hash(
+                    senha
+                )
+            )
+
+            db.session.commit()
+
+        except Exception as erro:
+
+            db.session.rollback()
+
+            print(
+                "Erro ao redefinir senha:",
+                repr(erro)
+            )
+
+            flash(
+                (
+                    "Não foi possível alterar "
+                    "a senha."
+                ),
+                "danger"
+            )
+
+            return render_template(
+                "redefinir_senha.html",
+                token=token
+            )
+
+        flash(
+            (
+                "Senha redefinida com sucesso! "
+                "Você já pode entrar no AgendaPet."
+            ),
+            "success"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+    return render_template(
+        "redefinir_senha.html",
+        token=token
+    )

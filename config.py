@@ -71,3 +71,20 @@ class Config:
     
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
+    
+    # =====================================================
+    # BREVO - EMAIL TRANSACIONAL
+    # =====================================================
+
+    BREVO_API_KEY = os.getenv(
+        "BREVO_API_KEY"
+    )
+
+    BREVO_SENDER_EMAIL = os.getenv(
+        "BREVO_SENDER_EMAIL"
+    )
+
+    BREVO_SENDER_NAME = os.getenv(
+        "BREVO_SENDER_NAME",
+        "AgendaPet Paranaguá"
+    )
