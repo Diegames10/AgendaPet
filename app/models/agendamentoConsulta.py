@@ -40,6 +40,11 @@ class AgendamentoConsulta(db.Model):
         default=datetime.utcnow
     )
 
+    lembrete_24h_enviado_em = db.Column(
+        db.DateTime,
+        nullable=True
+    )
+
     pet_id = db.Column(
         db.Integer,
         db.ForeignKey("pets.id"),

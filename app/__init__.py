@@ -52,4 +52,14 @@ def create_app():
     from app.routes import registrar_rotas
     registrar_rotas(app)
 
+    # =====================================================
+    # AGENDADOR DE LEMBRETES
+    # =====================================================
+
+    import os
+    from app.services.agendador_service import iniciar_agendador
+    
+    if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        iniciar_agendador(app)
+
     return app

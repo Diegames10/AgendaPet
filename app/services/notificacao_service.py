@@ -314,3 +314,107 @@ class NotificacaoService:
             ),
             html=html
         )
+        
+    @staticmethod
+    def lembrete_agendamento(agendamento):
+        tutor = agendamento.tutor
+        pet = agendamento.pet
+        veterinario = agendamento.veterinario
+
+        if not tutor or not tutor.email:
+            return False
+
+        data_formatada = agendamento.data.strftime(
+            "%d/%m/%Y"
+        )
+
+        horario_formatado = agendamento.horario.strftime(
+            "%H:%M"
+        )
+
+        nome_veterinario = (
+            veterinario.nome
+            if veterinario
+            else "A definir"
+        )
+
+        html = f"""
+        <div style="
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+        ">
+            <h2 style="color: #198754;">
+                AgendaPet Paranaguá
+            </h2>
+
+            <p>
+                Olá, <strong>{tutor.nome}</strong>.
+            </p>
+
+            <p>
+                Este é um lembrete de que o atendimento do seu pet
+                <strong>{pet.nome}</strong>
+                está agendado para o próximo dia útil.
+            </p>
+
+            <div style="
+                background: #f5f5f5;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 25px 0;
+            ">
+                <p>
+                    <strong>Pet:</strong>
+                    {pet.nome}
+                </p>
+
+                <p>
+                    <strong>Atendimento:</strong>
+                    {agendamento.tipo}
+                </p>
+
+                <p>
+                    <strong>Data:</strong>
+                    {data_formatada}
+                </p>
+
+                <p>
+                    <strong>Horário:</strong>
+                    {horario_formatado}
+                </p>
+
+                <p>
+                    <strong>Veterinário:</strong>
+                    {nome_veterinario}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {agendamento.status}
+                </p>
+            </div>
+
+            <p>
+                Caso não possa comparecer, acesse o AgendaPet Paranaguá
+                para verificar seu agendamento.
+            </p>
+
+            <hr>
+
+            <small>
+                AgendaPet Paranaguá<br>
+                Sistema de Agendamento da SEMMA
+            </small>
+        </div>
+        """
+
+        return EmailService.enviar(
+            destinatario_email=tutor.email,
+            destinatario_nome=tutor.nome,
+            assunto=(
+                f"Lembrete de agendamento - {pet.nome}"
+            ),
+            html=html
+        )        
