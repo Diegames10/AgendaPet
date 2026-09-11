@@ -293,7 +293,8 @@ def _processar_login_oauth(
         "provedor_usuario_id": provedor_usuario_id,
         "nome": nome,
         "email": email,
-        "foto_url": foto_url
+        "foto_url": foto_url,
+        "access_token": token
     }
 
     return redirect(
@@ -511,9 +512,12 @@ def login_microsoft():
 
     redirect_uri = url_for(
         "auth.microsoft_callback",
-        _external=True
+        _external=True,
+        #_scheme="https"
     )
 
+    print("MICROSOFT REDIRECT URI:", redirect_uri)
+    
     return oauth.microsoft.authorize_redirect(
         redirect_uri
     )
@@ -913,6 +917,16 @@ def completar_cadastro_oauth():
                 _importar_foto_google(
                     usuario,
                     dados_oauth.get("foto_url")
+                )
+                
+            elif (
+                dados_oauth["provedor"] == "microsoft"
+                and dados_oauth.get("access_token")
+            ):
+
+                _importar_foto_microsoft(
+                    usuario,
+                    dados_oauth.get("access_token")
                 )
                 
         except Exception as erro:

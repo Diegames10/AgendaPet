@@ -42,7 +42,7 @@ def init_oauth(app):
 
         server_metadata_url=(
             "https://login.microsoftonline.com/"
-            "common/v2.0/"
+            "consumers/v2.0/"
             ".well-known/openid-configuration"
         ),
 
