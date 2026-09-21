@@ -1,3 +1,4 @@
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -19,6 +20,13 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    
+    app.wsgi_app = ProxyFix(
+    app.wsgi_app,
+    x_for=1,
+    x_proto=1,
+    x_host=1
+)
 
     # =====================================================
     # OAUTH
@@ -48,6 +56,8 @@ def create_app():
             return db.session.get(Usuario, int(usuario_id))
         except (TypeError, ValueError):
             return None
+        
+        
 
     from app.routes import registrar_rotas
     registrar_rotas(app)
