@@ -1,3 +1,5 @@
+from app.services.email_service import EmailService
+
 from flask import (
     Blueprint,
     render_template,
@@ -329,6 +331,79 @@ def finalizar_atendimento(agendamento_id):
             db.session.add(novo_historico)
             db.session.commit()
 
+            # =====================================================
+            # ENVIO AUTOMÁTICO DA RECEITA POR E-MAIL
+            # =====================================================
+
+            if novo_historico.tratamento:
+
+                try:
+                    tutor = novo_historico.pet.tutor
+
+                    if tutor and tutor.email:
+
+                        pdf_bytes, nome_arquivo = gerar_receita_pdf(
+                            novo_historico
+                        )
+
+                        html_email = f"""
+                            <h2>Receita Veterinária</h2>
+
+                            <p>
+                                Olá, {tutor.nome}.
+                            </p>
+
+                            <p>
+                                O atendimento de
+                                <strong>{novo_historico.pet.nome}</strong>
+                                foi finalizado.
+                            </p>
+
+                            <p>
+                                A receita veterinária referente ao
+                                atendimento está anexada a este e-mail
+                                em formato PDF.
+                            </p>
+
+                            <p>
+                                Atenciosamente,<br>
+                                <strong>AgendaPet Paranaguá</strong>
+                            </p>
+                        """
+
+                        EmailService.enviar(
+                             destinatario_email=tutor.email,
+                            destinatario_nome=tutor.nome,
+                            assunto=(
+                                f"Receita V eterinária - "
+                                f"{novo_historico.pet.nome}"
+                            ),
+                            html=html_email,
+                            anexos=[
+                                {
+                                    "nome": nome_arquivo,
+                                    "dados": pdf_bytes
+                                }
+                            ]
+                        )
+
+                        print(
+                            f"Receita enviada por e-mail para "
+                            f"{tutor.email}"
+                        )
+                        
+
+                except Exception as erro_email:
+                    print(
+                        f"Erro ao enviar receita por e-mail: "
+                        f"{erro_email}"
+                    )
+
+            flash(
+                "Atendimento finalizado e registrado no histórico.",
+                "sucesso"
+            )
+
             flash(
                 "Atendimento finalizado e registrado no histórico.",
                 "sucesso"
@@ -376,13 +451,7 @@ def receita(historico_id):
 # BAIXAR RECEITA EM PDF
 # =========================================================
 
-@historico_bp.route("/<int:historico_id>/receita/pdf")
-@login_required
-def baixar_receita_pdf(historico_id):
-
-    historico = obter_historico_autorizado(
-        historico_id
-    )
+def gerar_receita_pdf(historico):
 
     buffer = BytesIO()
 
@@ -773,8 +842,26 @@ def baixar_receita_pdf(historico_id):
         f"{data_arquivo}.pdf"
     )
 
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    return pdf_bytes, nome_arquivo
+
+
+@historico_bp.route("/<int:historico_id>/receita/pdf")
+@login_required
+def baixar_receita_pdf(historico_id):
+
+    historico = obter_historico_autorizado(
+        historico_id
+    )
+
+    pdf_bytes, nome_arquivo = gerar_receita_pdf(
+        historico
+    )
+
     return send_file(
-        buffer,
+        BytesIO(pdf_bytes),
         mimetype="application/pdf",
         as_attachment=True,
         download_name=nome_arquivo

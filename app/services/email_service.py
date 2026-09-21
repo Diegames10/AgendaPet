@@ -1,3 +1,4 @@
+import base64
 import requests
 
 from flask import current_app
@@ -12,7 +13,8 @@ class EmailService:
         destinatario_email,
         destinatario_nome,
         assunto,
-        html
+        html,
+        anexos=None
     ):
 
         api_key = current_app.config.get(
@@ -55,6 +57,19 @@ class EmailService:
             "htmlContent": html
         }
 
+        if anexos:
+            payload["attachment"] = []
+
+            for anexo in anexos:
+                conteudo_base64 = base64.b64encode(
+                    anexo["dados"]
+                ).decode("utf-8")
+
+                payload["attachment"].append({
+                    "name": anexo["nome"],
+                    "content": conteudo_base64
+                })
+        
         headers = {
             "accept": "application/json",
             "api-key": api_key,
