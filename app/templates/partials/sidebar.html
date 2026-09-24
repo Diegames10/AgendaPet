@@ -114,12 +114,6 @@
             </span>
         </a>
 
-            {% if current_user.is_authenticated and current_user.tipo_usuario in ['ADMIN', 'VETERINARIO'] %}
-            <a href="{{ url_for('agenda_inteligente.index') }}">
-                <i class="fa-solid fa-clock"></i>
-                <span>Agenda Inteligente</span>
-            </a>
-            {% endif %}
         <!-- AGENDAMENTOS -->
 
         <a
