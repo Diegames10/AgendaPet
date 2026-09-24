@@ -79,7 +79,7 @@
             and (current_user.is_admin or current_user.is_veterinario) %}
 
             <a
-                href="{{ url_for('agenda_inteligente.index') }}"
+                href="{{ url_for('agenda_inteligente.listar') }}"
                 class="item-menu
                 {% if request.blueprint == 'agenda_inteligente' %}
                     ativo
