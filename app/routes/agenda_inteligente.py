@@ -38,12 +38,12 @@ DIAS_SEMANA = {
 def verificar_permissao():
     """
     Permite o acesso somente para administradores
-    e recepcionistas.
+    e veterinários.
     """
 
     if not (
         current_user.is_admin
-        or current_user.is_recepcionista
+        or current_user.is_veterinario
     ):
         abort(403)
 

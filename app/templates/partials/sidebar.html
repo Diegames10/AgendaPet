@@ -72,6 +72,27 @@
             </a>
 
         {% endif %}
+        
+        <!-- AGENDA INTELIGENTE -->
+
+        {% if current_user.is_authenticated
+            and (current_user.is_admin or current_user.is_veterinario) %}
+
+            <a
+                href="{{ url_for('agenda_inteligente.index') }}"
+                class="item-menu
+                {% if request.blueprint == 'agenda_inteligente' %}
+                    ativo
+                {% endif %}"
+            >
+                <i class="fa-solid fa-calendar-plus"></i>
+
+                <span>
+                    Agenda Inteligente
+                </span>
+            </a>
+
+        {% endif %}
 
         <!-- PETS -->
 
@@ -93,7 +114,12 @@
             </span>
         </a>
 
-
+            {% if current_user.is_authenticated and current_user.tipo_usuario in ['ADMIN', 'VETERINARIO'] %}
+            <a href="{{ url_for('agenda_inteligente.index') }}">
+                <i class="fa-solid fa-clock"></i>
+                <span>Agenda Inteligente</span>
+            </a>
+            {% endif %}
         <!-- AGENDAMENTOS -->
 
         <a
