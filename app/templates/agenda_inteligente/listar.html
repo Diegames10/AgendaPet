@@ -99,52 +99,73 @@ Agenda Inteligente - AgendaPet
 
                     </span>
 
-                    <div>
+                    <div class="acoes-usuario">
 
+                        <!-- EDITAR -->
                         <a
                             href="{{ url_for(
                                 'agenda_inteligente.editar',
                                 id=horario.id
                             ) }}"
+                            class="botao-acao botao-editar"
+                            title="Editar horário"
                         >
-                            Editar
+                            <i class="fa-solid fa-pen"></i>
                         </a>
 
+                        <!-- ATIVAR / DESATIVAR -->
                         <form
                             method="POST"
                             action="{{ url_for(
                                 'agenda_inteligente.alternar_status',
                                 id=horario.id
                             ) }}"
-                            style="display: inline;"
+                            class="formulario-status"
                         >
 
-                            <button type="submit">
+                            {% if horario.ativo %}
 
-                                {% if horario.ativo %}
-                                    Desativar
-                                {% else %}
-                                    Ativar
-                                {% endif %}
+                                <button
+                                    type="submit"
+                                    class="botao-acao botao-inativar"
+                                    title="Desativar horário"
+                                >
+                                    <i class="fa-solid fa-ban"></i>
+                                </button>
 
-                            </button>
+                            {% else %}
+
+                                <button
+                                    type="submit"
+                                    class="botao-acao botao-ativar"
+                                    title="Ativar horário"
+                                >
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+
+                            {% endif %}
 
                         </form>
 
+                        <!-- EXCLUIR -->
                         <form
                             method="POST"
                             action="{{ url_for(
                                 'agenda_inteligente.excluir',
                                 id=horario.id
                             ) }}"
-                            style="display: inline;"
+                            class="formulario-status"
                             onsubmit="return confirm(
                                 'Deseja realmente excluir este horário?'
                             );"
                         >
 
-                            <button type="submit">
-                                Excluir
+                            <button
+                                type="submit"
+                                class="botao-acao botao-inativar"
+                                title="Excluir horário"
+                            >
+                                <i class="fa-solid fa-trash"></i>
                             </button>
 
                         </form>
